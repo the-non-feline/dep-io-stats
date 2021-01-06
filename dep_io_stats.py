@@ -1,3 +1,4 @@
+import grequests
 import discord
 import dataset
 import asyncio
@@ -73,7 +74,7 @@ class Dep_io_Stats(discord.Client):
     DATA_URL_TEMPLATE = 'https://api.deeeep.io/users/{}' 
     PFP_URL_TEMPLATE = 'https://deeeep.io/files/{}' 
     SERVER_LIST_URL = 'http://api.deeeep.io/hosts?beta=1' 
-    MAP_URL_TEMPLATE = 'https://api.deeeep.io/maps/{}' 
+    MAP_URL_TEMPLATE = 'http://api.deeeep.io/maps/{}' 
 
     def __init__(self, logs_file_name, storage_file_name): 
         self.db = dataset.connect(storage_file_name) 
@@ -189,46 +190,52 @@ but you specified {len(args)}. ')
         
         return decorator
     
-    def get_acc_data(self, acc_id): 
-        acc_json = None
+    def sync_get(self, url): 
+        json  = None
 
         try: 
-            acc_data = requests.get(self.DATA_URL_TEMPLATE.format(acc_id)) 
+            data = requests.get(url) 
 
-            #debug(acc_data.text) 
+            #debug(data.text) 
 
-            if acc_data.text: 
-                acc_json = acc_data.json() 
+            if data.text: 
+                json = data.json() 
 
             #debug('z') 
         except requests.ConnectionError: 
             debug('connection error') 
 
             debug('', exc_info=True) 
-        else: 
-            return acc_json
+        
+        return json
+    
+    def async_get(self, *urls): 
+        requests_list = [grequests.get(url) for url in urls] 
+        
+        def handler(request, exception): 
+            debug('connection error') 
+            debug(exception) 
+
+        datas = grequests.imap(requests_list, exception_handler=handler) 
+
+        jsons = [data.json() for data in datas if data.text] 
+
+        return jsons
+    
+    def get_acc_data(self, acc_id): 
+        url = self.DATA_URL_TEMPLATE.format(acc_id) 
+
+        return self.sync_get(url) 
     
     def get_server_list(self): 
-        list_json = None
+        url = self.SERVER_LIST_URL 
 
-        try: 
-            server_list = requests.get(self.SERVER_LIST_URL)  
-
-            #debug(acc_data.text) 
-
-            if server_list.text: 
-                list_json = server_list.json() 
-
-            #debug('z') 
-        except requests.ConnectionError: 
-            debug('connection error') 
-
-            debug('', exc_info=True) 
-        else: 
-            return list_json
+        return self.sync_get(url) 
     
     def get_map_list(self): 
         list_json = self.get_server_list() 
+
+        #debug(list_json) 
 
         if list_json: 
             iterator = (server['map_id'] for server in list_json) 
@@ -239,32 +246,20 @@ but you specified {len(args)}. ')
 
             return map_set
     
-    def get_map_data(self, map_id): 
-        map_json = None
-
-        try: 
-            map_data = requests.get(self.MAP_URL_TEMPLATE.format(map_id)) 
-
-            #debug(acc_data.text) 
-
-            if map_data.text: 
-                map_json = map_data.json() 
-
-            #debug('z') 
-        except requests.ConnectionError: 
-            debug('connection error') 
-
-            debug('', exc_info=True) 
-        else: 
-            return map_json
+    def get_map_datas(self, *map_ids): 
+        urls = [self.MAP_URL_TEMPLATE.format(map_id) for map_id in map_ids] 
+        
+        return self.async_get(*urls) 
     
     def get_map_contribs(self, acc_id): 
         map_list = self.get_map_list() 
 
         contrib_names = [] 
 
-        for map_id in map_list: 
-            map_json = self.get_map_data(map_id) 
+        map_jsons = self.get_map_datas(*map_list) 
+
+        for map_json in map_jsons: 
+            debug(map_json['string_id']) 
 
             if map_json: 
                 #debug(map_json['user_id']) 
