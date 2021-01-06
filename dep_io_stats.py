@@ -190,15 +190,16 @@ but you specified {len(args)}. ')
         
         return decorator
     
+    '''
     def sync_get(self, url): 
-        json  = None
+        json = None
 
         try: 
             data = requests.get(url) 
 
             #debug(data.text) 
 
-            if data.text: 
+            if data.ok and data.text: 
                 json = data.json() 
 
             #debug('z') 
@@ -208,6 +209,7 @@ but you specified {len(args)}. ')
             debug('', exc_info=True) 
         
         return json
+    ''' 
     
     def async_get(self, *urls): 
         requests_list = [grequests.get(url) for url in urls] 
@@ -216,52 +218,50 @@ but you specified {len(args)}. ')
             debug('connection error') 
             debug(exception) 
 
-        datas = grequests.imap(requests_list, exception_handler=handler) 
+        datas = grequests.map(requests_list, exception_handler=handler) 
 
-        jsons = [data.json() for data in datas if data.text] 
+        #debug(datas) 
+
+        jsons = [(data.json() if data.ok and data.text else None) for data in datas] 
+
+        #debug(jsons) 
 
         return jsons
     
     def get_acc_data(self, acc_id): 
         url = self.DATA_URL_TEMPLATE.format(acc_id) 
 
-        return self.sync_get(url) 
+        return self.async_get(url)[0] 
     
-    def get_server_list(self): 
-        url = self.SERVER_LIST_URL 
-
-        return self.sync_get(url) 
-    
-    def get_map_list(self): 
-        list_json = self.get_server_list() 
-
+    def get_map_list(self, list_json): 
         #debug(list_json) 
 
+        map_set = set() 
+        
         if list_json: 
             iterator = (server['map_id'] for server in list_json) 
 
-            map_set = set(iterator) 
-
-            #debug(map_set) 
-
-            return map_set
+            map_set.update(iterator) 
+        
+        return map_set
     
     def get_map_datas(self, *map_ids): 
         urls = [self.MAP_URL_TEMPLATE.format(map_id) for map_id in map_ids] 
         
         return self.async_get(*urls) 
     
-    def get_map_contribs(self, acc_id): 
-        map_list = self.get_map_list() 
+    def get_map_contribs(self, server_list, acc_id): 
+        #debug(server_list) 
+
+        map_list = self.get_map_list(server_list) 
 
         contrib_names = [] 
 
         map_jsons = self.get_map_datas(*map_list) 
 
         for map_json in map_jsons: 
-            debug(map_json['string_id']) 
-
             if map_json: 
+                debug(map_json['string_id']) 
                 #debug(map_json['user_id']) 
                 #debug(acc_id) 
 
@@ -269,56 +269,72 @@ but you specified {len(args)}. ')
                     contrib_names.append(map_json['string_id']) 
         
         #debug(contrib_names) 
-        
+            
         return contrib_names
     
-    def get_contribs(self, acc, acc_id): 
+    def get_contribs(self, acc, acc_id, server_list): 
         contribs = [] 
 
-        map_contribs = self.get_map_contribs(acc_id) 
+        map_contribs = self.get_map_contribs(server_list, acc_id) 
 
         if map_contribs: 
             map_str = tools.format_iterable(map_contribs, formatter='`{}`') 
 
             contribs.append(f'Created map(s) {map_str}') 
         
-        if acc['beta']: 
-            contribs.append(f'Beta tester') 
+        if acc: 
+            if acc['beta']: 
+                contribs.append(f'Beta tester') 
         
         #debug(contribs) 
         
         return contribs
     
-    def embed(self, acc, contribs): 
-        title = f"{acc['name']} (@{acc['username']})"  
+    def get_all_acc_data(self, acc_id): 
+        acc_url = self.DATA_URL_TEMPLATE.format(acc_id) 
+        server_list_url = self.SERVER_LIST_URL
 
-        if (len(title) > self.MAX_TITLE): 
-            title = title[:self.MAX_TITLE - len(self.TRAIL_OFF)] + self.TRAIL_OFF
+        acc_json, list_json = self.async_get(acc_url, server_list_url) 
 
-        desc = acc['description'] 
-        
-        if (desc and len(desc) > self.MAX_DESC): 
-            desc = desc[:self.MAX_DESC - len(self.TRAIL_OFF)] + self.TRAIL_OFF
-        
-        pfp_url = self.PFP_URL_TEMPLATE.format(acc['picture']) 
+        contribs = self.get_contribs(acc_json, acc_id, list_json) 
 
-        #debug(pfp_url) 
-        
-        kills = acc['kill_count'] 
-        max_score = acc['highest_score'] 
-        coins = acc['coins'] 
+        return acc_json, contribs
+    
+    def embed(self, acc_id): 
+        acc, contribs = self.get_all_acc_data(acc_id) 
 
-        color = random.randrange(0, 16**6) 
+        if acc: 
+            title = f"{acc['name']} (@{acc['username']})"  
 
-        #debug(hex(color)) 
+            if (len(title) > self.MAX_TITLE): 
+                title = title[:self.MAX_TITLE - len(self.TRAIL_OFF)] + self.TRAIL_OFF
 
-        embed = discord.Embed(title=title, type='rich', description=desc, color=color) 
+            desc = acc['description'] 
+            
+            if (desc and len(desc) > self.MAX_DESC): 
+                desc = desc[:self.MAX_DESC - len(self.TRAIL_OFF)] + self.TRAIL_OFF
+            
+            pfp_url = self.PFP_URL_TEMPLATE.format(acc['picture']) 
 
-        embed.set_image(url=pfp_url) 
+            #debug(pfp_url) 
+            
+            kills = acc['kill_count'] 
+            max_score = acc['highest_score'] 
+            coins = acc['coins'] 
 
-        embed.add_field(name='Kills <:iseedeadfish:796233159686488106>', value=f'{kills:,}') 
-        embed.add_field(name='Highscore :first_place:', value=f'{max_score:,}') 
-        embed.add_field(name='Coins <:deeeepcoin:796231137474117664>', value=f'{coins:,}') 
+            color = random.randrange(0, 16**6) 
+
+            #debug(hex(color)) 
+
+            embed = discord.Embed(title=title, type='rich', description=desc, color=color) 
+
+            embed.set_image(url=pfp_url) 
+
+            embed.add_field(name='Kills <:iseedeadfish:796233159686488106>', value=f'{kills:,}') 
+            embed.add_field(name='Highscore :first_place:', value=f'{max_score:,}') 
+            embed.add_field(name='Coins <:deeeepcoin:796231137474117664>', value=f'{coins:,}') 
+        else: 
+            embed = discord.Embed(title='Error', type='rich', description='An error occurred. ') 
 
         if contribs: 
             embed.add_field(name='Contributions <:HeartPenguin:796307297508786187>', value=tools.make_list(contribs), inline=False) 
@@ -406,13 +422,7 @@ but you specified {len(args)}. ')
         if link: 
             acc_id = link['acc_id'] 
 
-            acc_data = self.get_acc_data(acc_id) 
-            acc_contribs = self.get_contribs(acc_data, acc_id)
-
-            if acc_data: 
-                await self.send(c, embed=self.embed(acc_data, acc_contribs)) 
-            else: 
-                await self.send(c, content=f"{author.mention}, this user's linked account doesn't seem to exist anymore.") 
+            await self.send(c, embed=self.embed(acc_id)) 
         elif user_id == author.id: 
             await self.send(c, content=f"{author.mention}, you're not linked to an account. Type `{self.PREFIX}link` to learn how to link an account. ") 
         else: 
@@ -444,6 +454,7 @@ but you specified {len(args)}. ')
 
             if acc_data: 
                 name = acc_data['name'] 
+                username = acc_data['username'] 
 
                 if name == str(author): 
                     data = {
@@ -453,7 +464,8 @@ but you specified {len(args)}. ')
 
                     self.links_table.upsert(data, ['user_id'], ensure=True) 
 
-                    await self.send(c, content=f'{author.mention} Successfully linked to Deeeep.io account with ID {acc_id}. You can change your Deeeep.io account name back now. ') 
+                    await self.send(c, content=f"{author.mention} Successfully linked to Deeeep.io account with username `{username}` and ID `{acc_id}`. \
+You can change the account's name back now. ") 
                 else: 
                     await self.send(c, content=f"{author.mention} You must set your Deeeep.io account's name to your discord tag (`{author!s}`) when linking. \
 You only need to do this when linking; you can change it back afterward. Read <{self.LINK_HELP_IMG}> for more info. ") 
@@ -474,19 +486,10 @@ You only need to do this when linking; you can change it back afterward. Read <{
     @requires_owner
     async def cheat_stats(self, c, author, query): 
         acc_id = self.get_acc_id(query) 
-
-        success = False
         
         if acc_id: 
-            acc_data = self.get_acc_data(acc_id) 
-            acc_contribs = self.get_contribs(acc_data, acc_id)
-
-            if acc_data: 
-                await self.send(c, embed=self.embed(acc_data, acc_contribs)) 
-
-                success = True
-        
-        if not success: 
+            await self.send(c, embed=self.embed(acc_id)) 
+        else: 
             await self.send(c, content=f'{author.mention}, that is not a valid account. ') 
     
     @command() 
