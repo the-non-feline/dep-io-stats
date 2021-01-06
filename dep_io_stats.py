@@ -65,6 +65,7 @@ class Dep_io_Stats(discord.Client):
 
     MAX_TITLE = 256
     MAX_DESC = 2048
+    MAX_FIELD_VAL = 1024
     TRAIL_OFF = '...' 
     MAX_LOG = 1000000
     MAX_SEARCH_TIME = 60
@@ -74,7 +75,8 @@ class Dep_io_Stats(discord.Client):
     DATA_URL_TEMPLATE = 'https://api.deeeep.io/users/{}' 
     PFP_URL_TEMPLATE = 'https://deeeep.io/files/{}' 
     SERVER_LIST_URL = 'http://api.deeeep.io/hosts?beta=1' 
-    MAP_URL_TEMPLATE = 'http://api.deeeep.io/maps/{}' 
+    MAP_URL_TEMPLATE = 'https://api.deeeep.io/maps/{}' 
+    SKINS_LIST_URL = 'https://api.deeeep.io/skins' 
 
     def __init__(self, logs_file_name, storage_file_name): 
         self.db = dataset.connect(storage_file_name) 
@@ -272,7 +274,17 @@ but you specified {len(args)}. ')
             
         return contrib_names
     
-    def get_contribs(self, acc, acc_id, server_list): 
+    def get_skin_contribs(self, skins_list, acc_id): 
+        contrib_names = [] 
+
+        if skins_list: 
+            for skin in skins_list: 
+                if str(skin['user_id']) == acc_id: 
+                    contrib_names.append(skin['name']) 
+        
+        return contrib_names
+    
+    def get_contribs(self, acc, acc_id, server_list, skins_list): 
         contribs = [] 
 
         map_contribs = self.get_map_contribs(server_list, acc_id) 
@@ -281,6 +293,13 @@ but you specified {len(args)}. ')
             map_str = tools.format_iterable(map_contribs, formatter='`{}`') 
 
             contribs.append(f'Created map(s) {map_str}') 
+        
+        skin_contribs = self.get_skin_contribs(skins_list, acc_id) 
+
+        if skin_contribs: 
+            skin_str = tools.format_iterable(skin_contribs, formatter='`{}`') 
+
+            contribs.append(f'Created skin(s) {skin_str}') 
         
         if acc: 
             if acc['beta']: 
@@ -293,12 +312,19 @@ but you specified {len(args)}. ')
     def get_all_acc_data(self, acc_id): 
         acc_url = self.DATA_URL_TEMPLATE.format(acc_id) 
         server_list_url = self.SERVER_LIST_URL
+        skins_list_url = self.SKINS_LIST_URL
 
-        acc_json, list_json = self.async_get(acc_url, server_list_url) 
+        acc_json, server_list, skins_list = self.async_get(acc_url, server_list_url, skins_list_url) 
 
-        contribs = self.get_contribs(acc_json, acc_id, list_json) 
+        contribs = self.get_contribs(acc_json, acc_id, server_list, skins_list) 
 
         return acc_json, contribs
+    
+    def trim_maybe(self, string, limit): 
+        if (len(string) > limit): 
+            string = string[:limit - len(self.TRAIL_OFF)] + self.TRAIL_OFF
+        
+        return string
     
     def embed(self, acc_id): 
         acc, contribs = self.get_all_acc_data(acc_id) 
@@ -306,13 +332,11 @@ but you specified {len(args)}. ')
         if acc: 
             title = f"{acc['name']} (@{acc['username']})"  
 
-            if (len(title) > self.MAX_TITLE): 
-                title = title[:self.MAX_TITLE - len(self.TRAIL_OFF)] + self.TRAIL_OFF
+            title = self.trim_maybe(title, self.MAX_TITLE)
 
             desc = acc['description'] 
             
-            if (desc and len(desc) > self.MAX_DESC): 
-                desc = desc[:self.MAX_DESC - len(self.TRAIL_OFF)] + self.TRAIL_OFF
+            desc = self.trim_maybe(desc, self.MAX_DESC) 
             
             pfp_url = self.PFP_URL_TEMPLATE.format(acc['picture']) 
 
@@ -335,9 +359,15 @@ but you specified {len(args)}. ')
             embed.add_field(name='Coins <:deeeepcoin:796231137474117664>', value=f'{coins:,}') 
         else: 
             embed = discord.Embed(title='Error', type='rich', description='An error occurred. ') 
+        
+        embed.set_footer(text=f'ID: {acc_id}') 
 
         if contribs: 
-            embed.add_field(name='Contributions <:HeartPenguin:796307297508786187>', value=tools.make_list(contribs), inline=False) 
+            contribs_str = tools.make_list(contribs) 
+
+            contribs_str = self.trim_maybe(contribs_str, self.MAX_FIELD_VAL) 
+
+            embed.add_field(name='Contributions <:HeartPenguin:796307297508786187>', value=contribs_str, inline=False) 
 
         return embed
     
