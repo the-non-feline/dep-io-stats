@@ -58,6 +58,8 @@ def trim_file(file, max_size):
 
             file.flush() 
 
+COMMANDS = {} 
+
 class Dep_io_Stats(discord.Client): 
     DEFAULT_PREFIX = '-' 
     MAX_PREFIX = 5
@@ -90,15 +92,7 @@ class Dep_io_Stats(discord.Client):
 
         handler = logging.StreamHandler(self.logs_file) 
 
-        logger.addHandler(handler)  
-
-        self.commands = {
-            'stats': self.check_stats, 
-            'link': self.link, 
-            'cheatstats': self.cheat_stats, 
-            'shutdown': self.shut_down, 
-            'prefix': self.set_prefix, 
-        } 
+        logger.addHandler(handler) 
 
         self.tasks = 0
         self.logging_out = False
@@ -190,17 +184,25 @@ class Dep_io_Stats(discord.Client):
     async def default_args_check(self, c, author, *args): 
         return True
     
-    def command(req_params=0, optional_params=0, args_check=None): 
-        total_params = req_params + optional_params
+    def command(name, req_params=(), optional_params=(), args_check=None): 
+        total_params = len(req_params) + len(optional_params) 
 
         def decorator(func): 
             async def comm_func(self, c, author, *args): 
-                if (req_params <= len(args) <= total_params): 
+                if (len(req_params) <= len(args) <= total_params): 
                     await func(self, c, author, *args) 
                 else: 
-                    await self.send(c, content=f'This command takes {req_params} required parameters and {optional_params} optional parameters ({total_params} total), \
-but you specified {len(args)}. ') 
+                    usage = self.prefix(c) + name
+
+                    if total_params > 0: 
+                        total_params_list = [f'({param})' for param in req_params] + [f'[{param}]' for param in optional_params] 
+
+                        usage += ' ' + tools.format_iterable(total_params_list, sep=' ') 
+
+                    await self.send(c, content=f"{author.mention}, the correct way to use this command is `{usage}`. ") 
             
+            COMMANDS[name] = comm_func
+
             return comm_func
         
         return decorator
@@ -440,7 +442,7 @@ but you specified {len(args)}. ')
         
         return to_return
     
-    @command(optional_params=1) 
+    @command('stats', optional_params=('user',)) 
     async def check_stats(self, c, author, user=None): 
         if not user: 
             user_id = author.id
@@ -523,14 +525,14 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
             await self.send(c, content='Unlinked your account. ') 
     
-    @command(optional_params=1) 
+    @command('link', optional_params=('account',)) 
     async def link(self, c, author, query=None): 
         if query: 
             await self.link_dep_acc(c, author, query) 
         else: 
             await self.link_help(c, author) 
     
-    @command(req_params=1) 
+    @command('cheatstats', req_params=('account',)) 
     @requires_owner
     async def cheat_stats(self, c, author, query): 
         acc_id = self.get_acc_id(query) 
@@ -540,7 +542,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         else: 
             await self.send(c, content=f'{author.mention}, that is not a valid account. ') 
     
-    @command(req_params=1) 
+    @command('prefix', req_params=('new_prefix',)) 
     @requires_perms('manage_guild') 
     async def set_prefix(self, c, author, prefix): 
         if prefix == self.PREFIX_SENTINEL: 
@@ -560,15 +562,21 @@ You only need to do this when linking; you can change it back afterward. Read <{
             else: 
                 await self.send(c, content=f'{author.mention}, prefix must not exceed {self.MAX_PREFIX} characters. ') 
     
-    @command() 
+    @command('shutdown') 
     @requires_owner
     async def shut_down(self, c, author): 
         await self.send(c, content='shutting down') 
 
         self.logging_out = True
     
+    @command('help') 
+    async def send_help(self, c, author): 
+        com_list_str = tools.format_iterable(COMMANDS.keys(), formatter='`{}`') 
+
+        await self.send(c, content=f'All commands for this bot: {com_list_str}') 
+    
     async def execute(self, func, c, author, *args): 
-        await func(c, author, *args) 
+        await func(self, c, author, *args) 
     
     @task
     async def handle_command(self, msg, c, prefix, words): 
@@ -583,7 +591,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
                 command, *args = words
                 command = command[len(prefix):] 
 
-                func = self.commands.get(command.lower(), None) 
+                func = COMMANDS.get(command.lower(), None) 
 
                 if func: 
                     await self.execute(func, c, author, *args) 
