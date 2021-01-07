@@ -59,8 +59,11 @@ def trim_file(file, max_size):
             file.flush() 
 
 class Dep_io_Stats(discord.Client): 
-    PREFIX = '-' 
+    DEFAULT_PREFIX = '-' 
+    MAX_PREFIX = 5
+    PREFIX_SENTINEL = 'none' 
 
+    LINK_SENTINEL = 'remove' 
     LINK_HELP_IMG = 'https://cdn.discordapp.com/attachments/493952969277046787/796267822350336020/linking_instructions.png' 
 
     MAX_TITLE = 256
@@ -81,6 +84,7 @@ class Dep_io_Stats(discord.Client):
     def __init__(self, logs_file_name, storage_file_name): 
         self.db = dataset.connect(storage_file_name) 
         self.links_table = self.db.get_table('account_links') 
+        self.prefixes_table = self.db.get_table('prefixes') 
 
         self.logs_file = open(logs_file_name, mode='w+') 
 
@@ -93,6 +97,7 @@ class Dep_io_Stats(discord.Client):
             'link': self.link, 
             'cheatstats': self.cheat_stats, 
             'shutdown': self.shut_down, 
+            'prefix': self.set_prefix, 
         } 
 
         self.tasks = 0
@@ -101,6 +106,14 @@ class Dep_io_Stats(discord.Client):
         self.readied = False
 
         super().__init__() 
+    
+    def prefix(self, c): 
+        p = self.prefixes_table.find_one(guild_id=c.guild.id) 
+        
+        if p: 
+            return p['prefix'] 
+        else: 
+            return self.DEFAULT_PREFIX
     
     async def send(self, c, *args, **kwargs): 
         try: 
@@ -454,7 +467,7 @@ but you specified {len(args)}. ')
 
             await self.send(c, embed=self.embed(acc_id)) 
         elif user_id == author.id: 
-            await self.send(c, content=f"{author.mention}, you're not linked to an account. Type `{self.PREFIX}link` to learn how to link an account. ") 
+            await self.send(c, content=f"{author.mention}, you're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ") 
         else: 
             await self.send(c, content=f"{author.mention}, either you entered the wrong user ID or this user isn't linked.") 
     
@@ -475,35 +488,40 @@ but you specified {len(args)}. ')
         return acc_id
     
     async def link_dep_acc(self, c, author, query): 
-        acc_id = self.get_acc_id(query) 
+        if query != self.LINK_SENTINEL: 
+            acc_id = self.get_acc_id(query) 
 
-        success = False
-        
-        if acc_id: 
-            acc_data = self.get_acc_data(acc_id) 
+            success = False
+            
+            if acc_id: 
+                acc_data = self.get_acc_data(acc_id) 
 
-            if acc_data: 
-                name = acc_data['name'] 
-                username = acc_data['username'] 
+                if acc_data: 
+                    name = acc_data['name'] 
+                    username = acc_data['username'] 
 
-                if name == str(author): 
-                    data = {
-                        'user_id': author.id, 
-                        'acc_id': acc_id, 
-                    } 
+                    if name == str(author): 
+                        data = {
+                            'user_id': author.id, 
+                            'acc_id': acc_id, 
+                        } 
 
-                    self.links_table.upsert(data, ['user_id'], ensure=True) 
+                        self.links_table.upsert(data, ['user_id'], ensure=True) 
 
-                    await self.send(c, content=f"{author.mention} Successfully linked to Deeeep.io account with username `{username}` and ID `{acc_id}`. \
+                        await self.send(c, content=f"{author.mention} Successfully linked to Deeeep.io account with username `{username}` and ID `{acc_id}`. \
 You can change the account's name back now. ") 
-                else: 
-                    await self.send(c, content=f"{author.mention} You must set your Deeeep.io account's name to your discord tag (`{author!s}`) when linking. \
+                    else: 
+                        await self.send(c, content=f"{author.mention} You must set your Deeeep.io account's name to your discord tag (`{author!s}`) when linking. \
 You only need to do this when linking; you can change it back afterward. Read <{self.LINK_HELP_IMG}> for more info. ") 
 
-                success = True
-        
-        if not success: 
-            await self.send(c, content=f'{author.mention}, that is not a valid account. Read <{self.LINK_HELP_IMG}> for more info. ') 
+                    success = True
+            
+            if not success: 
+                await self.send(c, content=f'{author.mention}, that is not a valid account. Read <{self.LINK_HELP_IMG}> for more info. ') 
+        else: 
+            self.links_table.delete(user_id=author.id) 
+
+            await self.send(c, content='Unlinked your account. ') 
     
     @command(optional_params=1) 
     async def link(self, c, author, query=None): 
@@ -521,6 +539,26 @@ You only need to do this when linking; you can change it back afterward. Read <{
             await self.send(c, embed=self.embed(acc_id)) 
         else: 
             await self.send(c, content=f'{author.mention}, that is not a valid account. ') 
+    
+    @command(req_params=1) 
+    @requires_perms('manage_guild') 
+    async def set_prefix(self, c, author, prefix): 
+        if prefix == self.PREFIX_SENTINEL: 
+            self.prefixes_table.delete(guild_id=c.guild.id) 
+
+            await self.send(c, content='Deleted custom prefix. ') 
+        else: 
+            if len(prefix) <= self.MAX_PREFIX: 
+                data = {
+                    'guild_id': c.guild.id, 
+                    'prefix': prefix, 
+                } 
+
+                self.prefixes_table.upsert(data, ['guild_id'], ensure=True) 
+
+                await self.send(c, content=f'Custom prefix is now `{prefix}`. ') 
+            else: 
+                await self.send(c, content=f'{author.mention}, prefix must not exceed {self.MAX_PREFIX} characters. ') 
     
     @command() 
     @requires_owner
@@ -552,8 +590,10 @@ You only need to do this when linking; you can change it back afterward. Read <{
     
     async def on_message(self, msg): 
         c = msg.channel
-        prefix = self.PREFIX
-        words = msg.content.split() 
 
-        if len(words) >= 1 and words[0].startswith(prefix): 
-            await self.handle_command(msg, c, prefix, words) 
+        if hasattr(c, 'guild'): 
+            prefix = self.prefix(c) 
+            words = msg.content.split() 
+
+            if len(words) >= 1 and words[0].startswith(prefix): 
+                await self.handle_command(msg, c, prefix, words) 
