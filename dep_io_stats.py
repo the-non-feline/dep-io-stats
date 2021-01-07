@@ -9,6 +9,7 @@ import random
 import re
 import dateutil.parser as parser
 import tools
+import commands
 
 import logging
 
@@ -58,8 +59,6 @@ def trim_file(file, max_size):
             file.write(contents) 
 
             file.flush() 
-
-COMMANDS = {} 
 
 class Dep_io_Stats(discord.Client): 
     DEFAULT_PREFIX = ',' 
@@ -157,9 +156,9 @@ class Dep_io_Stats(discord.Client):
         return task_func
     
     def requires_owner(func): 
-        async def req_owner_func(self, c, author, *args): 
+        async def req_owner_func(s, self, c, author, *args): 
             if author.id == self.OWNER_ID: 
-                await func(self, c, author, *args) 
+                await func(s, self, c, author, *args) 
             else: 
                 await self.send(c, content='no u (owner-only command) ') 
         
@@ -167,7 +166,7 @@ class Dep_io_Stats(discord.Client):
     
     def requires_perms(*perms): 
         def decorator(func): 
-            async def req_perms_func(self, c, author, *args): 
+            async def req_perms_func(s, self, c, author, *args): 
                 author_perms = c.permissions_for(author) 
 
                 for perm in perms: 
@@ -178,7 +177,7 @@ class Dep_io_Stats(discord.Client):
 
                         break
                 else: 
-                    await func(self, c, author, *args) 
+                    await func(s, self, c, author, *args) 
             
             return req_perms_func
         
@@ -186,7 +185,18 @@ class Dep_io_Stats(discord.Client):
     
     async def default_args_check(self, c, author, *args): 
         return True
+
+    def command(name, usages): 
+        def decorator(func): 
+            command_obj = commands.Command(name, usages, func) 
+
+            commands.COMMANDS[name] = command_obj
+
+            return command_obj
+        
+        return decorator
     
+    '''
     def command(name, req_params=(), optional_params=(), args_check=None): 
         total_params = len(req_params) + len(optional_params) 
 
@@ -209,6 +219,7 @@ class Dep_io_Stats(discord.Client):
             return comm_func
         
         return decorator
+    ''' 
     
     '''
     def sync_get(self, url): 
@@ -451,8 +462,12 @@ class Dep_io_Stats(discord.Client):
         
         return to_return
     
-    @command('stats', optional_params=('user',)) 
-    async def check_stats(self, c, author, user=None): 
+    @command('stats', {
+        (): 'View your own stats', 
+        ('@<user>',): "View `<user>`'s stats", 
+        ('<user_ID>',): "Same as above except with Discord ID instead to avoid pings", 
+    }) 
+    async def check_stats(s, self, c, author, user=None): 
         if not user: 
             user_id = author.id
         elif not user.isnumeric(): 
@@ -534,16 +549,24 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
             await self.send(c, content='Unlinked your account. ') 
     
-    @command('link', optional_params=('account',)) 
-    async def link(self, c, author, query=None): 
+    @command('link', {
+        (): 'View help on linking accounts', 
+        ('<account_ID>',): 'Link Deeeep.io account with ID `<account_ID>` to your account', 
+        ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
+        (LINK_SENTINEL,): 'Unlink your account', 
+    }) 
+    async def link(s, self, c, author, query=None): 
         if query: 
             await self.link_dep_acc(c, author, query) 
         else: 
             await self.link_help(c, author) 
     
-    @command('statstest', req_params=('account',)) 
+    @command('statstest', {
+        ('<account_ID>',): 'View Deeeep.io account with ID `<account_ID>`', 
+        ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
+    }) 
     @requires_owner
-    async def cheat_stats(self, c, author, query): 
+    async def cheat_stats(s, self, c, author, query): 
         acc_id = self.get_acc_id(query) 
         
         if acc_id: 
@@ -551,9 +574,12 @@ You only need to do this when linking; you can change it back afterward. Read <{
         else: 
             await self.send(c, content=f'{author.mention}, that is not a valid account. ') 
     
-    @command('prefix', req_params=('new_prefix',)) 
+    @command('prefix', {
+        ('<prefix>',): "Set the server-wide prefix for this bot to `<prefix>`", 
+        (PREFIX_SENTINEL,): 'Reset the server prefix to default', 
+    }) 
     @requires_perms('manage_guild') 
-    async def set_prefix(self, c, author, prefix): 
+    async def set_prefix(s, self, c, author, prefix): 
         if prefix == self.PREFIX_SENTINEL: 
             self.prefixes_table.delete(guild_id=c.guild.id) 
 
@@ -571,21 +597,42 @@ You only need to do this when linking; you can change it back afterward. Read <{
             else: 
                 await self.send(c, content=f'{author.mention}, prefix must not exceed {self.MAX_PREFIX} characters. ') 
     
-    @command('shutdown') 
+    @command('shutdown', {
+        (): "Turn off the bot", 
+    }) 
     @requires_owner
-    async def shut_down(self, c, author): 
+    async def shut_down(s, self, c, author): 
         await self.send(c, content='shutting down') 
 
         self.logging_out = True
     
-    @command('help') 
-    async def send_help(self, c, author): 
-        com_list_str = tools.format_iterable(COMMANDS.keys(), formatter='`{}`') 
+    @command('help', {
+        (): 'Get a list of all commands', 
+        ('<command>',): 'Get help on `<command>`', 
+    }) 
+    async def send_help(s, self, c, author, command_name=None): 
+        if command_name: 
+            comm = commands.COMMANDS.get(command_name.lower(), None) 
 
-        await self.send(c, content=f'All commands for this bot: {com_list_str}') 
+            if comm: 
+                usage_str = comm.usages_str(self, c, author) 
+
+                await self.send(c, content=f'''How to use the `{command_name}` command: 
+
+{usage_str}''') 
+            else: 
+                prefix = self.prefix(c) 
+
+                await self.send(c, content=f"{author.mention}, that's not a valid command name. Type `{prefix}{s.name}` for a list of commands. ") 
+        else: 
+            com_list_str = tools.format_iterable(commands.COMMANDS.keys(), formatter='`{}`') 
+            prefix = self.prefix(c) 
+
+            await self.send(c, content=f'''All commands for this bot: {com_list_str}. 
+Type `{prefix}{s.name} <command>` for help on a specified `<command>`''') 
     
-    async def execute(self, func, c, author, *args): 
-        await func(self, c, author, *args) 
+    async def execute(self, comm, c, author, *args): 
+        await comm.attempt_run(self, c, author, *args) 
     
     @task
     async def handle_command(self, msg, c, prefix, words): 
@@ -600,10 +647,10 @@ You only need to do this when linking; you can change it back afterward. Read <{
                 command, *args = words
                 command = command[len(prefix):] 
 
-                func = COMMANDS.get(command.lower(), None) 
+                comm = commands.COMMANDS.get(command.lower(), None) 
 
-                if func: 
-                    await self.execute(func, c, author, *args) 
+                if comm: 
+                    await self.execute(comm, c, author, *args) 
     
     async def on_message(self, msg): 
         c = msg.channel
