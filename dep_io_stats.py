@@ -66,7 +66,7 @@ class Dep_io_Stats(discord.Client):
     PREFIX_SENTINEL = 'none' 
 
     LINK_SENTINEL = 'remove' 
-    LINK_HELP_IMG = 'https://cdn.discordapp.com/attachments/493952969277046787/796267822350336020/linking_instructions.png' 
+    LINK_HELP_IMG = 'https://cdn.discordapp.com/attachments/493952969277046787/796559057926225960/linking_instructions.png' 
 
     MAX_TITLE = 256
     MAX_DESC = 2048
@@ -158,7 +158,7 @@ class Dep_io_Stats(discord.Client):
             if author.id == self.OWNER_ID: 
                 await func(self, c, author, *args) 
             else: 
-                await self.send(c, content='no u') 
+                await self.send(c, content='no u (owner-only command) ') 
         
         return req_owner_func
     
@@ -278,7 +278,7 @@ class Dep_io_Stats(discord.Client):
 
         for map_json in map_jsons: 
             if map_json: 
-                debug(map_json['string_id']) 
+                #debug(map_json['string_id']) 
                 #debug(map_json['user_id']) 
                 #debug(acc_id) 
 
@@ -480,7 +480,7 @@ class Dep_io_Stats(discord.Client):
         acc_id = None
 
         if not query.isnumeric(): 
-            m = re.compile('(?:https?://)?(?:www.)?deeeep.io/files/(?P<acc_id>[0-9]+)\.[0-9A-Za-z]+(?:\?.*)?\Z').match(query)
+            m = re.compile('(?:https?://)?(?:www.)?deeeep.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z').match(query)
 
             if m: 
                 acc_id = m.group('acc_id') 
@@ -532,7 +532,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         else: 
             await self.link_help(c, author) 
     
-    @command('cheatstats', req_params=('account',)) 
+    @command('statstest', req_params=('account',)) 
     @requires_owner
     async def cheat_stats(self, c, author, query): 
         acc_id = self.get_acc_id(query) 
