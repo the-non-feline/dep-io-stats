@@ -7,6 +7,7 @@ import requests
 import time
 import random
 import re
+import dateutil.parser as parser
 import tools
 
 import logging
@@ -67,6 +68,8 @@ class Dep_io_Stats(discord.Client):
 
     LINK_SENTINEL = 'remove' 
     LINK_HELP_IMG = 'https://cdn.discordapp.com/attachments/493952969277046787/796576600413175819/linking_instructions.png' 
+
+    DATE_FORMAT = '%B %d, %Y' 
 
     MAX_TITLE = 256
     MAX_DESC = 2048
@@ -372,6 +375,12 @@ class Dep_io_Stats(discord.Client):
             embed.add_field(name='Kills <:iseedeadfish:796233159686488106>', value=f'{kills:,}') 
             embed.add_field(name='Highscore :first_place:', value=f'{max_score:,}') 
             embed.add_field(name='Coins <:deeeepcoin:796231137474117664>', value=f'{coins:,}') 
+
+            date_created = parser.isoparse(acc['date_created']) 
+            date_last_played = parser.isoparse(acc['date_last_played']) 
+
+            embed.add_field(name='Date created :baby:', value=date_created.strftime(self.DATE_FORMAT), inline=False) 
+            embed.add_field(name='Date last played :video_game:', value=date_last_played.strftime(self.DATE_FORMAT), inline=False) 
         else: 
             embed = discord.Embed(title='Error', type='rich', description='An error occurred. ') 
         
