@@ -61,12 +61,12 @@ def trim_file(file, max_size):
 COMMANDS = {} 
 
 class Dep_io_Stats(discord.Client): 
-    DEFAULT_PREFIX = '-' 
+    DEFAULT_PREFIX = ',' 
     MAX_PREFIX = 5
     PREFIX_SENTINEL = 'none' 
 
     LINK_SENTINEL = 'remove' 
-    LINK_HELP_IMG = 'https://cdn.discordapp.com/attachments/493952969277046787/796559057926225960/linking_instructions.png' 
+    LINK_HELP_IMG = 'https://cdn.discordapp.com/attachments/493952969277046787/796576600413175819/linking_instructions.png' 
 
     MAX_TITLE = 256
     MAX_DESC = 2048
