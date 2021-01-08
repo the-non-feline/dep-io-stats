@@ -1,12 +1,22 @@
 import tools
 
-COMMANDS = {} 
-
 class Command: 
+    COMMANDS = {} 
+
     def __init__(self, name, usages, func): 
         self.name = name
         self.usages = usages
         self.func = func
+
+        self.COMMANDS[self.name] = self
+    
+    @classmethod
+    def get_command(cls, name): 
+        return cls.COMMANDS.get(name.lower(), None) 
+    
+    @classmethod
+    def all_commands(cls): 
+        return cls.COMMANDS.keys() 
     
     def usages_str(self, client, c, m): 
         prefix = client.prefix(c) 

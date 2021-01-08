@@ -191,8 +191,6 @@ class Dep_io_Stats(discord.Client):
         def decorator(func): 
             command_obj = commands.Command(name, usages, func) 
 
-            commands.COMMANDS[name] = command_obj
-
             return command_obj
         
         return decorator
@@ -613,7 +611,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
     }) 
     async def send_help(s, self, c, m, command_name=None): 
         if command_name: 
-            comm = commands.COMMANDS.get(command_name.lower(), None) 
+            comm = commands.Command.get_command(command_name)  
 
             if comm: 
                 usage_str = comm.usages_str(self, c, m) 
@@ -626,7 +624,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
                 await self.send(c, content=f"That's not a valid command name. Type `{prefix}{s.name}` for a list of commands. ", reference=m) 
         else: 
-            com_list_str = tools.format_iterable(commands.COMMANDS.keys(), formatter='`{}`') 
+            com_list_str = tools.format_iterable(commands.Command.all_commands(), formatter='`{}`') 
             prefix = self.prefix(c) 
 
             await self.send(c, content=f'''All commands for this bot: {com_list_str}. 
@@ -646,7 +644,7 @@ Type `{prefix}{s.name} <command>` for help on a specified `<command>`''')
                 command, *args = words
                 command = command[len(prefix):] 
 
-                comm = commands.COMMANDS.get(command.lower(), None) 
+                comm = commands.Command.get_command(command) 
 
                 if comm: 
                     await self.execute(comm, c, m, *args) 
