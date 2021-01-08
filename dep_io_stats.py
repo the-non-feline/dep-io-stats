@@ -359,6 +359,8 @@ class Dep_io_Stats(discord.Client):
     def embed(self, acc_id): 
         acc, contribs = self.get_all_acc_data(acc_id) 
 
+        color = discord.Color.random() 
+
         if acc: 
             title = f"{acc['name']} (@{acc['username']})"  
 
@@ -378,7 +380,7 @@ class Dep_io_Stats(discord.Client):
 
             #debug(hex(color)) 
 
-            embed = discord.Embed(title=title, type='rich', description=desc, color=discord.Color.random()) 
+            embed = discord.Embed(title=title, type='rich', description=desc, color=color) 
 
             embed.set_image(url=pfp_url) 
 
@@ -392,7 +394,7 @@ class Dep_io_Stats(discord.Client):
             embed.add_field(name=f"Date created {c['baby']}", value=date_created.strftime(self.DATE_FORMAT)) 
             embed.add_field(name=f"Date last played {c['video_game']}", value=date_last_played.strftime(self.DATE_FORMAT)) 
         else: 
-            embed = discord.Embed(title='Error', type='rich', description='An error occurred. ') 
+            embed = discord.Embed(title='Error', type='rich', description='An error occurred. ', color=color) 
         
         embed.set_footer(text=f'ID: {acc_id}') 
 
