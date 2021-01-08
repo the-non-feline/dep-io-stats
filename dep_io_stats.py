@@ -390,8 +390,8 @@ class Dep_io_Stats(discord.Client):
             date_created = parser.isoparse(acc['date_created']) 
             date_last_played = parser.isoparse(acc['date_last_played']) 
 
-            embed.add_field(name='Date created :baby:', value=date_created.strftime(self.DATE_FORMAT), inline=False) 
-            embed.add_field(name='Date last played :video_game:', value=date_last_played.strftime(self.DATE_FORMAT), inline=False) 
+            embed.add_field(name='Date created :baby:', value=date_created.strftime(self.DATE_FORMAT)) 
+            embed.add_field(name='Date last played :video_game:', value=date_last_played.strftime(self.DATE_FORMAT)) 
         else: 
             embed = discord.Embed(title='Error', type='rich', description='An error occurred. ') 
         
