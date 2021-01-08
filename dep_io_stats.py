@@ -10,6 +10,7 @@ import re
 import dateutil.parser as parser
 import tools
 import commands
+from chars import c
 
 import logging
 
@@ -156,34 +157,34 @@ class Dep_io_Stats(discord.Client):
         return task_func
     
     def requires_owner(func): 
-        async def req_owner_func(s, self, c, author, *args): 
-            if author.id == self.OWNER_ID: 
-                await func(s, self, c, author, *args) 
+        async def req_owner_func(s, self, c, m, *args): 
+            if m.author.id == self.OWNER_ID: 
+                await func(s, self, c, m, *args) 
             else: 
-                await self.send(c, content='no u (owner-only command) ') 
+                await self.send(c, content='no u (owner-only command) ', reference=m) 
         
         return req_owner_func
     
     def requires_perms(*perms): 
         def decorator(func): 
-            async def req_perms_func(s, self, c, author, *args): 
-                author_perms = c.permissions_for(author) 
+            async def req_perms_func(s, self, c, m, *args): 
+                author_perms = c.permissions_for(m.author) 
 
                 for perm in perms: 
                     if not getattr(author_perms, perm): 
                         perms_str = tools.format_iterable(perms, formatter='`{}`') 
 
-                        await self.send(c, content=f'You need the following permissions to do this: {perms_str}') 
+                        await self.send(c, content=f'You need the following permissions to do this: {perms_str}', reference=m) 
 
                         break
                 else: 
-                    await func(s, self, c, author, *args) 
+                    await func(s, self, c, m, *args) 
             
             return req_perms_func
         
         return decorator
     
-    async def default_args_check(self, c, author, *args): 
+    async def default_args_check(self, c, m, *args): 
         return True
 
     def command(name, usages): 
@@ -201,9 +202,9 @@ class Dep_io_Stats(discord.Client):
         total_params = len(req_params) + len(optional_params) 
 
         def decorator(func): 
-            async def comm_func(self, c, author, *args): 
+            async def comm_func(self, c, m, *args): 
                 if (len(req_params) <= len(args) <= total_params): 
-                    await func(self, c, author, *args) 
+                    await func(self, c, m, *args) 
                 else: 
                     usage = self.prefix(c) + name
 
@@ -212,7 +213,7 @@ class Dep_io_Stats(discord.Client):
 
                         usage += ' ' + tools.format_iterable(total_params_list, sep=' ') 
 
-                    await self.send(c, content=f"{author.mention}, the correct way to use this command is `{usage}`. ") 
+                    await self.send(c, content=f"the correct way to use this command is `{usage}`. ") 
             
             COMMANDS[name] = comm_func
 
@@ -375,23 +376,21 @@ class Dep_io_Stats(discord.Client):
             max_score = acc['highest_score'] 
             coins = acc['coins'] 
 
-            color = random.randrange(0, 16**6) 
-
             #debug(hex(color)) 
 
-            embed = discord.Embed(title=title, type='rich', description=desc, color=color) 
+            embed = discord.Embed(title=title, type='rich', description=desc, color=discord.Color.random()) 
 
             embed.set_image(url=pfp_url) 
 
-            embed.add_field(name='Kills <:iseedeadfish:796233159686488106>', value=f'{kills:,}') 
-            embed.add_field(name='Highscore :first_place:', value=f'{max_score:,}') 
-            embed.add_field(name='Coins <:deeeepcoin:796231137474117664>', value=f'{coins:,}') 
+            embed.add_field(name=f"Kills {c['iseedeadfish']}", value=f'{kills:,}') 
+            embed.add_field(name=f"Highscore {c['first_place']}", value=f'{max_score:,}') 
+            embed.add_field(name=f"Coins {c['deeeepcoin']}", value=f'{coins:,}') 
 
             date_created = parser.isoparse(acc['date_created']) 
             date_last_played = parser.isoparse(acc['date_last_played']) 
 
-            embed.add_field(name='Date created :baby:', value=date_created.strftime(self.DATE_FORMAT)) 
-            embed.add_field(name='Date last played :video_game:', value=date_last_played.strftime(self.DATE_FORMAT)) 
+            embed.add_field(name=f"Date created {c['baby']}", value=date_created.strftime(self.DATE_FORMAT)) 
+            embed.add_field(name=f"Date last played {c['video_game']}", value=date_last_played.strftime(self.DATE_FORMAT)) 
         else: 
             embed = discord.Embed(title='Error', type='rich', description='An error occurred. ') 
         
@@ -402,7 +401,7 @@ class Dep_io_Stats(discord.Client):
 
             contribs_str = self.trim_maybe(contribs_str, self.MAX_FIELD_VAL) 
 
-            embed.add_field(name='Contributions <:HeartPenguin:796307297508786187>', value=contribs_str, inline=False) 
+            embed.add_field(name=f"Contributions {c['heartpenguin']}", value=contribs_str, inline=False) 
 
         return embed
     
@@ -467,9 +466,9 @@ class Dep_io_Stats(discord.Client):
         ('@<user>',): "View `<user>`'s stats", 
         ('<user_ID>',): "Same as above except with Discord ID instead to avoid pings", 
     }) 
-    async def check_stats(s, self, c, author, user=None): 
+    async def check_stats(s, self, c, m, user=None): 
         if not user: 
-            user_id = author.id
+            user_id = m.author.id
         elif not user.isnumeric(): 
             user = self.decode_mention(c, user) 
 
@@ -492,13 +491,13 @@ class Dep_io_Stats(discord.Client):
             acc_id = link['acc_id'] 
 
             await self.send(c, embed=self.embed(acc_id)) 
-        elif user_id == author.id: 
-            await self.send(c, content=f"{author.mention}, you're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ") 
+        elif user_id == m.author.id: 
+            await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ", reference=m) 
         else: 
-            await self.send(c, content=f"{author.mention}, either you entered the wrong user ID or this user isn't linked.") 
+            await self.send(c, content=f"Either you entered the wrong user ID or this user isn't linked.", reference=m) 
     
-    async def link_help(self, c, author): 
-        await self.send(c, content=f'{author.mention}, click here for instructions on how to link your account. <{self.LINK_HELP_IMG}>') 
+    async def link_help(self, c, m): 
+        await self.send(c, content=f'Click here for instructions on how to link your account. <{self.LINK_HELP_IMG}>', reference=m) 
     
     def get_acc_id(self, query): 
         acc_id = None
@@ -513,7 +512,7 @@ class Dep_io_Stats(discord.Client):
         
         return acc_id
     
-    async def link_dep_acc(self, c, author, query): 
+    async def link_dep_acc(self, c, m, query): 
         if query != self.LINK_SENTINEL: 
             acc_id = self.get_acc_id(query) 
 
@@ -526,26 +525,26 @@ class Dep_io_Stats(discord.Client):
                     name = acc_data['name'] 
                     username = acc_data['username'] 
 
-                    if name == str(author): 
+                    if name == str(m.author): 
                         data = {
-                            'user_id': author.id, 
+                            'user_id': m.author.id, 
                             'acc_id': acc_id, 
                         } 
 
                         self.links_table.upsert(data, ['user_id'], ensure=True) 
 
-                        await self.send(c, content=f"{author.mention} Successfully linked to Deeeep.io account with username `{username}` and ID `{acc_id}`. \
-You can change the account's name back now. ") 
+                        await self.send(c, content=f"Successfully linked to Deeeep.io account with username `{username}` and ID `{acc_id}`. \
+You can change the account's name back now. ", reference=m) 
                     else: 
-                        await self.send(c, content=f"{author.mention} You must set your Deeeep.io account's name to your discord tag (`{author!s}`) when linking. \
-You only need to do this when linking; you can change it back afterward. Read <{self.LINK_HELP_IMG}> for more info. ") 
+                        await self.send(c, content=f"You must set your Deeeep.io account's name to your discord tag (`{m.author!s}`) when linking. \
+You only need to do this when linking; you can change it back afterward. Read <{self.LINK_HELP_IMG}> for more info. ", reference=m) 
 
                     success = True
             
             if not success: 
-                await self.send(c, content=f'{author.mention}, that is not a valid account. Read <{self.LINK_HELP_IMG}> for more info. ') 
+                await self.send(c, content=f'That is not a valid account. Read <{self.LINK_HELP_IMG}> for more info. ', reference=m) 
         else: 
-            self.links_table.delete(user_id=author.id) 
+            self.links_table.delete(user_id=m.author.id) 
 
             await self.send(c, content='Unlinked your account. ') 
     
@@ -555,31 +554,31 @@ You only need to do this when linking; you can change it back afterward. Read <{
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
         (LINK_SENTINEL,): 'Unlink your account', 
     }) 
-    async def link(s, self, c, author, query=None): 
+    async def link(s, self, c, m, query=None): 
         if query: 
-            await self.link_dep_acc(c, author, query) 
+            await self.link_dep_acc(c, m, query) 
         else: 
-            await self.link_help(c, author) 
+            await self.link_help(c, m) 
     
     @command('statstest', {
         ('<account_ID>',): 'View Deeeep.io account with ID `<account_ID>`', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
     }) 
     @requires_owner
-    async def cheat_stats(s, self, c, author, query): 
+    async def cheat_stats(s, self, c, m, query): 
         acc_id = self.get_acc_id(query) 
         
         if acc_id: 
             await self.send(c, embed=self.embed(acc_id)) 
         else: 
-            await self.send(c, content=f'{author.mention}, that is not a valid account. ') 
+            await self.send(c, content=f'That is not a valid account. ', reference=m) 
     
     @command('prefix', {
         ('<prefix>',): "Set the server-wide prefix for this bot to `<prefix>`", 
         (PREFIX_SENTINEL,): 'Reset the server prefix to default', 
     }) 
     @requires_perms('manage_guild') 
-    async def set_prefix(s, self, c, author, prefix): 
+    async def set_prefix(s, self, c, m, prefix): 
         if prefix == self.PREFIX_SENTINEL: 
             self.prefixes_table.delete(guild_id=c.guild.id) 
 
@@ -595,13 +594,13 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
                 await self.send(c, content=f'Custom prefix is now `{prefix}`. ') 
             else: 
-                await self.send(c, content=f'{author.mention}, prefix must not exceed {self.MAX_PREFIX} characters. ') 
+                await self.send(c, content=f'Prefix must not exceed {self.MAX_PREFIX} characters. ', reference=m) 
     
     @command('shutdown', {
         (): "Turn off the bot", 
     }) 
     @requires_owner
-    async def shut_down(s, self, c, author): 
+    async def shut_down(s, self, c, m): 
         await self.send(c, content='shutting down') 
 
         self.logging_out = True
@@ -610,12 +609,12 @@ You only need to do this when linking; you can change it back afterward. Read <{
         (): 'Get a list of all commands', 
         ('<command>',): 'Get help on `<command>`', 
     }) 
-    async def send_help(s, self, c, author, command_name=None): 
+    async def send_help(s, self, c, m, command_name=None): 
         if command_name: 
             comm = commands.COMMANDS.get(command_name.lower(), None) 
 
             if comm: 
-                usage_str = comm.usages_str(self, c, author) 
+                usage_str = comm.usages_str(self, c, m) 
 
                 await self.send(c, content=f'''How to use the `{command_name}` command: 
 
@@ -623,7 +622,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
             else: 
                 prefix = self.prefix(c) 
 
-                await self.send(c, content=f"{author.mention}, that's not a valid command name. Type `{prefix}{s.name}` for a list of commands. ") 
+                await self.send(c, content=f"That's not a valid command name. Type `{prefix}{s.name}` for a list of commands. ", reference=m) 
         else: 
             com_list_str = tools.format_iterable(commands.COMMANDS.keys(), formatter='`{}`') 
             prefix = self.prefix(c) 
@@ -631,15 +630,13 @@ You only need to do this when linking; you can change it back afterward. Read <{
             await self.send(c, content=f'''All commands for this bot: {com_list_str}. 
 Type `{prefix}{s.name} <command>` for help on a specified `<command>`''') 
     
-    async def execute(self, comm, c, author, *args): 
-        await comm.attempt_run(self, c, author, *args) 
+    async def execute(self, comm, c, m, *args): 
+        await comm.attempt_run(self, c, m, *args) 
     
     @task
-    async def handle_command(self, msg, c, prefix, words): 
-        author = msg.author
-            
+    async def handle_command(self, m, c, prefix, words): 
         if not hasattr(c, 'guild'): 
-            await self.send(c, content="{}, you can't use me in a DM channel. ".format(author.mention)) 
+            await self.send(c, content="You can't use me in a DM channel. ")  
         else: 
             permissions = c.permissions_for(c.guild.me) 
             
@@ -650,7 +647,7 @@ Type `{prefix}{s.name} <command>` for help on a specified `<command>`''')
                 comm = commands.COMMANDS.get(command.lower(), None) 
 
                 if comm: 
-                    await self.execute(comm, c, author, *args) 
+                    await self.execute(comm, c, m, *args) 
     
     async def on_message(self, msg): 
         c = msg.channel
