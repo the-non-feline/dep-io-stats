@@ -165,20 +165,40 @@ class Dep_io_Stats(discord.Client):
         
         return req_owner_func
     
-    def requires_perms(*perms): 
+    @staticmethod
+    def has_perms(req_all, req_one, perms): 
+        for perm in req_all: 
+            if not getattr(perms, perm): 
+                return False
+        
+        if req_one: 
+            for perm in req_one: 
+                if getattr(perms, perm): 
+                    return True
+            else: 
+                return False
+        else: 
+            return True
+    
+    def requires_perms(req_all=(), req_one=()): 
         def decorator(func): 
             async def req_perms_func(s, self, c, m, *args): 
                 author_perms = c.permissions_for(m.author) 
 
-                for perm in perms: 
-                    if not getattr(author_perms, perm): 
-                        perms_str = tools.format_iterable(perms, formatter='`{}`') 
-
-                        await self.send(c, content=f'You need the following permissions to do this: {perms_str}', reference=m) 
-
-                        break
-                else: 
+                if self.has_perms(req_all, req_one, author_perms): 
                     await func(s, self, c, m, *args) 
+                else: 
+                    req_all_str = f"all of the following permissions: {tools.format_iterable(req_all, formatter='`{}`')}" 
+                    req_one_str = f"at least one of the following permissions: {tools.format_iterable(req_one, formatter='`{}`')}" 
+
+                    if req_one and req_all: 
+                        req_str = req_all_str + ' and ' + req_one_str
+                    elif req_all: 
+                        req_str = req_all_str
+                    else: 
+                        req_str = req_one_str
+                    
+                    await self.send(c, content=f'You need {req_str} to use this command', reference=m) 
             
             return req_perms_func
         
@@ -567,7 +587,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         ('<prefix>',): "Set the server-wide prefix for this bot to `<prefix>`", 
         (PREFIX_SENTINEL,): 'Reset the server prefix to default', 
     }) 
-    @requires_perms('manage_guild') 
+    @requires_perms(req_one=('manage_messages', 'manage_roles')) 
     async def set_prefix(s, self, c, m, prefix): 
         if prefix == self.PREFIX_SENTINEL: 
             self.prefixes_table.delete(guild_id=c.guild.id) 
