@@ -261,8 +261,18 @@ class Dep_io_Stats(discord.Client):
         return json
     ''' 
     
-    def async_get(self, *urls): 
-        requests_list = [grequests.get(url) for url in urls] 
+    def async_get(self, *all_requests): 
+        requests_list = [] 
+
+        for request in all_requests: 
+            if type(request) is str: # plain url
+                to_add = grequests.get(request) 
+            elif type(request) is tuple: # (method, url) 
+                to_add = grequests.request(*request) 
+            else: 
+                to_add = request
+            
+            requests_list.append(to_add) 
         
         def handler(request, exception): 
             debug('connection error') 
