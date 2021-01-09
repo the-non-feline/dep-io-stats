@@ -424,13 +424,7 @@ class Dep_io_Stats(discord.Client):
         if stripped.isnumeric(): 
             member_id = int(stripped) 
             
-            #debug(member_id) 
-
-            m = self.get_user(member_id) 
-
-            #debug(m) 
-
-            return m
+            return member_id
     
     async def prompt_for_message(self, c, member_id, choices=None, custom_check=lambda to_check: True, timeout=None,  timeout_warning=10, default_choice=None): 
         mention = '<@{}>'.format(member_id) 
@@ -470,11 +464,7 @@ class Dep_io_Stats(discord.Client):
         if not user: 
             user_id = m.author.id
         elif not user.isnumeric(): 
-            user = self.decode_mention(c, user) 
-
-            #debug(user) 
-
-            user_id = user.id if user else None
+            user_id = self.decode_mention(c, user) 
         else: 
             user_id = user
         
