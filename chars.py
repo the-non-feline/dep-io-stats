@@ -4,5 +4,6 @@ c = {
     'deeeepcoin': '<:deeeepcoin:796231137474117664>', 
     'baby': ':baby:', 
     'video_game': ':video_game:', 
-    'heartpenguin': '<:HeartPenguin:796307297508786187>', 
+    'heartpenguin': '<:heartpenguin:796307297508786187>', 
+    'cooloctopus': '<:cooloctopus:692065886491901962>', 
 }

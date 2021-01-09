@@ -85,8 +85,13 @@ class Dep_io_Stats(discord.Client):
     SERVER_LIST_URL = 'http://api.deeeep.io/hosts?beta=1' 
     MAP_URL_TEMPLATE = 'https://api.deeeep.io/maps/{}' 
     SKINS_LIST_URL = 'https://api.deeeep.io/skins' 
+    LOGIN_URL = 'https://api.deeeep.io/auth/local/signin' 
+    SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
 
-    def __init__(self, logs_file_name, storage_file_name): 
+    def __init__(self, logs_file_name, storage_file_name, email, password): 
+        self.email = email
+        self.password = password
+
         self.db = dataset.connect(storage_file_name) 
         self.links_table = self.db.get_table('account_links') 
         self.prefixes_table = self.db.get_table('prefixes') 
@@ -282,7 +287,17 @@ class Dep_io_Stats(discord.Client):
 
         #debug(datas) 
 
-        jsons = [(data.json() if data.ok and data.text else None) for data in datas] 
+        jsons = [] 
+
+        for data in datas: 
+            to_append = None
+            
+            if data.ok and data.text: 
+                to_append = data.json() 
+            else: 
+                debug(data.text) 
+
+            jsons.append(to_append) 
 
         #debug(jsons) 
 
@@ -305,19 +320,15 @@ class Dep_io_Stats(discord.Client):
         
         return map_set
     
-    def get_map_datas(self, *map_ids): 
+    def get_map_urls(self, *map_ids): 
         urls = [self.MAP_URL_TEMPLATE.format(map_id) for map_id in map_ids] 
         
-        return self.async_get(*urls) 
+        return urls
     
-    def get_map_contribs(self, server_list, acc_id): 
+    def get_map_contribs(self, map_jsons, acc_id): 
         #debug(server_list) 
 
-        map_list = self.get_map_list(server_list) 
-
         contrib_names = [] 
-
-        map_jsons = self.get_map_datas(*map_list) 
 
         for map_json in map_jsons: 
             if map_json: 
@@ -342,10 +353,35 @@ class Dep_io_Stats(discord.Client):
         
         return contrib_names
     
-    def get_contribs(self, acc, acc_id, server_list, skins_list): 
+    def get_skin_board_role(self, members_list, acc_id): 
+        role = None
+
+        if members_list: 
+            prev_member_id = None
+            reached_manager = False
+
+            for member in members_list: 
+                member_id = member['id'] 
+
+                #debug(member_id) 
+
+                if prev_member_id and prev_member_id > member_id: 
+                    reached_manager = True
+                
+                if str(member_id) == acc_id: 
+                    position = 'Manager' if reached_manager else 'Member' 
+                    role = f'Skin Board {position}' 
+
+                    break
+                
+                prev_member_id = member_id
+        
+        return role
+    
+    def get_contribs(self, acc, acc_id, map_list, skins_list): 
         contribs = [] 
 
-        map_contribs = self.get_map_contribs(server_list, acc_id) 
+        map_contribs = self.get_map_contribs(map_list, acc_id) 
 
         if map_contribs: 
             map_str = tools.format_iterable(map_contribs, formatter='`{}`') 
@@ -359,24 +395,65 @@ class Dep_io_Stats(discord.Client):
 
             contribs.append(f'Created skin(s) {skin_str}') 
         
-        if acc: 
-            if acc['beta']: 
-                contribs.append(f'Beta tester') 
-        
         #debug(contribs) 
         
         return contribs
+    
+    def get_roles(self, acc, acc_id, members_list): 
+        roles = [] 
+
+        skin_board_role = self.get_skin_board_role(members_list, acc_id) 
+
+        if skin_board_role: 
+            roles.append(skin_board_role) 
+        
+        if acc: 
+            if acc['beta']: 
+                roles.append(f'Beta Tester') 
+        
+        return roles
     
     def get_all_acc_data(self, acc_id): 
         acc_url = self.DATA_URL_TEMPLATE.format(acc_id) 
         server_list_url = self.SERVER_LIST_URL
         skins_list_url = self.SKINS_LIST_URL
+        login_url = self.LOGIN_URL
 
-        acc_json, server_list, skins_list = self.async_get(acc_url, server_list_url, skins_list_url) 
+        login_request = grequests.request('POST', login_url, data={
+            'email': self.email, 
+            'password': self.password, 
+        })
 
-        contribs = self.get_contribs(acc_json, acc_id, server_list, skins_list) 
+        acc_json, server_list, skins_list, login_json = self.async_get(acc_url, server_list_url, skins_list_url, login_request) 
 
-        return acc_json, contribs
+        map_list = self.get_map_list(server_list) 
+        map_urls = self.get_map_urls(*map_list) 
+        
+        round_2_urls = map_urls.copy() 
+
+        members_list = None
+
+        if login_json: 
+            token = login_json['token'] 
+
+            #debug(token) 
+
+            members_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
+                'Authorization': f'Bearer {token}', 
+            }) 
+
+            round_2_urls.append(members_request) 
+
+            *map_jsons, members_list = self.async_get(*round_2_urls) 
+
+            #debug(members_list) 
+        else: 
+            map_jsons = self.async_get(*round_2_urls) 
+
+        contribs = self.get_contribs(acc_json, acc_id, map_jsons, skins_list) 
+        roles = self.get_roles(acc_json, acc_id, members_list) 
+
+        return acc_json, contribs, roles
     
     def trim_maybe(self, string, limit): 
         if (len(string) > limit): 
@@ -385,7 +462,7 @@ class Dep_io_Stats(discord.Client):
         return string
     
     def embed(self, acc_id): 
-        acc, contribs = self.get_all_acc_data(acc_id) 
+        acc, contribs, roles = self.get_all_acc_data(acc_id) 
 
         color = discord.Color.random() 
 
@@ -432,6 +509,13 @@ class Dep_io_Stats(discord.Client):
             contribs_str = self.trim_maybe(contribs_str, self.MAX_FIELD_VAL) 
 
             embed.add_field(name=f"Contributions {c['heartpenguin']}", value=contribs_str, inline=False) 
+        
+        if roles: 
+            roles_str = tools.format_iterable(roles) 
+
+            roles_str = self.trim_maybe(roles_str, self.MAX_FIELD_VAL) 
+
+            embed.add_field(name=f"Roles {c['cooloctopus']}", value=roles_str, inline=False)
 
         return embed
     
