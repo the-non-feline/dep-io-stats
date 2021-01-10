@@ -520,9 +520,9 @@ class Dep_io_Stats(discord.Client):
         return embed
     
     async def on_ready(self): 
-        debug('ready') 
-
         self.readied = True
+        
+        debug('ready') 
     
     def decode_mention(self, c, mention): 
         #debug(mention) 
