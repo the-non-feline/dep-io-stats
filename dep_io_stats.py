@@ -68,6 +68,7 @@ class Dep_io_Stats(discord.Client):
 
     LINK_SENTINEL = 'remove' 
     LINK_HELP_IMG = 'https://cdn.discordapp.com/attachments/493952969277046787/796576600413175819/linking_instructions.png' 
+    INVITE_LINK = 'https://discord.com/oauth2/authorize?client_id=796151711571116042&permissions=347136&scope=bot' 
 
     DATE_FORMAT = '%B %d, %Y' 
 
@@ -87,6 +88,7 @@ class Dep_io_Stats(discord.Client):
     SKINS_LIST_URL = 'https://api.deeeep.io/skins' 
     LOGIN_URL = 'https://api.deeeep.io/auth/local/signin' 
     SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
+    LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 
 
     def __init__(self, logs_file_name, storage_file_name, email, password): 
         self.email = email
@@ -417,12 +419,15 @@ class Dep_io_Stats(discord.Client):
         acc_url = self.DATA_URL_TEMPLATE.format(acc_id) 
         server_list_url = self.SERVER_LIST_URL
         skins_list_url = self.SKINS_LIST_URL
+        
         login_url = self.LOGIN_URL
 
         login_request = grequests.request('POST', login_url, data={
             'email': self.email, 
             'password': self.password, 
-        })
+        }) 
+
+        login_json = None
 
         acc_json, server_list, skins_list, login_json = self.async_get(acc_url, server_list_url, skins_list_url, login_request) 
 
@@ -447,6 +452,12 @@ class Dep_io_Stats(discord.Client):
             *map_jsons, members_list = self.async_get(*round_2_urls) 
 
             #debug(members_list) 
+
+            logout_request = grequests.request('GET', self.LOGOUT_URL, headers={
+                'Authorization': f'Bearer {token}', 
+            }) 
+
+            self.async_get(logout_request) 
         else: 
             map_jsons = self.async_get(*round_2_urls) 
 
@@ -499,7 +510,10 @@ class Dep_io_Stats(discord.Client):
             embed.add_field(name=f"Date created {c['baby']}", value=date_created.strftime(self.DATE_FORMAT)) 
             embed.add_field(name=f"Date last played {c['video_game']}", value=date_last_played.strftime(self.DATE_FORMAT)) 
         else: 
-            embed = discord.Embed(title='Error', type='rich', description='An error occurred. ', color=color) 
+            embed = discord.Embed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
+
+            embed.add_field(name="Why?", value="This usually happens when the game isn't working. ") 
+            embed.add_field(name="What now?", value="Don't spam this command. Just try again when the game works again. ") 
         
         embed.set_footer(text=f'ID: {acc_id}') 
 
@@ -733,6 +747,12 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
             await self.send(c, content=f'''All commands for this bot: {com_list_str}. 
 Type `{prefix}{s.name} <command>` for help on a specified `<command>`''') 
+
+    @command('invite', {
+        (): 'Display the invite link for the bot', 
+    }) 
+    async def send_invite(s, self, c, m): 
+        await self.send(c, content=f'Invite link is <{self.INVITE_LINK}>. ', reference=m)
     
     async def execute(self, comm, c, m, *args): 
         await comm.attempt_run(self, c, m, *args) 
