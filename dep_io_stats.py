@@ -529,8 +529,8 @@ class Dep_io_Stats(discord.Client):
         #animal_name = self.get_animal(animal_id) 
 
         embed.add_field(name=f"Animal {c['fish']}", value=animal_id) 
-        embed.add_field(name=f"Price {c['deeeepcoin']}", value=price) 
-        embed.add_field(name=f"Sales {c['stonkalot']}", value=sales) 
+        embed.add_field(name=f"Price {c['deeeepcoin']}", value=f'{price:,}') 
+        embed.add_field(name=f"Sales {c['stonkalot']}", value=f'{sales:,}') 
 
         if stat_changes: 
             stat_changes_str = tools.make_list(stat_changes.split(';')) 
@@ -742,7 +742,7 @@ class Dep_io_Stats(discord.Client):
         else: 
             acc_id = query
         
-        return acc_id if acc_id.isnumeric() else None
+        return acc_id if acc_id and acc_id.isnumeric() else None
     
     async def link_dep_acc(self, c, m, query): 
         if query != self.LINK_SENTINEL: 
