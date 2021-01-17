@@ -1,4 +1,4 @@
-levels = [{
+[{
     name: "fish"
 }, {
     name: "crab"

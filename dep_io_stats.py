@@ -8,6 +8,7 @@ import time
 import random
 import re
 import dateutil.parser as parser
+import json
 import tools
 import commands
 from chars import c
@@ -107,6 +108,8 @@ class Dep_io_Stats(discord.Client):
 
         logger.addHandler(handler) 
 
+        #self.levels_file = open(levels_file_name, mode='r') 
+
         self.tasks = 0
         self.logging_out = False
 
@@ -130,6 +133,7 @@ class Dep_io_Stats(discord.Client):
     
     async def logout(self): 
         self.logs_file.close() 
+        #self.levels_file.close() 
 
         await super().logout() 
     
@@ -478,6 +482,23 @@ class Dep_io_Stats(discord.Client):
             if spaceless_name.lower() == query.lower(): 
                 return skin
     
+    '''
+    def get_animal(self, animal_id): 
+        try: 
+            obj = json.load(self.levels_file) 
+        except json.JSONDecodeError: 
+            debug('Error reading levels file', exc_info=True) 
+        else: 
+            index = int(animal_id) 
+
+            if index < len(obj): 
+                animal_obj = obj[int(animal_id)] 
+
+                return animal_obj['name'] 
+            else: 
+                return animal_id
+    ''' 
+    
     def skin_embed(self, skin): 
         color = discord.Color.random() 
 
@@ -504,6 +525,8 @@ class Dep_io_Stats(discord.Client):
         last_updated = skin['updated_at'] 
         user_name = skin['user_name'] 
         version = skin['version'] 
+
+        #animal_name = self.get_animal(animal_id) 
 
         embed.add_field(name=f"Animal {c['fish']}", value=animal_id) 
         embed.add_field(name=f"Price {c['deeeepcoin']}", value=price) 
