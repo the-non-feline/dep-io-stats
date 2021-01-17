@@ -5,5 +5,11 @@ c = {
     'baby': ':baby:', 
     'video_game': ':video_game:', 
     'heartpenguin': '<:heartpenguin:796307297508786187>', 
-    'cooloctopus': '<:cooloctopus:692065886491901962>', 
+    'cooloctopus': '<:cooloctopus:797573684758970419>', 
+    'change': ':twisted_rightwards_arrows:', 
+    'tools': ':tools:', 
+    'fish': ':fish:', 
+    'stonkalot': '<:stonkalot:800488843047338015>', 
+    'wrench': ':wrench:', 
+    'palette': ':art:', 
 }

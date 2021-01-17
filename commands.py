@@ -43,7 +43,7 @@ class Command:
             return False
     
     async def run(self, client, c, m, *args): 
-        await self.func(self, client, c, m, *args) 
+        await self.func(client, c, m, *args) 
     
     async def attempt_run(self, client, c, m, *args): 
         if self.check_args(client, c, m, *args): 

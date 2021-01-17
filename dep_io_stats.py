@@ -90,6 +90,9 @@ class Dep_io_Stats(discord.Client):
     SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
     LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 
 
+    SKIN_ASSET_URL_TEMPLATE = 'https://deeeep.io/assets/skins/{}' 
+    CUSTOM_SKIN_ASSET_URL_ADDITION = 'custom/' 
+
     def __init__(self, logs_file_name, storage_file_name, email, password): 
         self.email = email
         self.password = password
@@ -164,9 +167,9 @@ class Dep_io_Stats(discord.Client):
         return task_func
     
     def requires_owner(func): 
-        async def req_owner_func(s, self, c, m, *args): 
+        async def req_owner_func(self, c, m, *args): 
             if m.author.id == self.OWNER_ID: 
-                await func(s, self, c, m, *args) 
+                await func(self, c, m, *args) 
             else: 
                 await self.send(c, content='no u (owner-only command) ', reference=m) 
         
@@ -189,11 +192,11 @@ class Dep_io_Stats(discord.Client):
     
     def requires_perms(req_all=(), req_one=()): 
         def decorator(func): 
-            async def req_perms_func(s, self, c, m, *args): 
+            async def req_perms_func(self, c, m, *args): 
                 author_perms = c.permissions_for(m.author) 
 
                 if self.has_perms(req_all, req_one, author_perms): 
-                    await func(s, self, c, m, *args) 
+                    await func(self, c, m, *args) 
                 else: 
                     req_all_str = f"all of the following permissions: {tools.format_iterable(req_all, formatter='`{}`')}" 
                     req_one_str = f"at least one of the following permissions: {tools.format_iterable(req_one, formatter='`{}`')}" 
@@ -466,13 +469,83 @@ class Dep_io_Stats(discord.Client):
 
         return acc_json, contribs, roles
     
+    def get_skin(self, skins_list, query): 
+        for skin in skins_list: 
+            skin_name = skin['name'] 
+
+            spaceless_name = skin_name.replace(' ', '') 
+
+            if spaceless_name.lower() == query.lower(): 
+                return skin
+    
+    def skin_embed(self, skin): 
+        color = discord.Color.random() 
+
+        embed = discord.Embed(title=skin['name'], color=color) 
+
+        asset_name = skin['asset'] 
+
+        if asset_name[0].isnumeric(): 
+            asset_name = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_name
+
+        asset_url = self.SKIN_ASSET_URL_TEMPLATE.format(asset_name) 
+
+        debug(asset_url) 
+
+        embed.set_image(url=asset_url) 
+
+        stat_changes = skin['attributes'] 
+        date_created = parser.isoparse(skin['created_at']) 
+        designer_id = skin['designer_id'] 
+        animal_id = skin['fish_level'] 
+        ID = skin['id'] 
+        price = skin['price'] 
+        sales = skin['sales'] 
+        last_updated = skin['updated_at'] 
+        user_name = skin['user_name'] 
+        version = skin['version'] 
+
+        embed.add_field(name=f"Animal {c['fish']}", value=animal_id) 
+        embed.add_field(name=f"Price {c['deeeepcoin']}", value=price) 
+        embed.add_field(name=f"Sales {c['stonkalot']}", value=sales) 
+
+        if stat_changes: 
+            stat_changes_str = tools.make_list(stat_changes.split(';')) 
+
+            embed.add_field(name=f"Stat changes {c['change']}", value=stat_changes_str, inline=False) 
+        
+        if date_created: 
+            embed.add_field(name=f"Date created {c['tools']}", value=date_created.strftime(self.DATE_FORMAT)) 
+
+        version_str = str(version) 
+        version_inline = True
+
+        if last_updated: 
+            date_updated = parser.isoparse(last_updated) 
+
+            version_str += f' (updated {date_updated.strftime(self.DATE_FORMAT)})' 
+            version_inline = False
+        
+        embed.add_field(name=f"Version {c['wrench']}", value=version_str, inline=version_inline) 
+
+        if user_name: 
+            creator = user_name
+        else: 
+            creator = designer_id
+        
+        embed.add_field(name=f"Creator {c['palette']}", value=creator) 
+
+        embed.set_footer(text=f"ID: {ID}") 
+
+        return embed
+    
     def trim_maybe(self, string, limit): 
         if (len(string) > limit): 
             string = string[:limit - len(self.TRAIL_OFF)] + self.TRAIL_OFF
         
         return string
     
-    def embed(self, acc_id): 
+    def acc_embed(self, acc_id): 
         acc, contribs, roles = self.get_all_acc_data(acc_id) 
 
         color = discord.Color.random() 
@@ -588,7 +661,7 @@ class Dep_io_Stats(discord.Client):
         ('@<user>',): "View `<user>`'s stats", 
         ('<user_ID>',): "Same as above except with Discord ID instead to avoid pings", 
     }) 
-    async def check_stats(s, self, c, m, user=None): 
+    async def check_stats(self, c, m, user=None): 
         if not user: 
             user_id = m.author.id
         elif not user.isnumeric(): 
@@ -608,11 +681,29 @@ class Dep_io_Stats(discord.Client):
         if link: 
             acc_id = link['acc_id'] 
 
-            await self.send(c, embed=self.embed(acc_id)) 
+            await self.send(c, embed=self.acc_embed(acc_id)) 
         elif user_id == m.author.id: 
             await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ", reference=m) 
         else: 
             await self.send(c, content=f"Either you entered the wrong user ID or this user isn't linked.", reference=m) 
+    
+    @command('skin', {
+        ('<skin_name>',): "View the stats of skin with `<skin_name>`. Spaces should be omitted; for example, Albino Cachalot would be `albinocachalot`.", 
+    }) 
+    async def check_skin(self, c, m, skin_name): 
+        skins_list_url = self.SKINS_LIST_URL
+
+        skins_list = self.async_get(skins_list_url)[0] 
+        
+        if skins_list: 
+            skin_data = self.get_skin(skins_list, skin_name) 
+
+            if skin_data: 
+                await self.send(c, embed=self.skin_embed(skin_data)) 
+            else: 
+                await self.send(c, content=f"That's not a valid skin name. ", reference=m) 
+        else: 
+            await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
     
     async def link_help(self, c, m): 
         await self.send(c, content=f'Click here for instructions on how to link your account. <{self.LINK_HELP_IMG}>', reference=m) 
@@ -628,7 +719,7 @@ class Dep_io_Stats(discord.Client):
         else: 
             acc_id = query
         
-        return acc_id
+        return acc_id if acc_id.isnumeric() else None
     
     async def link_dep_acc(self, c, m, query): 
         if query != self.LINK_SENTINEL: 
@@ -672,7 +763,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
         (LINK_SENTINEL,): 'Unlink your account', 
     }) 
-    async def link(s, self, c, m, query=None): 
+    async def link(self, c, m, query=None): 
         if query: 
             await self.link_dep_acc(c, m, query) 
         else: 
@@ -683,11 +774,11 @@ You only need to do this when linking; you can change it back afterward. Read <{
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
     }) 
     @requires_owner
-    async def cheat_stats(s, self, c, m, query): 
+    async def cheat_stats(self, c, m, query): 
         acc_id = self.get_acc_id(query) 
         
         if acc_id: 
-            await self.send(c, embed=self.embed(acc_id)) 
+            await self.send(c, embed=self.acc_embed(acc_id)) 
         else: 
             await self.send(c, content=f'That is not a valid account. ', reference=m) 
     
@@ -696,7 +787,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         (PREFIX_SENTINEL,): 'Reset the server prefix to default', 
     }) 
     @requires_perms(req_one=('manage_messages', 'manage_roles')) 
-    async def set_prefix(s, self, c, m, prefix): 
+    async def set_prefix(self, c, m, prefix): 
         if prefix == self.PREFIX_SENTINEL: 
             self.prefixes_table.delete(guild_id=c.guild.id) 
 
@@ -718,7 +809,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         (): "Turn off the bot", 
     }) 
     @requires_owner
-    async def shut_down(s, self, c, m): 
+    async def shut_down(self, c, m): 
         await self.send(c, content='shutting down') 
 
         self.logging_out = True
@@ -727,7 +818,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         (): 'Get a list of all commands', 
         ('<command>',): 'Get help on `<command>`', 
     }) 
-    async def send_help(s, self, c, m, command_name=None): 
+    async def send_help(self, c, m, command_name=None): 
         if command_name: 
             comm = commands.Command.get_command(command_name)  
 
@@ -740,7 +831,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
             else: 
                 prefix = self.prefix(c) 
 
-                await self.send(c, content=f"That's not a valid command name. Type `{prefix}{s.name}` for a list of commands. ", reference=m) 
+                await self.send(c, content=f"That's not a valid command name. Type `{prefix}{self.send_help.name}` for a list of commands. ", reference=m) 
         else: 
             com_list_str = tools.format_iterable(commands.Command.all_commands(), formatter='`{}`') 
             prefix = self.prefix(c) 
@@ -751,7 +842,7 @@ Type `{prefix}{s.name} <command>` for help on a specified `<command>`''')
     @command('invite', {
         (): 'Display the invite link for the bot', 
     }) 
-    async def send_invite(s, self, c, m): 
+    async def send_invite(self, c, m): 
         await self.send(c, content=f'Invite link is <{self.INVITE_LINK}>. ', reference=m)
     
     async def execute(self, comm, c, m, *args): 
