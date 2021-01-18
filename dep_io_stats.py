@@ -520,7 +520,7 @@ class Dep_io_Stats(discord.Client):
         color = discord.Color.random() 
 
         stat_changes = skin['attributes'] 
-        date_created = parser.isoparse(skin['created_at']) 
+        when_created = skin['created_at'] 
         designer_id = skin['designer_id'] 
         animal_id = skin['fish_level'] 
         ID = skin['id'] 
@@ -587,7 +587,9 @@ class Dep_io_Stats(discord.Client):
         if usable: 
             embed.add_field(name=f"Usable {c['check']}", value=usable) 
         
-        if date_created: 
+        if when_created: 
+            date_created = parser.isoparse(when_created) 
+
             embed.add_field(name=f"Date created {c['tools']}", value=date_created.strftime(self.DATE_FORMAT)) 
 
         version_str = str(version) 
@@ -654,11 +656,18 @@ class Dep_io_Stats(discord.Client):
             embed.add_field(name=f"Highscore {c['first_place']}", value=f'{max_score:,}') 
             embed.add_field(name=f"Coins {c['deeeepcoin']}", value=f'{coins:,}') 
 
-            date_created = parser.isoparse(acc['date_created']) 
-            date_last_played = parser.isoparse(acc['date_last_played']) 
+            when_created = acc['date_created'] 
+            when_last_played = acc['date_last_played'] 
 
-            embed.add_field(name=f"Date created {c['baby']}", value=date_created.strftime(self.DATE_FORMAT)) 
-            embed.add_field(name=f"Date last played {c['video_game']}", value=date_last_played.strftime(self.DATE_FORMAT)) 
+            if when_created: 
+                date_created = parser.isoparse(when_created) 
+
+                embed.add_field(name=f"Date created {c['baby']}", value=date_created.strftime(self.DATE_FORMAT)) 
+
+            if when_last_played: 
+                date_last_played = parser.isoparse(when_last_played) 
+
+                embed.add_field(name=f"Date last played {c['video_game']}", value=date_last_played.strftime(self.DATE_FORMAT)) 
         else: 
             embed = discord.Embed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
 
@@ -748,8 +757,8 @@ class Dep_io_Stats(discord.Client):
 
         desc = self.trim_maybe(desc, self.MAX_DESC) 
 
-        date_created = parser.isoparse(map_json['created_at']) 
-        date_updated = parser.isoparse(map_json['updated_at']) 
+        when_created = map_json['created_at'] 
+        when_updated = map_json['updated_at'] 
 
         map_data = json.loads(map_json['data']) 
         tags = map_json['tags'] 
@@ -803,9 +812,16 @@ class Dep_io_Stats(discord.Client):
                 clone_link = self.MAPMAKER_URL_TEMPLATE.format(clone_string_id) 
 
                 embed.add_field(name=f"Cloned from {c['notes']}", value=f'[{clone_title}]({clone_link})') 
+        
+        if when_created: 
+            date_created = parser.isoparse(when_created) 
 
-        embed.add_field(name=f"Date created {c['tools']}", value=date_created.strftime(self.DATE_FORMAT)) 
-        embed.add_field(name=f"Date last updated {c['wrench']}", value=date_updated.strftime(self.DATE_FORMAT)) 
+            embed.add_field(name=f"Date created {c['tools']}", value=date_created.strftime(self.DATE_FORMAT)) 
+        
+        if when_updated: 
+            date_updated = parser.isoparse(when_updated) 
+
+            embed.add_field(name=f"Date last updated {c['wrench']}", value=date_updated.strftime(self.DATE_FORMAT)) 
 
         if tags_list: 
             tags_str = tools.format_iterable(tags_list, formatter='`{}`') 
