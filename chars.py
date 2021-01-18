@@ -19,4 +19,7 @@ c = {
     'carpenter': ':construction_worker:', 
     'notes': ':pencil:', 
     'label': ':label:', 
+    'folder': ':file_folder:', 
+    'calendar': ':calendar:', 
+    'check': ':white_check_mark:', 
 }

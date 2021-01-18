@@ -94,6 +94,7 @@ class Dep_io_Stats(discord.Client):
 
     SKIN_ASSET_URL_TEMPLATE = 'https://deeeep.io/assets/skins/{}' 
     CUSTOM_SKIN_ASSET_URL_ADDITION = 'custom/' 
+    SKIN_URL_TEMPLATE = 'https://api.deeeep.io/skins/{}' 
 
     MAP_URL_ADDITION = 's/' 
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
@@ -305,10 +306,13 @@ class Dep_io_Stats(discord.Client):
         for data in datas: 
             to_append = None
             
-            if data.ok and data.text: 
-                to_append = data.json() 
+            if data: 
+                if data.ok and data.text: 
+                    to_append = data.json() 
+                else: 
+                    debug(data.text) 
             else: 
-                debug(data.text) 
+                debug('connection error, no data') 
 
             jsons.append(to_append) 
 
@@ -515,7 +519,37 @@ class Dep_io_Stats(discord.Client):
     def skin_embed(self, skin): 
         color = discord.Color.random() 
 
-        embed = discord.Embed(title=skin['name'], color=color) 
+        stat_changes = skin['attributes'] 
+        date_created = parser.isoparse(skin['created_at']) 
+        designer_id = skin['designer_id'] 
+        animal_id = skin['fish_level'] 
+        ID = skin['id'] 
+        price = skin['price'] 
+        sales = skin['sales'] 
+        last_updated = skin['updated_at'] 
+        user_name = skin['user_name'] 
+        version = skin['version'] 
+
+        desc = None
+        reddit_link = None
+        category = None
+        season = None
+        usable = None
+
+        skin_url = self.SKIN_URL_TEMPLATE.format(ID) 
+
+        skin_json = self.async_get(skin_url)[0] 
+
+        if skin_json: 
+            desc = skin_json['description'] 
+            reddit_link = skin_json['reddit_link'] 
+            category = skin_json['category'] 
+            season = skin_json['season'] 
+            usable = skin_json['usable'] 
+        
+        desc = self.trim_maybe(desc, self.MAX_DESC) 
+
+        embed = discord.Embed(title=skin['name'], desc=desc, color=color, link=reddit_link) 
 
         asset_name = skin['asset'] 
 
@@ -528,17 +562,6 @@ class Dep_io_Stats(discord.Client):
 
         embed.set_image(url=asset_url) 
 
-        stat_changes = skin['attributes'] 
-        date_created = parser.isoparse(skin['created_at']) 
-        designer_id = skin['designer_id'] 
-        animal_id = skin['fish_level'] 
-        ID = skin['id'] 
-        price = skin['price'] 
-        sales = skin['sales'] 
-        last_updated = skin['updated_at'] 
-        user_name = skin['user_name'] 
-        version = skin['version'] 
-
         #animal_name = self.get_animal(animal_id) 
 
         embed.add_field(name=f"Animal {c['fish']}", value=animal_id) 
@@ -549,6 +572,15 @@ class Dep_io_Stats(discord.Client):
             stat_changes_str = tools.make_list(stat_changes.split(';')) 
 
             embed.add_field(name=f"Stat changes {c['change']}", value=stat_changes_str, inline=False) 
+        
+        if category: 
+            embed.add_field(name=f"Category {c['folder']}", value=category) 
+
+        if season: 
+            embed.add_field(name=f"Season {c['calendar']}", value=season) 
+        
+        if usable: 
+            embed.add_field(name=f"Usable {c['check']}", value=usable) 
         
         if date_created: 
             embed.add_field(name=f"Date created {c['tools']}", value=date_created.strftime(self.DATE_FORMAT)) 
@@ -576,7 +608,7 @@ class Dep_io_Stats(discord.Client):
         return embed
     
     def trim_maybe(self, string, limit): 
-        if (len(string) > limit): 
+        if string and len(string) > limit: 
             string = string[:limit - len(self.TRAIL_OFF)] + self.TRAIL_OFF
         
         return string
