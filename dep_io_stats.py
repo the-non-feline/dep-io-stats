@@ -602,11 +602,15 @@ class Dep_io_Stats(discord.Client):
         embed.add_field(name=f"Version {c['wrench']}", value=version_str, inline=version_inline) 
 
         if user_name: 
-            creator = user_name
+            user_username = skin['user_username'] 
+
+            creator = f'{user_name} (@{user_username})' 
+            creator_inline = False
         else: 
             creator = designer_id
+            creator_inline = True
         
-        embed.add_field(name=f"Creator {c['palette']}", value=creator) 
+        embed.add_field(name=f"Creator {c['palette']}", value=creator, inline=creator_inline) 
 
         embed.set_footer(text=f"ID: {ID}") 
 
@@ -753,6 +757,7 @@ class Dep_io_Stats(discord.Client):
 
         tags_list = [tag['id'] for tag in tags] 
         creator_name = creator['name'] 
+        creator_username = creator['username'] 
 
         world_size = map_data['worldSize'] 
         width = world_size['width'] 
@@ -774,16 +779,17 @@ class Dep_io_Stats(discord.Client):
 
             embed.add_field(name=f"Gravity {c['down']}", value=f'{gravity:,}') 
 
-        if objs: 
-            obj_count_list = self.count_objects(objs) 
+        obj_count_list = self.count_objects(objs) 
 
-            obj_count_str = tools.make_list(obj_count_list) 
+        obj_count_str = tools.make_list(obj_count_list) 
 
-            obj_count_str = self.trim_maybe(obj_count_str, self.MAX_FIELD_VAL) 
+        obj_count_str = self.trim_maybe(obj_count_str, self.MAX_FIELD_VAL) 
 
-            embed.add_field(name=f"Object count {c['scroll']}", value=obj_count_str, inline=False) 
+        embed.add_field(name=f"Object count {c['scroll']}", value=obj_count_str, inline=False) 
 
-        embed.add_field(name=f"Creator {c['carpenter']}", value=creator_name, inline=False) 
+        creator_str = f'{creator_name} (@{creator_username})'
+
+        embed.add_field(name=f"Creator {c['carpenter']}", value=creator_str, inline=False) 
 
         if clone_of: 
             clone_url = self.MAP_URL_TEMPLATE.format(clone_of) 
