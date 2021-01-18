@@ -711,7 +711,7 @@ class Dep_io_Stats(discord.Client):
             await self.send(c, content=f"Either you entered the wrong user ID or this user isn't linked.", reference=m) 
     
     @command('skin', {
-        ('<skin_name>',): "View the stats of skin with `<skin_name>`. Spaces should be omitted; for example, Albino Cachalot would be `albinocachalot`.", 
+        ('<skin_name>',): "View the stats of skin with `<skin_name>`. Spaces should be omitted; for example, Albino Cachalot's name would be `albinocachalot`.", 
     }) 
     async def check_skin(self, c, m, skin_name): 
         skins_list_url = self.SKINS_LIST_URL
@@ -860,7 +860,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
             prefix = self.prefix(c) 
 
             await self.send(c, content=f'''All commands for this bot: {com_list_str}. 
-Type `{prefix}{s.name} <command>` for help on a specified `<command>`''') 
+Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command>`''') 
 
     @command('invite', {
         (): 'Display the invite link for the bot', 
