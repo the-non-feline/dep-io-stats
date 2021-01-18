@@ -542,14 +542,19 @@ class Dep_io_Stats(discord.Client):
 
         if skin_json: 
             desc = skin_json['description'] 
+
+            desc = self.trim_maybe(desc, self.MAX_DESC) 
+
+            #debug(desc) 
+
             reddit_link = skin_json['reddit_link'] 
             category = skin_json['category'] 
             season = skin_json['season'] 
             usable = skin_json['usable'] 
-        
-        desc = self.trim_maybe(desc, self.MAX_DESC) 
 
-        embed = discord.Embed(title=skin['name'], desc=desc, color=color, link=reddit_link) 
+        #debug(desc) 
+
+        embed = discord.Embed(title=skin['name'], description=desc, color=color, url=reddit_link) 
 
         asset_name = skin['asset'] 
 
