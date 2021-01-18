@@ -79,6 +79,7 @@ class Dep_io_Stats(discord.Client):
     TRAIL_OFF = '...' 
     MAX_LOG = 1000000
     MAX_SEARCH_TIME = 60
+    MAX_SKIN_SUGGESTIONS = 10
 
     OWNER_ID = 315682382147485697
 
@@ -474,13 +475,22 @@ class Dep_io_Stats(discord.Client):
         return acc_json, contribs, roles
     
     def get_skin(self, skins_list, query): 
+        suggestions = [] 
+
         for skin in skins_list: 
             skin_name = skin['name'] 
 
             spaceless_name = skin_name.replace(' ', '') 
 
-            if spaceless_name.lower() == query.lower(): 
+            lowered_name = spaceless_name.lower() 
+            lowered_query = query.lower() 
+
+            if lowered_name == lowered_query: 
                 return skin
+            elif lowered_query in lowered_name: 
+                suggestions.append(lowered_name) 
+        else: 
+            return suggestions
     
     '''
     def get_animal(self, animal_id): 
@@ -721,10 +731,17 @@ class Dep_io_Stats(discord.Client):
         if skins_list: 
             skin_data = self.get_skin(skins_list, skin_name) 
 
-            if skin_data: 
-                await self.send(c, embed=self.skin_embed(skin_data)) 
+            if type(skin_data) is list: 
+                text = "That's not a valid skin name. " 
+
+                if 0 < len(skin_data) <= self.MAX_SKIN_SUGGESTIONS: 
+                    suggestions_str = tools.format_iterable(skin_data, formatter='`{}`') 
+
+                    text += f"Maybe you meant one of these? {suggestions_str}" 
+
+                await self.send(c, content=text, reference=m) 
             else: 
-                await self.send(c, content=f"That's not a valid skin name. ", reference=m) 
+                await self.send(c, embed=self.skin_embed(skin_data)) 
         else: 
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
     
