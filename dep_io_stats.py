@@ -781,20 +781,19 @@ class Dep_io_Stats(discord.Client):
         debug('ready') 
     
     def decode_mention(self, c, mention): 
-        #debug(mention) 
+        member_id = None
 
-        if mention.startswith('<@') and mention.endswith('>'): 
-            stripped = mention[2:len(mention) - 1] 
+        if not mention.isnumeric(): 
+            m = re.compile('\A<@!?(?P<member_id>[0-9]+)>\Z').match(mention)
 
-            if stripped.startswith('!'): 
-                stripped = stripped[1:] 
+            if m: 
+                member_id = m.group('member_id') 
         else: 
-            stripped = mention
-            
-        if stripped.isnumeric(): 
-            member_id = int(stripped) 
-            
-            return member_id
+            member_id = mention
+        
+        #debug(member_id) 
+        
+        return member_id
     
     async def prompt_for_message(self, c, member_id, choices=None, custom_check=lambda to_check: True, timeout=None,  timeout_warning=10, default_choice=None): 
         mention = '<@{}>'.format(member_id) 
@@ -833,10 +832,8 @@ class Dep_io_Stats(discord.Client):
     async def check_stats(self, c, m, user=None): 
         if not user: 
             user_id = m.author.id
-        elif not user.isnumeric(): 
-            user_id = self.decode_mention(c, user) 
         else: 
-            user_id = user
+            user_id = self.decode_mention(c, user) 
         
         #debug(user_id) 
 
@@ -887,7 +884,7 @@ class Dep_io_Stats(discord.Client):
         map_id = None
 
         if not query.isnumeric(): 
-            m = re.compile('(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_id>[0-9_A-Za-z]+)\Z').match(query)
+            m = re.compile('\A(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_id>[0-9_A-Za-z]+)\Z').match(query)
 
             if m: 
                 map_id = m.group('map_id') 
@@ -927,7 +924,7 @@ class Dep_io_Stats(discord.Client):
         acc_id = None
 
         if not query.isnumeric(): 
-            m = re.compile('(?:https?://)?(?:www.)?deeeep.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z').match(query)
+            m = re.compile('\A(?:https?://)?(?:www.)?deeeep.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z').match(query)
 
             if m: 
                 acc_id = m.group('acc_id') 
