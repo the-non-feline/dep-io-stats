@@ -12,4 +12,11 @@ c = {
     'stonkalot': '<:stonkalot:800488843047338015>', 
     'wrench': ':wrench:', 
     'palette': ':art:', 
+    'thumbsup': ':thumbsup:', 
+    'down': ':arrow_double_down:', 
+    'triangleruler': ':triangular_ruler:', 
+    'scroll': ':scroll:', 
+    'carpenter': ':construction_worker:', 
+    'notes': ':pencil:', 
+    'label': ':label:', 
 }

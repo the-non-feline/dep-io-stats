@@ -95,6 +95,9 @@ class Dep_io_Stats(discord.Client):
     SKIN_ASSET_URL_TEMPLATE = 'https://deeeep.io/assets/skins/{}' 
     CUSTOM_SKIN_ASSET_URL_ADDITION = 'custom/' 
 
+    MAP_URL_ADDITION = 's/' 
+    MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
+
     def __init__(self, logs_file_name, storage_file_name, email, password): 
         self.email = email
         self.password = password
@@ -639,6 +642,136 @@ class Dep_io_Stats(discord.Client):
 
         return embed
     
+    def count_objects(self, objs): 
+        class Counter: 
+            total_obj = 0
+            total_points = 0
+            counters = {} 
+
+            def __init__(self, layer_name, display_name=None): 
+                self.layer_name = layer_name
+                self.display_name = display_name
+
+                self.obj = 0
+                self.points = 0
+
+                self.counters[layer_name] = self
+            
+            def add(self, element): 
+                points = 1
+
+                if 'points' in element: 
+                    points = len(element['points']) 
+
+                self.obj += 1
+                self.__class__.total_obj +=1
+
+                self.points += points
+                self.__class__.total_points += points
+            
+            def get_display_name(self): 
+                if self.display_name: 
+                    return self.display_name
+                else: 
+                    return self.layer_name.replace('-', ' ') 
+            
+            @classmethod
+            def add_element(cls, element): 
+                layer_id = element['layerId'] 
+
+                if layer_id in cls.counters: 
+                    counter = cls.counters[layer_id] 
+                else: 
+                    counter = cls(layer_id) 
+                
+                counter.add(element) 
+
+        [Counter.add_element(element) for element in objs] 
+
+        result_list = [f'{counter.obj:,} {counter.get_display_name()} ({counter.points:,} points)' for counter in Counter.counters.values()] 
+
+        result_list.insert(0, f'**{Counter.total_obj:,} total objects ({Counter.total_points:,} points)**') 
+
+        return result_list
+    
+    def map_embed(self, map_json): 
+        color = discord.Color.random() 
+
+        title = map_json['title'] 
+        ID = map_json['id'] 
+        string_id = map_json['string_id'] 
+        desc = map_json['description'] 
+        likes = map_json['likes'] 
+        objects = map_json['objects'] 
+        clone_of = map_json['cloneof_id'] 
+
+        desc = self.trim_maybe(desc, self.MAX_DESC) 
+
+        date_created = parser.isoparse(map_json['created_at']) 
+        date_updated = parser.isoparse(map_json['updated_at']) 
+
+        map_data = json.loads(map_json['data']) 
+        tags = map_json['tags'] 
+        creator = map_json['user'] 
+
+        tags_list = [tag['id'] for tag in tags] 
+        creator_name = creator['name'] 
+
+        settings = map_data['settings'] 
+        gravity = settings['gravity'] 
+        world_size = map_data['worldSize'] 
+        width = world_size['width'] 
+        height = world_size['height'] 
+
+        objs = map_data['screenObjects'] 
+
+        map_link = self.MAPMAKER_URL_TEMPLATE.format(string_id) 
+
+        embed = discord.Embed(title=title, description=desc, color=color, url=map_link) 
+
+        embed.add_field(name=f"Likes {c['thumbsup']}", value=f'{likes:,}') 
+
+        embed.add_field(name=f"Gravity {c['down']}", value=f'{gravity:,}') 
+        embed.add_field(name=f"Dimensions {c['triangleruler']}", value=f'{width} x {height}') 
+
+        if objs: 
+            obj_count_list = self.count_objects(objs) 
+
+            obj_count_str = tools.make_list(obj_count_list) 
+
+            obj_count_str = self.trim_maybe(obj_count_str, self.MAX_FIELD_VAL) 
+
+            embed.add_field(name=f"Object count {c['scroll']}", value=obj_count_str, inline=False) 
+
+        embed.add_field(name=f"Creator {c['carpenter']}", value=creator_name, inline=False) 
+
+        if clone_of: 
+            clone_url = self.MAP_URL_TEMPLATE.format(clone_of) 
+
+            clone_json = self.async_get(clone_url)[0] 
+
+            if clone_json: 
+                clone_title = clone_json['title'] 
+                clone_string_id = clone_json['string_id'] 
+
+                clone_link = self.MAPMAKER_URL_TEMPLATE.format(clone_string_id) 
+
+                embed.add_field(name=f"Cloned from {c['notes']}", value=f'[{clone_title}]({clone_link})') 
+
+        embed.add_field(name=f"Date created {c['tools']}", value=date_created.strftime(self.DATE_FORMAT)) 
+        embed.add_field(name=f"Date last updated {c['wrench']}", value=date_updated.strftime(self.DATE_FORMAT)) 
+
+        if tags_list: 
+            tags_str = tools.format_iterable(tags_list, formatter='`{}`') 
+
+            tags_str = self.trim_maybe(tags_str, self.MAX_FIELD_VAL) 
+
+            embed.add_field(name=f"Tags {c['label']}", value=tags_str, inline=False) 
+
+        embed.set_footer(text=f'ID: {ID}') 
+
+        return embed
+    
     async def on_ready(self): 
         self.readied = True
         
@@ -744,6 +877,26 @@ class Dep_io_Stats(discord.Client):
                 await self.send(c, embed=self.skin_embed(skin_data)) 
         else: 
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
+    
+    def get_map_id(self, query): 
+        return query
+    
+    @command('map', {
+        ('<map_name>',): "View the stats of the map with the given `<map_name>`", 
+        ('<map_ID>',): "Like above, but with the map ID instead of the name", 
+    }) 
+    async def check_map(self, c, m, map_query): 
+        if not map_query.isnumeric(): 
+            map_query = self.MAP_URL_ADDITION + map_query
+        
+        map_url = self.MAP_URL_TEMPLATE.format(map_query) 
+
+        map_json = self.async_get(map_url)[0] 
+
+        if map_json: 
+            await self.send(c, embed=self.map_embed(map_json)) 
+        else: 
+            await self.send(c, content=f"That's not a valid map. ", reference=m) 
     
     async def link_help(self, c, m): 
         await self.send(c, content=f'Click here for instructions on how to link your account. <{self.LINK_HELP_IMG}>', reference=m) 
