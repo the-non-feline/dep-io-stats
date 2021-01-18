@@ -43,12 +43,15 @@ class Command:
             return False
     
     async def run(self, client, c, m, *args): 
-        await self.func(client, c, m, *args) 
+        return await self.func(client, c, m, *args) 
     
     async def attempt_run(self, client, c, m, *args): 
+        incorrect = True
+
         if self.check_args(client, c, m, *args): 
-            await self.run(client, c, m, *args) 
-        else: 
+            incorrect = await self.run(client, c, m, *args) 
+        
+        if incorrect: 
             usages_str = self.usages_str(client, c, m) 
 
             await client.send(c, content=f"""The correct ways to use this command are: 

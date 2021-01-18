@@ -177,7 +177,7 @@ class Dep_io_Stats(discord.Client):
     def requires_owner(func): 
         async def req_owner_func(self, c, m, *args): 
             if m.author.id == self.OWNER_ID: 
-                await func(self, c, m, *args) 
+                return await func(self, c, m, *args) 
             else: 
                 await self.send(c, content='no u (owner-only command) ', reference=m) 
         
@@ -204,7 +204,7 @@ class Dep_io_Stats(discord.Client):
                 author_perms = c.permissions_for(m.author) 
 
                 if self.has_perms(req_all, req_one, author_perms): 
-                    await func(self, c, m, *args) 
+                    return await func(self, c, m, *args) 
                 else: 
                     req_all_str = f"all of the following permissions: {tools.format_iterable(req_all, formatter='`{}`')}" 
                     req_one_str = f"at least one of the following permissions: {tools.format_iterable(req_one, formatter='`{}`')}" 
@@ -717,8 +717,6 @@ class Dep_io_Stats(discord.Client):
         tags_list = [tag['id'] for tag in tags] 
         creator_name = creator['name'] 
 
-        settings = map_data['settings'] 
-        gravity = settings['gravity'] 
         world_size = map_data['worldSize'] 
         width = world_size['width'] 
         height = world_size['height'] 
@@ -730,9 +728,14 @@ class Dep_io_Stats(discord.Client):
         embed = discord.Embed(title=title, description=desc, color=color, url=map_link) 
 
         embed.add_field(name=f"Likes {c['thumbsup']}", value=f'{likes:,}') 
-
-        embed.add_field(name=f"Gravity {c['down']}", value=f'{gravity:,}') 
+        
         embed.add_field(name=f"Dimensions {c['triangleruler']}", value=f'{width} x {height}') 
+
+        if 'settings' in map_data: 
+            settings = map_data['settings'] 
+            gravity = settings['gravity'] 
+
+            embed.add_field(name=f"Gravity {c['down']}", value=f'{gravity:,}') 
 
         if objs: 
             obj_count_list = self.count_objects(objs) 
@@ -842,16 +845,18 @@ class Dep_io_Stats(discord.Client):
         if user_id: 
             link = self.links_table.find_one(user_id=user_id) 
 
-        #debug('f') 
+            #debug('f') 
 
-        if link: 
-            acc_id = link['acc_id'] 
+            if link: 
+                acc_id = link['acc_id'] 
 
-            await self.send(c, embed=self.acc_embed(acc_id)) 
-        elif user_id == m.author.id: 
-            await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ", reference=m) 
+                await self.send(c, embed=self.acc_embed(acc_id)) 
+            elif user_id == m.author.id: 
+                await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ", reference=m) 
+            else: 
+                await self.send(c, content=f"This user isn't linked.", reference=m) 
         else: 
-            await self.send(c, content=f"Either you entered the wrong user ID or this user isn't linked.", reference=m) 
+            return True
     
     @command('skin', {
         ('<skin_name>',): "View the stats of skin with `<skin_name>`. Spaces should be omitted; for example, Albino Cachalot's name would be `albinocachalot`.", 
@@ -879,24 +884,41 @@ class Dep_io_Stats(discord.Client):
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
     
     def get_map_id(self, query): 
-        return query
+        map_id = None
+
+        if not query.isnumeric(): 
+            m = re.compile('(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_id>[0-9_A-Za-z]+)\Z').match(query)
+
+            if m: 
+                map_id = m.group('map_id') 
+        else: 
+            map_id = query
+        
+        #debug(map_id) 
+        
+        return map_id
     
     @command('map', {
         ('<map_name>',): "View the stats of the map with the given `<map_name>`", 
         ('<map_ID>',): "Like above, but with the map ID instead of the name", 
     }) 
     async def check_map(self, c, m, map_query): 
-        if not map_query.isnumeric(): 
-            map_query = self.MAP_URL_ADDITION + map_query
-        
-        map_url = self.MAP_URL_TEMPLATE.format(map_query) 
+        map_id = self.get_map_id(map_query) 
 
-        map_json = self.async_get(map_url)[0] 
+        if map_id: 
+            if not map_id.isnumeric(): 
+                map_id = self.MAP_URL_ADDITION + map_id
+            
+            map_url = self.MAP_URL_TEMPLATE.format(map_id) 
 
-        if map_json: 
-            await self.send(c, embed=self.map_embed(map_json)) 
+            map_json = self.async_get(map_url)[0] 
+
+            if map_json: 
+                await self.send(c, embed=self.map_embed(map_json)) 
+            else: 
+                await self.send(c, content=f"That's not a valid map. ", reference=m) 
         else: 
-            await self.send(c, content=f"That's not a valid map. ", reference=m) 
+            return True
     
     async def link_help(self, c, m): 
         await self.send(c, content=f'Click here for instructions on how to link your account. <{self.LINK_HELP_IMG}>', reference=m) 
@@ -912,13 +934,11 @@ class Dep_io_Stats(discord.Client):
         else: 
             acc_id = query
         
-        return acc_id if acc_id and acc_id.isnumeric() else None
+        return acc_id
     
     async def link_dep_acc(self, c, m, query): 
         if query != self.LINK_SENTINEL: 
             acc_id = self.get_acc_id(query) 
-
-            success = False
             
             if acc_id: 
                 acc_data = self.get_acc_data(acc_id) 
@@ -940,11 +960,10 @@ You can change the account's name back now. ", reference=m)
                     else: 
                         await self.send(c, content=f"You must set your Deeeep.io account's name to your discord tag (`{m.author!s}`) when linking. \
 You only need to do this when linking; you can change it back afterward. Read <{self.LINK_HELP_IMG}> for more info. ", reference=m) 
-
-                    success = True
-            
-            if not success: 
-                await self.send(c, content=f'That is not a valid account. Read <{self.LINK_HELP_IMG}> for more info. ', reference=m) 
+                else: 
+                    return True
+            else: 
+                return True
         else: 
             self.links_table.delete(user_id=m.author.id) 
 
@@ -958,7 +977,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
     }) 
     async def link(self, c, m, query=None): 
         if query: 
-            await self.link_dep_acc(c, m, query) 
+            return await self.link_dep_acc(c, m, query) 
         else: 
             await self.link_help(c, m) 
     
@@ -973,7 +992,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         if acc_id: 
             await self.send(c, embed=self.acc_embed(acc_id)) 
         else: 
-            await self.send(c, content=f'That is not a valid account. ', reference=m) 
+            return True
     
     @command('prefix', {
         ('<prefix>',): "Set the server-wide prefix for this bot to `<prefix>`", 
