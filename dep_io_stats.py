@@ -493,7 +493,7 @@ class Dep_io_Stats(discord.Client):
             if lowered_name == lowered_query: 
                 return skin
             elif lowered_query in lowered_name or lowered_name in lowered_query: 
-                suggestions.append(lowered_name) 
+                suggestions.append(skin) 
         else: 
             return suggestions
     
@@ -925,17 +925,27 @@ class Dep_io_Stats(discord.Client):
         if skins_list: 
             skin_data = self.get_skin(skins_list, skin_name) 
 
+            skin_json = None
+
             if type(skin_data) is list: 
-                text = "That's not a valid skin name. " 
+                if len(skin_data) == 1: 
+                    skin_json = skin_data[0] 
+                else: 
+                    text = "That's not a valid skin name. " 
 
-                if 0 < len(skin_data) <= self.MAX_SKIN_SUGGESTIONS: 
-                    suggestions_str = tools.format_iterable(skin_data, formatter='`{}`') 
+                    if 0 < len(skin_data) <= self.MAX_SKIN_SUGGESTIONS: 
+                        skin_names = (skin['name'] for skin in skin_data) 
 
-                    text += f"Maybe you meant one of these? {suggestions_str}" 
+                        suggestions_str = tools.format_iterable(skin_names, formatter='`{}`') 
 
-                await self.send(c, content=text, reference=m) 
+                        text += f"Maybe you meant one of these? {suggestions_str}" 
+
+                    await self.send(c, content=text, reference=m) 
             else: 
-                await self.send(c, embed=self.skin_embed(skin_data)) 
+                skin_json = skin_data
+
+            if skin_json: 
+                await self.send(c, embed=self.skin_embed(skin_json)) 
         else: 
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
     
