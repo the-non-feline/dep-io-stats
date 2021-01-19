@@ -965,9 +965,9 @@ class Dep_io_Stats(discord.Client):
         return map_id
     
     @command('map', definite_usages={
-        ('<map_name>',): "View the stats of the map with the given `<map_name>`", 
-        ('<map_ID>',): "Like above, but with the map ID instead of the name", 
-        ('<map_link>',): "Like above, but using the Mapmaker link of the map instead of the name"
+        ('<map_string_ID>',): "View the stats of the map with the given `<map_string_ID>` (e.g. `sushuimap_v1`)", 
+        ('<map_ID>',): "Like above, but with the map ID instead of the name (e.g. `3008`)", 
+        ('<map_link>',): "Like above, but using the Mapmaker link of the map instead of the name (e.g. `https://mapmaker.deeeep.io/map/ffa_morty`)"
     }) 
     async def check_map(self, c, m, map_query): 
         map_id = self.get_map_id(map_query) 
