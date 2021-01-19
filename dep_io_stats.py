@@ -559,7 +559,7 @@ class Dep_io_Stats(discord.Client):
         if asset_name[0].isnumeric(): 
             asset_name = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_name
 
-        asset_url = self.SKIN_ASSET_URL_TEMPLATE.format(asset_name) 
+        asset_url = self.SKIN_ASSET_URL_TEMPLATE.format(asset_name) + '?' + str(time.time()) #time part is to force a refresh
 
         debug(asset_url) 
 
@@ -636,7 +636,7 @@ class Dep_io_Stats(discord.Client):
             
             desc = self.trim_maybe(desc, self.MAX_DESC) 
             
-            pfp_url = self.PFP_URL_TEMPLATE.format(acc['picture']) 
+            pfp_url = self.PFP_URL_TEMPLATE.format(acc['picture']) + '?' + str(time.time()) #time part is to force a refresh
 
             #debug(pfp_url) 
             
