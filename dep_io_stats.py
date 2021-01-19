@@ -226,9 +226,9 @@ class Dep_io_Stats(discord.Client):
     async def default_args_check(self, c, m, *args): 
         return True
 
-    def command(name, usages): 
+    def command(name, definite_usages={}, indefinite_usages={}): 
         def decorator(func): 
-            command_obj = commands.Command(name, usages, func) 
+            command_obj = commands.Command(func, name, definite_usages, indefinite_usages) 
 
             return command_obj
         
@@ -487,14 +487,12 @@ class Dep_io_Stats(discord.Client):
         for skin in skins_list: 
             skin_name = skin['name'] 
 
-            spaceless_name = skin_name.replace(' ', '') 
-
-            lowered_name = spaceless_name.lower() 
+            lowered_name = skin_name.lower() 
             lowered_query = query.lower() 
 
             if lowered_name == lowered_query: 
                 return skin
-            elif lowered_query in lowered_name: 
+            elif lowered_query in lowered_name or lowered_name in lowered_query: 
                 suggestions.append(lowered_name) 
         else: 
             return suggestions
@@ -883,7 +881,7 @@ class Dep_io_Stats(discord.Client):
         
         return to_return
     
-    @command('stats', {
+    @command('stats', definite_usages={
         (): 'View your own stats', 
         ('@<user>',): "View `<user>`'s stats", 
         ('<user_ID>',): "Same as above except with Discord ID instead to avoid pings", 
@@ -914,10 +912,12 @@ class Dep_io_Stats(discord.Client):
         else: 
             return True
     
-    @command('skin', {
-        ('<skin_name>',): "View the stats of skin with `<skin_name>`. Spaces should be omitted; for example, Albino Cachalot's name would be `albinocachalot`.", 
+    @command('skin', indefinite_usages={
+        ('<skin name>',): "View the stats of skin with `<skin name>`.", 
     }) 
-    async def check_skin(self, c, m, skin_name): 
+    async def check_skin(self, c, m, *skin_query): 
+        skin_name = ' '.join(skin_query) 
+
         skins_list_url = self.SKINS_LIST_URL
 
         skins_list = self.async_get(skins_list_url)[0] 
@@ -954,7 +954,7 @@ class Dep_io_Stats(discord.Client):
         
         return map_id
     
-    @command('map', {
+    @command('map', definite_usages={
         ('<map_name>',): "View the stats of the map with the given `<map_name>`", 
         ('<map_ID>',): "Like above, but with the map ID instead of the name", 
         ('<map_link>',): "Like above, but using the Mapmaker link of the map instead of the name"
@@ -1026,7 +1026,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
             await self.send(c, content='Unlinked your account. ') 
     
-    @command('link', {
+    @command('link', definite_usages={
         (): 'View help on linking accounts', 
         ('<account_ID>',): 'Link Deeeep.io account with ID `<account_ID>` to your account', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
@@ -1038,7 +1038,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         else: 
             await self.link_help(c, m) 
     
-    @command('statstest', {
+    @command('statstest', definite_usages={
         ('<account_ID>',): 'View Deeeep.io account with ID `<account_ID>`', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
     }) 
@@ -1051,7 +1051,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         else: 
             return True
     
-    @command('prefix', {
+    @command('prefix', definite_usages={
         ('<prefix>',): "Set the server-wide prefix for this bot to `<prefix>`", 
         (PREFIX_SENTINEL,): 'Reset the server prefix to default', 
     }) 
@@ -1074,7 +1074,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
             else: 
                 await self.send(c, content=f'Prefix must not exceed {self.MAX_PREFIX} characters. ', reference=m) 
     
-    @command('shutdown', {
+    @command('shutdown', definite_usages={
         (): "Turn off the bot", 
     }) 
     @requires_owner
@@ -1083,7 +1083,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
         self.logging_out = True
     
-    @command('help', {
+    @command('help', definite_usages={
         (): 'Get a list of all commands', 
         ('<command>',): 'Get help on `<command>`', 
     }) 
@@ -1108,7 +1108,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
             await self.send(c, content=f'''All commands for this bot: {com_list_str}. 
 Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command>`''') 
 
-    @command('invite', {
+    @command('invite', definite_usages={
         (): 'Display the invite link for the bot', 
     }) 
     async def send_invite(self, c, m): 
@@ -1138,7 +1138,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         if hasattr(c, 'guild'): 
             prefix = self.prefix(c) 
-            words = msg.content.split() 
+            words = msg.content.split(' ') 
 
             if len(words) >= 1 and words[0].startswith(prefix): 
                 await self.handle_command(msg, c, prefix, words) 
