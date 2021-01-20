@@ -490,6 +490,9 @@ class Dep_io_Stats(discord.Client):
             lowered_name = skin_name.lower() 
             lowered_query = query.lower() 
 
+            #debug(lowered_name) 
+            #debug(lowered_query) 
+
             if lowered_name == lowered_query: 
                 return skin
             elif lowered_query in lowered_name or lowered_name in lowered_query: 
@@ -850,7 +853,7 @@ class Dep_io_Stats(discord.Client):
         
         #debug(member_id) 
         
-        return member_id
+        return int(member_id) if member_id else None
     
     async def prompt_for_message(self, c, member_id, choices=None, custom_check=lambda to_check: True, timeout=None,  timeout_warning=10, default_choice=None): 
         mention = '<@{}>'.format(member_id) 
