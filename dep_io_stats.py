@@ -831,7 +831,8 @@ class Dep_io_Stats(discord.Client):
 
             embed.add_field(name=f"Tags {c['label']}", value=tags_str, inline=False) 
 
-        embed.set_footer(text=f'ID: {ID}') 
+        embed.set_footer(text=f'''ID: {ID}
+String ID: {string_id}''') 
 
         return embed
     
