@@ -953,34 +953,27 @@ String ID: {string_id}''')
         else: 
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
     
-    def get_map_id(self, query): 
-        map_id = None
+    def get_map_string_id(self, query): 
+        m = re.compile('\A(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z').match(query)
 
-        if not query.isnumeric(): 
-            m = re.compile('\A(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_id>[0-9_A-Za-z]+)\Z').match(query)
+        if m: 
+            map_string_id = m.group('map_string_id') 
 
-            if m: 
-                map_id = m.group('map_id') 
-        else: 
-            map_id = query
+            return map_string_id
         
         #debug(map_id) 
-        
-        return map_id
     
     @command('map', definite_usages={
         ('<map_string_ID>',): "View the stats of the map with the given `<map_string_ID>` (e.g. `sushuimap_v1`)", 
-        ('<map_ID>',): "Like above, but with the map ID instead of the name (e.g. `3008`)", 
         ('<map_link>',): "Like above, but using the Mapmaker link of the map instead of the name (e.g. `https://mapmaker.deeeep.io/map/ffa_morty`)"
     }) 
     async def check_map(self, c, m, map_query): 
-        map_id = self.get_map_id(map_query) 
+        map_string_id = self.get_map_string_id(map_query) 
 
-        if map_id: 
-            if not map_id.isnumeric(): 
-                map_id = self.MAP_URL_ADDITION + map_id
+        if map_string_id: 
+            map_string_id = self.MAP_URL_ADDITION + map_string_id
             
-            map_url = self.MAP_URL_TEMPLATE.format(map_id) 
+            map_url = self.MAP_URL_TEMPLATE.format(map_string_id) 
 
             map_json = self.async_get(map_url)[0] 
 
@@ -1133,6 +1126,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
     
     @task
     async def handle_command(self, m, c, prefix, words): 
+        debug(f'''Message content: {m.content}
+Message author: {m.author}
+Message channel: {c}''') 
+
         if not hasattr(c, 'guild'): 
             await self.send(c, content="You can't use me in a DM channel. ")  
         else: 
