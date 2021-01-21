@@ -23,7 +23,7 @@ def debug(msg, *args, **kwargs):
     try: 
         logger.debug(f'{msg}\n', *args, **kwargs) 
     except UnicodeEncodeError: 
-        debug('', exc_info=True) 
+        debug('Could not log message', exc_info=True) 
 
 def clear_file(file, should_log=True):
     file.seek(0)
@@ -83,6 +83,8 @@ class Dep_io_Stats(discord.Client):
 
     OWNER_ID = 315682382147485697
 
+    MENTION_REGEX = '\A<@!?(?P<member_id>[0-9]+)>\Z' 
+
     DATA_URL_TEMPLATE = 'https://api.deeeep.io/users/{}' 
     PFP_URL_TEMPLATE = 'https://deeeep.io/files/{}' 
     SERVER_LIST_URL = 'http://api.deeeep.io/hosts?beta=1' 
@@ -91,6 +93,7 @@ class Dep_io_Stats(discord.Client):
     LOGIN_URL = 'https://api.deeeep.io/auth/local/signin' 
     SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
     LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 
+    PFP_REGEX = '\A(?:https?://)?(?:www.)?deeeep.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z' 
 
     SKIN_ASSET_URL_TEMPLATE = 'https://deeeep.io/assets/skins/{}' 
     CUSTOM_SKIN_ASSET_URL_ADDITION = 'custom/' 
@@ -98,6 +101,7 @@ class Dep_io_Stats(discord.Client):
 
     MAP_URL_ADDITION = 's/' 
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
+    MAP_REGEX = '\A(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
 
     def __init__(self, logs_file_name, storage_file_name, email, password): 
         self.email = email
@@ -107,7 +111,7 @@ class Dep_io_Stats(discord.Client):
         self.links_table = self.db.get_table('account_links') 
         self.prefixes_table = self.db.get_table('prefixes') 
 
-        self.logs_file = open(logs_file_name, mode='w+') 
+        self.logs_file = open(logs_file_name, mode='w+', encoding='utf-8') 
 
         handler = logging.StreamHandler(self.logs_file) 
 
@@ -845,7 +849,7 @@ String ID: {string_id}''')
         member_id = None
 
         if not mention.isnumeric(): 
-            m = re.compile('\A<@!?(?P<member_id>[0-9]+)>\Z').match(mention)
+            m = re.compile(self.MENTION_REGEX).match(mention)
 
             if m: 
                 member_id = m.group('member_id') 
@@ -954,7 +958,7 @@ String ID: {string_id}''')
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
     
     def get_map_string_id(self, query): 
-        m = re.compile('\A(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z').match(query)
+        m = re.compile(self.MAP_REGEX).match(query)
 
         if m: 
             map_string_id = m.group('map_string_id') 
@@ -991,7 +995,7 @@ String ID: {string_id}''')
         acc_id = None
 
         if not query.isnumeric(): 
-            m = re.compile('\A(?:https?://)?(?:www.)?deeeep.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z').match(query)
+            m = re.compile(self.PFP_REGEX).match(query)
 
             if m: 
                 acc_id = m.group('acc_id') 
