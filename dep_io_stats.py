@@ -123,6 +123,7 @@ class Dep_io_Stats(discord.Client):
         self.logging_out = False
 
         self.readied = False
+        self.token = None
 
         super().__init__() 
     
@@ -146,6 +147,21 @@ class Dep_io_Stats(discord.Client):
 
         await super().logout() 
     
+    def log_out_acc(self): 
+        self.token = None
+
+        debug('relinquished token') 
+
+        ''' 
+        logout_request = grequests.request('GET', self.LOGOUT_URL, headers={
+            'Authorization': f'Bearer {self.token}', 
+        }) 
+
+        result = self.async_get(logout_request)[0] 
+
+        debug(f'logout of Deeeep.io account status: {result}')
+        ''' 
+    
     async def edit_tasks(self, amount): 
         try: 
             self.tasks += amount
@@ -156,6 +172,8 @@ class Dep_io_Stats(discord.Client):
 
             if self.tasks == 0: 
                 debug('f') 
+
+                self.log_out_acc() 
 
                 trim_file(self.logs_file, self.MAX_LOG) 
 
@@ -438,17 +456,25 @@ class Dep_io_Stats(discord.Client):
         acc_url = self.DATA_URL_TEMPLATE.format(acc_id) 
         server_list_url = self.SERVER_LIST_URL
         skins_list_url = self.SKINS_LIST_URL
-        
-        login_url = self.LOGIN_URL
 
-        login_request = grequests.request('POST', login_url, data={
-            'email': self.email, 
-            'password': self.password, 
-        }) 
+        if not self.token: 
+            login_url = self.LOGIN_URL
 
-        login_json = None
+            login_request = grequests.request('POST', login_url, data={
+                'email': self.email, 
+                'password': self.password, 
+            }) 
 
-        acc_json, server_list, skins_list, login_json = self.async_get(acc_url, server_list_url, skins_list_url, login_request) 
+            acc_json, server_list, skins_list, login_json = self.async_get(acc_url, server_list_url, skins_list_url, login_request) 
+
+            if login_json: 
+                self.token = login_json['token'] 
+            
+            debug(f'token is {self.token}') 
+        else: 
+            debug('already have token') 
+
+            acc_json, server_list, skins_list = self.async_get(acc_url, server_list_url, skins_list_url) 
 
         map_list = self.get_map_list(server_list) 
         map_urls = self.get_map_urls(*map_list) 
@@ -457,13 +483,9 @@ class Dep_io_Stats(discord.Client):
 
         members_list = None
 
-        if login_json: 
-            token = login_json['token'] 
-
-            #debug(token) 
-
+        if self.token: 
             members_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
-                'Authorization': f'Bearer {token}', 
+                'Authorization': f'Bearer {self.token}', 
             }) 
 
             round_2_urls.append(members_request) 
@@ -471,12 +493,6 @@ class Dep_io_Stats(discord.Client):
             *map_jsons, members_list = self.async_get(*round_2_urls) 
 
             #debug(members_list) 
-
-            logout_request = grequests.request('GET', self.LOGOUT_URL, headers={
-                'Authorization': f'Bearer {token}', 
-            }) 
-
-            self.async_get(logout_request) 
         else: 
             map_jsons = self.async_get(*round_2_urls) 
 
@@ -654,6 +670,8 @@ class Dep_io_Stats(discord.Client):
             #debug(hex(color)) 
 
             embed = discord.Embed(title=title, type='rich', description=desc, color=color) 
+
+            debug(pfp_url) 
 
             embed.set_image(url=pfp_url) 
 
