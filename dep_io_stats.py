@@ -148,9 +148,12 @@ class Dep_io_Stats(discord.Client):
         await super().logout() 
     
     def log_out_acc(self): 
-        self.token = None
+        if self.token: 
+            former_token = self.token
 
-        debug('relinquished token') 
+            self.token = None
+
+            debug(f'relinquished token ({former_token})') 
 
         ''' 
         logout_request = grequests.request('GET', self.LOGOUT_URL, headers={
@@ -468,11 +471,16 @@ class Dep_io_Stats(discord.Client):
             acc_json, server_list, skins_list, login_json = self.async_get(acc_url, server_list_url, skins_list_url, login_request) 
 
             if login_json: 
-                self.token = login_json['token'] 
-            
-            debug(f'token is {self.token}') 
+                if not self.token: 
+                    self.token = login_json['token'] 
+
+                    debug(f'fetched token ({self.token})') 
+                else: 
+                    debug(f'seems like another process got the token ({self.token}) already') 
+            else: 
+                debug(f'error fetching token, which is currently ({self.token})') 
         else: 
-            debug('already have token') 
+            debug(f'already have token ({self.token})') 
 
             acc_json, server_list, skins_list = self.async_get(acc_url, server_list_url, skins_list_url) 
 
