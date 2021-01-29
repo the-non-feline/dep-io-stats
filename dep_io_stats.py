@@ -1135,23 +1135,23 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         await comm.attempt_run(self, c, m, *args) 
     
     async def handle_command(self, m, c, prefix, words): 
-        debug(f'''Message content: {m.content}
+        message_str = f'''Message content: {m.content}
 Message author: {m.author}
-Message channel: {c}''') 
+Message channel: {c}
+Message guild: {m.guild}''' 
 
-        if not hasattr(c, 'guild'): 
-            await self.send(c, content="You can't use me in a DM channel. ")  
-        else: 
-            permissions = c.permissions_for(c.guild.me) 
-            
-            if permissions.send_messages: 
-                command, *args = words
-                command = command[len(prefix):] 
+        debug(message_str) 
 
-                comm = commands.Command.get_command(command) 
+        permissions = c.permissions_for(c.guild.me) 
+        
+        if permissions.send_messages: 
+            command, *args = words
+            command = command[len(prefix):] 
 
-                if comm: 
-                    await self.execute(comm, c, m, *args) 
+            comm = commands.Command.get_command(command) 
+
+            if comm: 
+                await self.execute(comm, c, m, *args) 
     
     async def on_message(self, msg): 
         c = msg.channel
