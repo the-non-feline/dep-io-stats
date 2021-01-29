@@ -1151,10 +1151,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
     async def send_invite(self, c, m): 
         await self.send(c, content=f'Invite link is <{self.INVITE_LINK}>. ', reference=m)
     
+    @task
     async def execute(self, comm, c, m, *args): 
         await comm.attempt_run(self, c, m, *args) 
     
-    @task
     async def handle_command(self, m, c, prefix, words): 
         debug(f'''Message content: {m.content}
 Message author: {m.author}
