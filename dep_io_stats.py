@@ -12,6 +12,7 @@ import json
 import tools
 import commands
 from chars import c
+import trimmed_embed
 
 import logging
 
@@ -572,8 +573,6 @@ class Dep_io_Stats(discord.Client):
         if skin_json: 
             desc = skin_json['description'] 
 
-            desc = self.trim_maybe(desc, self.MAX_DESC) 
-
             #debug(desc) 
 
             reddit_link = skin_json['reddit_link'] 
@@ -583,7 +582,7 @@ class Dep_io_Stats(discord.Client):
 
         #debug(desc) 
 
-        embed = discord.Embed(title=skin['name'], description=desc, color=color, url=reddit_link) 
+        embed = trimmed_embed.TrimmedEmbed(title=skin['name'], description=desc, color=color, url=reddit_link) 
 
         asset_name = skin['asset'] 
 
@@ -647,12 +646,6 @@ class Dep_io_Stats(discord.Client):
 
         return embed
     
-    def trim_maybe(self, string, limit): 
-        if string and len(string) > limit: 
-            string = string[:limit - len(self.TRAIL_OFF)] + self.TRAIL_OFF
-        
-        return string
-    
     def acc_embed(self, acc_id): 
         acc, contribs, roles = self.get_all_acc_data(acc_id) 
 
@@ -661,11 +654,7 @@ class Dep_io_Stats(discord.Client):
         if acc: 
             title = f"{acc['name']} (@{acc['username']})"  
 
-            title = self.trim_maybe(title, self.MAX_TITLE)
-
             desc = acc['description'] 
-            
-            desc = self.trim_maybe(desc, self.MAX_DESC) 
             
             pfp_url = self.PFP_URL_TEMPLATE.format(acc['picture']) + '?' + str(time.time()) #time part is to force a refresh
 
@@ -677,7 +666,7 @@ class Dep_io_Stats(discord.Client):
 
             #debug(hex(color)) 
 
-            embed = discord.Embed(title=title, type='rich', description=desc, color=color) 
+            embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', description=desc, color=color) 
 
             debug(pfp_url) 
 
@@ -700,7 +689,7 @@ class Dep_io_Stats(discord.Client):
 
                 embed.add_field(name=f"Date last played {c['video_game']}", value=date_last_played.strftime(self.DATE_FORMAT)) 
         else: 
-            embed = discord.Embed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
+            embed = trimmed_embed.TrimmedEmbed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
 
             embed.add_field(name="Why?", value="This usually happens when the game isn't working. ") 
             embed.add_field(name="What now?", value="Don't spam this command. Just try again when the game works again. ") 
@@ -710,14 +699,10 @@ class Dep_io_Stats(discord.Client):
         if contribs: 
             contribs_str = tools.make_list(contribs) 
 
-            contribs_str = self.trim_maybe(contribs_str, self.MAX_FIELD_VAL) 
-
             embed.add_field(name=f"Contributions {c['heartpenguin']}", value=contribs_str, inline=False) 
         
         if roles: 
             roles_str = tools.format_iterable(roles) 
-
-            roles_str = self.trim_maybe(roles_str, self.MAX_FIELD_VAL) 
 
             embed.add_field(name=f"Roles {c['cooloctopus']}", value=roles_str, inline=False)
 
@@ -786,8 +771,6 @@ class Dep_io_Stats(discord.Client):
         objects = map_json['objects'] 
         clone_of = map_json['cloneof_id'] 
 
-        desc = self.trim_maybe(desc, self.MAX_DESC) 
-
         when_created = map_json['created_at'] 
         when_updated = map_json['updated_at'] 
 
@@ -807,7 +790,7 @@ class Dep_io_Stats(discord.Client):
 
         map_link = self.MAPMAKER_URL_TEMPLATE.format(string_id) 
 
-        embed = discord.Embed(title=title, description=desc, color=color, url=map_link) 
+        embed = trimmed_embed.TrimmedEmbed(title=title, description=desc, color=color, url=map_link) 
 
         embed.add_field(name=f"Likes {c['thumbsup']}", value=f'{likes:,}') 
         
@@ -822,8 +805,6 @@ class Dep_io_Stats(discord.Client):
         obj_count_list = self.count_objects(objs) 
 
         obj_count_str = tools.make_list(obj_count_list) 
-
-        obj_count_str = self.trim_maybe(obj_count_str, self.MAX_FIELD_VAL) 
 
         embed.add_field(name=f"Object count {c['scroll']}", value=obj_count_str, inline=False) 
 
@@ -856,8 +837,6 @@ class Dep_io_Stats(discord.Client):
 
         if tags_list: 
             tags_str = tools.format_iterable(tags_list, formatter='`{}`') 
-
-            tags_str = self.trim_maybe(tags_str, self.MAX_FIELD_VAL) 
 
             embed.add_field(name=f"Tags {c['label']}", value=tags_str, inline=False) 
 
