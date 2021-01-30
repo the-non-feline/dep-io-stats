@@ -18,6 +18,8 @@ class TrimmedEmbed(discord.Embed):
         super().__init__(**kwargs) 
     
     def trim_maybe(self, string, limit): 
+        string = str(string) 
+        
         if string and len(string) > limit: 
             string = string[:limit - len(self.TRAIL_OFF)] + self.TRAIL_OFF
         
