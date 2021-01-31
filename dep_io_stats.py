@@ -100,6 +100,8 @@ class Dep_io_Stats(discord.Client):
     CUSTOM_SKIN_ASSET_URL_ADDITION = 'custom/' 
     SKIN_URL_TEMPLATE = 'https://api.deeeep.io/skins/{}' 
 
+    SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
+
     MAP_URL_ADDITION = 's/' 
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
     MAP_REGEX = '\A(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
@@ -528,6 +530,90 @@ class Dep_io_Stats(discord.Client):
                 suggestions.append(skin) 
         else: 
             return suggestions
+    
+    def reject_reasons(self, skin): 
+        reasons = [] 
+
+        debug(skin) 
+
+        if not skin['reddit_link']: 
+            reasons.append('lack of Reddit link') 
+        
+        return reasons
+    
+    def inspect_skins(self, review_list): 
+        rejected = [] 
+        reasons = [] 
+
+        for skin in review_list: 
+            rej_reasons = self.reject_reasons(skin) 
+
+            if rej_reasons: 
+                rejected.append(skin) 
+                reasons.append(rej_reasons) 
+        
+        debug(rejected) 
+        debug(reasons) 
+        
+        return rejected, reasons
+    
+    def get_review_token(self): 
+        if not self.token: 
+            login_url = self.LOGIN_URL
+
+            login_request = grequests.request('POST', login_url, data={
+                'email': self.email, 
+                'password': self.password, 
+            }) 
+
+            login_json = self.async_get(login_request)[0] 
+
+            if login_json: 
+                if not self.token: 
+                    self.token = login_json['token'] 
+
+                    debug(f'fetched token ({self.token})') 
+                else: 
+                    debug(f'seems like another process got the token ({self.token}) already') 
+            else: 
+                debug(f'error fetching token, which is currently ({self.token})') 
+        else: 
+            debug(f'already have token ({self.token})') 
+    
+    async def check_review(self, c): 
+        self.get_review_token() 
+
+        if self.token: 
+            list_request = grequests.request('GET', self.SKIN_REVIEW_LIST_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+
+            list_json = self.async_get(list_request)[0] 
+
+            if list_json: 
+                rejected, reasons = self.inspect_skins(list_json) 
+
+                if rejected: 
+                    rejection_strs = [] 
+
+                    for skin, reason in zip(rejected, reasons): 
+                        reason_str = tools.format_iterable(reason, formatter='`{}`') 
+
+                        rejection_str = f"`{skin['name']}` (ID `{skin['id']}`) has the following issues: {reason_str}" 
+
+                        rejection_strs.append(rejection_str) 
+                    
+                    message = tools.make_list(rejection_strs) 
+                else: 
+                    message = f'All {len(list_json)} skins passed.' 
+            elif list_json is None: 
+                message = 'Error fetching skins.' 
+            else: 
+                message = 'There are no skins to check.' 
+        else: 
+            message = 'Error logging in to perform this task. ' 
+        
+        await self.send(c, content=message) 
     
     '''
     def get_animal(self, animal_id): 
@@ -992,6 +1078,13 @@ String ID: {string_id}''')
                 await self.send(c, content=f"That's not a valid map. ", reference=m) 
         else: 
             return True
+    
+    @command('rev', definite_usages={
+        (): 'Not even Fede knows of the mysterious function of this command...', 
+    }) 
+    @requires_owner
+    async def fake_review(self, c, m): 
+        await self.check_review(c) 
     
     async def link_help(self, c, m): 
         await self.send(c, content=f'Click here for instructions on how to link your account. <{self.LINK_HELP_IMG}>', reference=m) 
