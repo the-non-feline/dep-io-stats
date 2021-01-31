@@ -9,59 +9,15 @@ import random
 import re
 import dateutil.parser as parser
 import json
+import logging
+
+import logs
+from logs import debug
 import tools
 import commands
 from chars import c
 import trimmed_embed
-
-import logging
-
-logger = logging.getLogger(__name__) 
-
-logger.setLevel(logging.DEBUG) 
-
-def debug(msg, *args, **kwargs): 
-    try: 
-        logger.debug(f'{msg}\n', *args, **kwargs) 
-    except UnicodeEncodeError: 
-        debug('Could not log message', exc_info=True) 
-
-def clear_file(file, should_log=True):
-    file.seek(0)
-    file.truncate(0)
-
-    if should_log: 
-        debug('cleared') 
-
-def trim_file(file, max_size): 
-    debug('trimming\n\n') 
-
-    if not file.closed and file.seekable() and file.readable(): 
-        file.seek(0, 2) 
-
-        size = file.tell() 
-
-        #debug(f'file is {size} bytes now') 
-
-        if size > max_size: 
-            extra_bytes = size - max_size
-
-            file.seek(extra_bytes) 
-
-            contents = file.read() 
-
-            #trimmed_contents = contents[len(contents) - self.max_size - 1:] 
-
-            #debug(len(contents)) 
-            #debug(len(trimmed_contents)) 
-            
-            clear_file(file, should_log=False) 
-
-            file.seek(0) 
-
-            file.write(contents) 
-
-            file.flush() 
+import report
 
 class Dep_io_Stats(discord.Client): 
     DEFAULT_PREFIX = ',' 
@@ -101,6 +57,7 @@ class Dep_io_Stats(discord.Client):
     SKIN_URL_TEMPLATE = 'https://api.deeeep.io/skins/{}' 
 
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
+    STATS_UNBALANCE_BLACKLIST = ['OT', 'TT', 'PT', 'ST', 'SS', 'HA'] 
 
     MAP_URL_ADDITION = 's/' 
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
@@ -118,7 +75,7 @@ class Dep_io_Stats(discord.Client):
 
         handler = logging.StreamHandler(self.logs_file) 
 
-        logger.addHandler(handler) 
+        logs.logger.addHandler(handler) 
 
         #self.levels_file = open(levels_file_name, mode='r') 
 
@@ -140,7 +97,7 @@ class Dep_io_Stats(discord.Client):
     
     async def send(self, c, *args, **kwargs): 
         try: 
-            await c.send(*args, **kwargs) 
+            return await c.send(*args, **kwargs) 
         except discord.errors.Forbidden: 
             debug('that was illegal') 
     
@@ -181,7 +138,7 @@ class Dep_io_Stats(discord.Client):
 
                 self.log_out_acc() 
 
-                trim_file(self.logs_file, self.MAX_LOG) 
+                logs.trim_file(self.logs_file, self.MAX_LOG) 
 
                 if self.logging_out: 
                     await self.logout() 
@@ -531,6 +488,19 @@ class Dep_io_Stats(discord.Client):
         else: 
             return suggestions
     
+    def unbalanced_stats(self, skin): 
+        stat_changes = skin['attributes'] 
+
+        if stat_changes: 
+            counted_changes = [] 
+
+            split_changes = stat_changes.split(';') 
+
+            for change_str in split_changes: 
+                stat, value = change_str.split('=') 
+
+                counted_changes.append((stat, float(value))) 
+    
     def reject_reasons(self, skin): 
         reasons = [] 
 
@@ -581,6 +551,8 @@ class Dep_io_Stats(discord.Client):
             debug(f'already have token ({self.token})') 
     
     async def check_review(self, c): 
+        r = report.Report(self, c) 
+
         self.get_review_token() 
 
         if self.token: 
@@ -593,27 +565,31 @@ class Dep_io_Stats(discord.Client):
             if list_json: 
                 rejected, reasons = self.inspect_skins(list_json) 
 
+                r.add(f'**{len(rejected)} out of {len(list_json)} failed**') 
+
                 if rejected: 
+                    r.add('') 
+
                     rejection_strs = [] 
 
                     for skin, reason in zip(rejected, reasons): 
                         reason_str = tools.format_iterable(reason, formatter='`{}`') 
 
-                        rejection_str = f"`{skin['name']}` (ID `{skin['id']}`) has the following issues: {reason_str}" 
+                        skin_id = skin['id'] 
 
-                        rejection_strs.append(rejection_str) 
-                    
-                    message = tools.make_list(rejection_strs) 
-                else: 
-                    message = f'All {len(list_json)} skins passed.' 
+                        skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+
+                        rejection_str = f"**{skin['name']}** (link {skin_url}) has the following issues: {reason_str}" 
+
+                        r.add(rejection_str) 
             elif list_json is None: 
-                message = 'Error fetching skins.' 
+                r.add('Error fetching skins.') 
             else: 
-                message = 'There are no skins to check.' 
+                r.add('There are no skins to check.') 
         else: 
-            message = 'Error logging in to perform this task. ' 
+            r.add('Error logging in to perform this task. ') 
         
-        await self.send(c, content=message) 
+        await r.send_self() 
     
     '''
     def get_animal(self, animal_id): 
