@@ -10,6 +10,7 @@ import re
 import dateutil.parser as parser
 import json
 import logging
+import math
 
 import logs
 from logs import debug
@@ -489,25 +490,64 @@ class Dep_io_Stats(discord.Client):
             return suggestions
     
     def unbalanced_stats(self, skin): 
+        broken = False
+        unbalanced = False
+
         stat_changes = skin['attributes'] 
 
         if stat_changes: 
-            counted_changes = [] 
+            unbalanced = True
 
             split_changes = stat_changes.split(';') 
+
+            prev_sign = None
 
             for change_str in split_changes: 
                 stat, value = change_str.split('=') 
 
-                counted_changes.append((stat, float(value))) 
+                sign = value[0] 
+                abs_value = value[1:] 
+
+                try: 
+                    abs_value_float = float(abs_value) 
+                except ValueError: 
+                    broken = True
+
+                    debug(f'stat {stat} has value {abs_value} which is not a float')
+                else: 
+                    if not math.isfinite(abs_value_float): 
+                        broken = True
+
+                        debug(f'stat {stat} has value {abs_value} which is not finite')
+
+                if stat not in self.STATS_UNBALANCE_BLACKLIST: 
+                    if prev_sign and prev_sign != sign: 
+                        unbalanced = False
+                    
+                    prev_sign = sign
+        
+        unbalance_sign = prev_sign if unbalanced else None
+
+        debug(broken) 
+        debug(unbalance_sign) 
+
+        return broken, unbalance_sign
     
     def reject_reasons(self, skin): 
         reasons = [] 
 
-        debug(skin) 
+        #debug(skin) 
 
         if not skin['reddit_link']: 
             reasons.append('lack of Reddit link') 
+        
+        broken, unbalance_sign = self.unbalanced_stats(skin) 
+
+        if broken: 
+            reasons.append(f'undefined stat changes') 
+        
+        if unbalance_sign: 
+            reasons.append(f'unbalanced stat changes ({unbalance_sign})') 
         
         return reasons
     
@@ -522,8 +562,8 @@ class Dep_io_Stats(discord.Client):
                 rejected.append(skin) 
                 reasons.append(rej_reasons) 
         
-        debug(rejected) 
-        debug(reasons) 
+        #debug(rejected) 
+        #debug(reasons) 
         
         return rejected, reasons
     
