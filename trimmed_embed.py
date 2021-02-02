@@ -4,6 +4,7 @@ class TrimmedEmbed(discord.Embed):
     MAX_TITLE = 256
     MAX_DESC = 2048
     MAX_FIELD_VAL = 1024
+    MAX_FOOTER = 2048
     TRAIL_OFF = '...' 
 
     def __init__(self, **kwargs): 
@@ -29,3 +30,11 @@ class TrimmedEmbed(discord.Embed):
         value = self.trim_maybe(value, self.MAX_FIELD_VAL) 
 
         return super().add_field(name=name, value=value, inline=inline) 
+    
+    def set_footer(self, *, text=None, icon_url=discord.Embed.Empty): 
+        if text: 
+            text = self.trim_maybe(text, self.MAX_FOOTER) 
+        else: 
+            text = discord.Embed.Empty
+        
+        return super().set_footer(text=text, icon_url=icon_url) 

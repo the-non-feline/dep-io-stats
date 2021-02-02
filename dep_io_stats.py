@@ -542,7 +542,7 @@ class Dep_io_Stats(discord.Client):
     def reject_reasons(self, skin): 
         reasons = [] 
 
-        #debug(skin) 
+        debug(skin['id']) 
 
         if not skin['reddit_link']: 
             reasons.append('lack of Reddit link') 
@@ -694,6 +694,50 @@ class Dep_io_Stats(discord.Client):
             else: 
                 return animal_id
     ''' 
+
+    async def self_embed(self, channel): 
+        prefix = self.prefix(channel) 
+        com_list_str = tools.format_iterable(commands.Command.all_commands(), formatter='`{}`') 
+
+        guilds = self.guilds
+        guild_count = len(guilds) 
+
+        user_count = self.links_table.count() 
+
+        self_user = self.user
+
+        color = discord.Color.random() 
+
+        if self_user: 
+            avatar_url = self_user.avatar_url
+            discord_tag = str(self_user) 
+        else: 
+            avatar_url = None
+            discord_tag = "Couldn't fetch Discord tag" 
+        
+        invite_hyperlink = f'[Invite link]({self.INVITE_LINK})' 
+        
+        embed = trimmed_embed.TrimmedEmbed(title=discord_tag, description=invite_hyperlink, color=color) 
+
+        if avatar_url: 
+            embed.set_thumbnail(url=avatar_url) 
+
+        owner = await self.fetch_user(self.OWNER_ID) 
+
+        if owner: 
+            owner_tag = str(owner) 
+
+            embed.add_field(name=f"Creator {c['carpenter']}", value=owner_tag) 
+        
+        com_list = f'''{com_list_str}
+
+Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command>`''' 
+
+        embed.add_field(name=f"Commands {c['scroll']}", value=com_list, inline=False) 
+
+        embed.set_footer(text=f'Used by {user_count} users across {guild_count} guilds') 
+
+        return embed
     
     def skin_embed(self, skin): 
         color = discord.Color.random() 
@@ -1286,12 +1330,12 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
             await self.send(c, content=f'''All commands for this bot: {com_list_str}. 
 Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command>`''') 
-
-    @command('invite', definite_usages={
-        (): 'Display the invite link for the bot', 
+    
+    @command('info', definite_usages={
+        (): 'Display info about this bot', 
     }) 
-    async def send_invite(self, c, m): 
-        await self.send(c, content=f'Invite link is <{self.INVITE_LINK}>. ', reference=m)
+    async def send_info(self, c, m): 
+        await self.send(c, embed=await self.self_embed(c)) 
     
     @task
     async def execute(self, comm, c, m, *args): 
