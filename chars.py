@@ -22,4 +22,6 @@ c = {
     'folder': ':file_folder:', 
     'calendar': ':calendar:', 
     'check': ':white_check_mark:', 
+    'warning': ':warning:', 
+    'x': ':x:', 
 }

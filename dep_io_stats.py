@@ -56,6 +56,7 @@ class Dep_io_Stats(discord.Client):
     SKIN_ASSET_URL_TEMPLATE = 'https://deeeep.io/assets/skins/{}' 
     CUSTOM_SKIN_ASSET_URL_ADDITION = 'custom/' 
     SKIN_URL_TEMPLATE = 'https://api.deeeep.io/skins/{}' 
+    SKIN_REVIEW_TEMPLATE = 'https://api.deeeep.io/skins/{}/review' 
 
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
     STATS_UNBALANCE_BLACKLIST = ['OT', 'TT', 'PT', 'ST', 'SS', 'HA'] 
@@ -595,7 +596,64 @@ class Dep_io_Stats(discord.Client):
         else: 
             debug(f'already have token ({self.token})') 
     
-    async def check_review(self, c): 
+    def fake_check(self, r, rejected, reasons, list_json): 
+        r.add(f'**{len(rejected)} out of {len(list_json)} failed**') 
+
+        if rejected: 
+            r.add('') 
+
+            for skin, reason in zip(rejected, reasons): 
+                reason_str = tools.format_iterable(reason, formatter='`{}`') 
+
+                skin_id = skin['id'] 
+
+                skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+
+                rejection_str = f"**{skin['name']}** (link {skin_url}) has the following issues: {reason_str}" 
+
+                r.add(rejection_str) 
+    
+    def real_check(self, r, rejected, reasons, list_json): 
+        r.add(f'**{len(rejected)} out of {len(list_json)} failed**') 
+
+        if rejected: 
+            r.add('') 
+
+            rejection_requests = [] 
+
+            for skin in rejected: 
+                skin_id = skin['id'] 
+                skin_version = skin['version'] 
+
+                url = self.SKIN_REVIEW_TEMPLATE.format(skin_id) 
+
+                rej_req = grequests.request('POST', url, headers={
+                    'Authorization': f'Bearer {self.token}', 
+                }, data={
+                    "version": skin_version, 
+                }) 
+
+                rejection_requests.append(rej_req) 
+            
+            debug(rejection_requests) 
+            
+            rej_results = self.async_get(*rejection_requests) 
+
+            debug(rej_results) 
+
+            for result, skin, reason in zip(rej_results, rejected, reasons): 
+                start = f"Rejected {c['x']}" if result is not None else f"Attemped to reject {c['warning']}" 
+
+                reason_str = tools.format_iterable(reason, formatter='`{}`') 
+
+                skin_id = skin['id'] 
+                skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+
+                rejection_str = f"{start} **{skin['name']}** (link {skin_url}) for the following reasons: {reason_str}" 
+
+                r.add(rejection_str) 
+    
+    async def check_review(self, c, processor): 
         r = report.Report(self, c) 
 
         self.get_review_token() 
@@ -610,23 +668,7 @@ class Dep_io_Stats(discord.Client):
             if list_json: 
                 rejected, reasons = self.inspect_skins(list_json) 
 
-                r.add(f'**{len(rejected)} out of {len(list_json)} failed**') 
-
-                if rejected: 
-                    r.add('') 
-
-                    rejection_strs = [] 
-
-                    for skin, reason in zip(rejected, reasons): 
-                        reason_str = tools.format_iterable(reason, formatter='`{}`') 
-
-                        skin_id = skin['id'] 
-
-                        skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
-
-                        rejection_str = f"**{skin['name']}** (link {skin_url}) has the following issues: {reason_str}" 
-
-                        r.add(rejection_str) 
+                processor(r, rejected, reasons, list_json) 
             elif list_json is None: 
                 r.add('Error fetching skins.') 
             else: 
@@ -1100,12 +1142,19 @@ String ID: {string_id}''')
         else: 
             return True
     
-    @command('rev', definite_usages={
+    @command('fakerev', definite_usages={
         (): 'Not even Fede knows of the mysterious function of this command...', 
     }) 
     @requires_owner
     async def fake_review(self, c, m): 
-        await self.check_review(c) 
+        await self.check_review(c, self.fake_check) 
+    
+    @command('rev', definite_usages={
+        (): 'Not even Fede knows of the mysterious function of this command...', 
+    }) 
+    @requires_owner
+    async def real_review(self, c, m): 
+        await self.check_review(c, self.real_check) 
     
     async def link_help(self, c, m): 
         await self.send(c, content=f'Click here for instructions on how to link your account. <{self.LINK_HELP_IMG}>', reference=m) 
