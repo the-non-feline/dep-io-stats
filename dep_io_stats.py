@@ -59,6 +59,7 @@ class Dep_io_Stats(discord.Client):
 
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
     STATS_UNBALANCE_BLACKLIST = ['OT', 'TT', 'PT', 'ST', 'SS', 'HA'] 
+    FLOAT_CHECK_REGEX = '\A(?P<abs_val>[0-9]*\.?[0-9]*)\Z' 
 
     MAP_URL_ADDITION = 's/' 
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
@@ -508,17 +509,21 @@ class Dep_io_Stats(discord.Client):
                 sign = value[0] 
                 abs_value = value[1:] 
 
-                try: 
-                    abs_value_float = float(abs_value) 
-                except ValueError: 
-                    broken = True
+                m = re.compile(self.FLOAT_CHECK_REGEX).match(abs_value) 
 
-                    debug(f'stat {stat} has value {abs_value} which is not a float')
-                else: 
-                    if not math.isfinite(abs_value_float): 
+                if m: 
+                    abs_val = m.group('abs_val') 
+
+                    try: 
+                        float(abs_val) 
+                    except ValueError: 
                         broken = True
 
-                        debug(f'stat {stat} has value {abs_value} which is not finite')
+                        debug(f'{abs_value} passed regex but is not a float') 
+                else: 
+                    broken = True
+
+                    debug(f'{abs_value} failed regex') 
 
                 if stat not in self.STATS_UNBALANCE_BLACKLIST: 
                     if prev_sign and prev_sign != sign: 
