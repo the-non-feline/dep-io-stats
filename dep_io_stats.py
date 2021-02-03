@@ -836,9 +836,12 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
             creator = f'{user_name} (@{user_username})' 
 
-            pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(user_pfp)) 
+            if user_pfp: 
+                pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(user_pfp)) 
 
-            debug(pfp_url) 
+                debug(pfp_url) 
+            else: 
+                pfp_url = discord.Embed.Empty
 
             embed.set_author(name=creator, icon_url=pfp_url) 
 
@@ -855,8 +858,8 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             title = f"{acc['name']} (@{acc['username']})"  
 
             desc = acc['description'] 
-            
-            pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(acc['picture'])) 
+
+            pfp = acc['picture'] 
 
             #debug(pfp_url) 
             
@@ -867,10 +870,13 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             #debug(hex(color)) 
 
             embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', description=desc, color=color) 
+            
+            if pfp: 
+                pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(pfp)) 
 
-            debug(pfp_url) 
+                debug(pfp_url) 
 
-            embed.set_image(url=pfp_url) 
+                embed.set_image(url=pfp_url) 
 
             embed.add_field(name=f"Kills {c['iseedeadfish']}", value=f'{kills:,}') 
             embed.add_field(name=f"Highscore {c['first_place']}", value=f'{max_score:,}') 
@@ -1011,9 +1017,12 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         creator_str = f'{creator_name} (@{creator_username})'
 
-        pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(creator_pfp)) 
+        if creator_pfp: 
+            pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(creator_pfp)) 
 
-        debug(pfp_url) 
+            debug(pfp_url) 
+        else: 
+            pfp_url = discord.Embed.Empty
 
         embed.set_author(name=creator_str, icon_url=pfp_url) 
 
