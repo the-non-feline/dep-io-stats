@@ -832,14 +832,15 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         if user_name: 
             user_username = skin['user_username'] 
+            user_pfp = skin['user_picture'] 
 
             creator = f'{user_name} (@{user_username})' 
-            creator_inline = False
-        else: 
-            creator = designer_id
-            creator_inline = True
-        
-        embed.add_field(name=f"Creator {c['palette']}", value=creator, inline=creator_inline) 
+
+            pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(user_pfp)) 
+
+            debug(pfp_url) 
+
+            embed.set_author(name=creator, icon_url=pfp_url) 
 
         embed.set_footer(text=f"ID: {ID}") 
 
@@ -980,6 +981,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         tags_list = [tag['id'] for tag in tags] 
         creator_name = creator['name'] 
         creator_username = creator['username'] 
+        creator_pfp = creator['picture'] 
 
         world_size = map_data['worldSize'] 
         width = world_size['width'] 
@@ -1009,7 +1011,11 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         creator_str = f'{creator_name} (@{creator_username})'
 
-        embed.add_field(name=f"Creator {c['carpenter']}", value=creator_str, inline=False) 
+        pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(creator_pfp)) 
+
+        debug(pfp_url) 
+
+        embed.set_author(name=creator_str, icon_url=pfp_url) 
 
         if clone_of: 
             clone_url = self.MAP_URL_TEMPLATE.format(clone_of) 

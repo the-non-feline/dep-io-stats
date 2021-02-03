@@ -1,6 +1,7 @@
 import discord
 
 class TrimmedEmbed(discord.Embed): 
+    MAX_AUTHOR = 256
     MAX_TITLE = 256
     MAX_DESC = 2048
     MAX_FIELD_VAL = 1024
@@ -38,3 +39,8 @@ class TrimmedEmbed(discord.Embed):
             text = discord.Embed.Empty
         
         return super().set_footer(text=text, icon_url=icon_url) 
+    
+    def set_author(self, *, name, url=discord.Embed.Empty, icon_url=discord.Embed.Empty): 
+        name = self.trim_maybe(name, self.MAX_AUTHOR) 
+
+        return super().set_author(name=name, url=url, icon_url=icon_url) 
