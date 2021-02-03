@@ -720,7 +720,13 @@ class Dep_io_Stats(discord.Client):
         embed = trimmed_embed.TrimmedEmbed(title=discord_tag, description=invite_hyperlink, color=color) 
 
         if avatar_url: 
-            embed.set_thumbnail(url=avatar_url) 
+            url = str(avatar_url) 
+            
+            salted = tools.salt_url(url) 
+
+            debug(salted) 
+
+            embed.set_thumbnail(url=salted) 
 
         owner = await self.fetch_user(self.OWNER_ID) 
 
@@ -782,7 +788,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         if asset_name[0].isnumeric(): 
             asset_name = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_name
 
-        asset_url = self.SKIN_ASSET_URL_TEMPLATE.format(asset_name) + '?' + str(time.time()) #time part is to force a refresh
+        asset_url = tools.salt_url(self.SKIN_ASSET_URL_TEMPLATE.format(asset_name)) 
 
         debug(asset_url) 
 
@@ -849,7 +855,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
             desc = acc['description'] 
             
-            pfp_url = self.PFP_URL_TEMPLATE.format(acc['picture']) + '?' + str(time.time()) #time part is to force a refresh
+            pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(acc['picture'])) 
 
             #debug(pfp_url) 
             
