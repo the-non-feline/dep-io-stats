@@ -53,6 +53,8 @@ class Dep_io_Stats(discord.Client):
     LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 
     PFP_REGEX = '\A(?:https?://)?(?:www.)?deeeep.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z' 
 
+    DEFAULT_PFP = 'https://deeeep.io/new/assets/placeholder.png' 
+
     SKIN_ASSET_URL_TEMPLATE = 'https://deeeep.io/assets/skins/{}' 
     CUSTOM_SKIN_ASSET_URL_ADDITION = 'custom/' 
     SKIN_URL_TEMPLATE = 'https://api.deeeep.io/skins/{}' 
@@ -836,12 +838,14 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
             creator = f'{user_name} (@{user_username})' 
 
-            if user_pfp: 
-                pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(user_pfp)) 
-
-                debug(pfp_url) 
+            if not user_pfp: 
+                user_pfp = self.DEFAULT_PFP
             else: 
-                pfp_url = discord.Embed.Empty
+                user_pfp = self.PFP_URL_TEMPLATE.format(user_pfp)
+            
+            pfp_url = tools.salt_url(user_pfp) 
+
+            debug(pfp_url) 
 
             embed.set_author(name=creator, icon_url=pfp_url) 
 
@@ -871,12 +875,16 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
             embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', description=desc, color=color) 
             
-            if pfp: 
-                pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(pfp)) 
+            if not pfp: 
+                pfp = self.DEFAULT_PFP
+            else: 
+                pfp = self.PFP_URL_TEMPLATE.format(pfp) 
+            
+            pfp_url = tools.salt_url(pfp) 
 
-                debug(pfp_url) 
-
-                embed.set_image(url=pfp_url) 
+            debug(pfp_url) 
+            
+            embed.set_image(url=pfp_url) 
 
             embed.add_field(name=f"Kills {c['iseedeadfish']}", value=f'{kills:,}') 
             embed.add_field(name=f"Highscore {c['first_place']}", value=f'{max_score:,}') 
@@ -1017,12 +1025,14 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         creator_str = f'{creator_name} (@{creator_username})'
 
-        if creator_pfp: 
-            pfp_url = tools.salt_url(self.PFP_URL_TEMPLATE.format(creator_pfp)) 
-
-            debug(pfp_url) 
+        if not creator_pfp: 
+            creator_pfp = self.DEFAULT_PFP
         else: 
-            pfp_url = discord.Embed.Empty
+            creator_pfp = self.PFP_URL_TEMPLATE.format(creator_pfp) 
+        
+        pfp_url = tools.salt_url(creator_pfp) 
+
+        debug(pfp_url) 
 
         embed.set_author(name=creator_str, icon_url=pfp_url) 
 
