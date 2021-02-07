@@ -611,7 +611,11 @@ class Dep_io_Stats(discord.Client):
 
                 skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
 
-                rejection_str = f"**{skin['name']}** (link {skin_url}) has the following issues: {reason_str}" 
+                creator = skin['user'] 
+                c_name = creator['name'] 
+                c_username = creator['username'] 
+
+                rejection_str = f"**{skin['name']}** (link {skin_url}) by {c_name} ({c_username}) has the following issues: {reason_str}" 
 
                 r.add(rejection_str) 
     
@@ -650,8 +654,12 @@ class Dep_io_Stats(discord.Client):
 
                 skin_id = skin['id'] 
                 skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+                
+                creator = skin['user'] 
+                c_name = creator['name'] 
+                c_username = creator['username'] 
 
-                rejection_str = f"{start} **{skin['name']}** (link {skin_url}) for the following reasons: {reason_str}" 
+                rejection_str = f"{start} **{skin['name']}** (link {skin_url}) by {c_name} ({c_username}) for the following reasons: {reason_str}" 
 
                 r.add(rejection_str) 
     
