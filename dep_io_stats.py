@@ -598,7 +598,7 @@ class Dep_io_Stats(discord.Client):
         else: 
             debug(f'already have token ({self.token})') 
     
-    def fake_check(self, r, rejected, reasons, list_json): 
+    def fake_check(self, r, rejected, reasons, list_json, silent_fail): 
         r.add(f'**{len(rejected)} out of {len(list_json)} failed**') 
 
         if rejected: 
@@ -619,8 +619,13 @@ class Dep_io_Stats(discord.Client):
 
                 r.add(rejection_str) 
     
-    def real_check(self, r, rejected, reasons, list_json): 
-        r.add(f'**{len(rejected)} out of {len(list_json)} failed**') 
+    def real_check(self, r, rejected, reasons, list_json, silent_fail): 
+        message = f'**{len(rejected)} out of {len(list_json)} failed**' 
+
+        if not silent_fail: 
+            r.add(message) 
+        else: 
+            debug(message) 
 
         if rejected: 
             r.add('') 
@@ -720,7 +725,7 @@ class Dep_io_Stats(discord.Client):
             if list_json: 
                 rejected, reasons = self.inspect_skins(list_json) 
 
-                processor(r, rejected, reasons, list_json) 
+                processor(r, rejected, reasons, list_json, silent_fail) 
             elif list_json is None: 
                 message = 'Error fetching skins.' 
 
