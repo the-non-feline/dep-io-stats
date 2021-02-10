@@ -648,6 +648,47 @@ class Dep_io_Stats(discord.Client):
             debug(rej_results) 
 
             for result, skin, reason in zip(rej_results, rejected, reasons): 
+                if result is not None: 
+                    rej_type = "Rejection" 
+                    color = 0xff0000
+                else: 
+                    rej_type = "Rejection Attempt" 
+                    color = 0xffff00
+                
+                reason_str = tools.make_list(reason) 
+
+                skin_name = skin['name'] 
+                skin_id = skin['id'] 
+                skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+
+                asset_name = skin['asset'] 
+
+                if asset_name[0].isnumeric(): 
+                    asset_name = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_name
+
+                asset_url = tools.salt_url(self.SKIN_ASSET_URL_TEMPLATE.format(asset_name)) 
+
+                debug(asset_url) 
+                
+                creator = skin['user'] 
+                c_name = creator['name'] 
+                c_username = creator['username'] 
+                c_str = f'{c_name} (@{c_username})' 
+
+                embed = trimmed_embed.TrimmedEmbed(title=skin_name, type='rich', url=skin_url, color=color) 
+
+                embed.set_author(name=f'Skin {rej_type}') 
+
+                embed.set_thumbnail(url=asset_url) 
+
+                embed.add_field(name=f"Creator {c['carpenter']}", value=c_str, inline=False) 
+                embed.add_field(name=f"Rejection reasons {c['scroll']}", value=reason_str, inline=False) 
+
+                embed.set_footer(text=f'ID: {skin_id}') 
+
+                r.add(embed) 
+
+                ''' 
                 start = f"Rejected {c['x']}" if result is not None else f"Attemped to reject {c['warning']}" 
 
                 reason_str = tools.format_iterable(reason, formatter='`{}`') 
@@ -662,8 +703,9 @@ class Dep_io_Stats(discord.Client):
                 rejection_str = f"{start} **{skin['name']}** (link {skin_url}) by {c_name} ({c_username}) for the following reasons: {reason_str}" 
 
                 r.add(rejection_str) 
+                ''' 
     
-    async def check_review(self, c, processor): 
+    async def check_review(self, c, processor, silent_fail=False): 
         r = report.Report(self, c) 
 
         self.get_review_token() 
@@ -680,11 +722,26 @@ class Dep_io_Stats(discord.Client):
 
                 processor(r, rejected, reasons, list_json) 
             elif list_json is None: 
-                r.add('Error fetching skins.') 
+                message = 'Error fetching skins.' 
+
+                if not silent_fail: 
+                    r.add(message) 
+                else: 
+                    debug(message) 
             else: 
-                r.add('There are no skins to check.') 
+                message = 'There are no skins to check.'
+
+                if not silent_fail: 
+                    r.add(message) 
+                else: 
+                    debug(message) 
         else: 
-            r.add('Error logging in to perform this task. ') 
+            message = 'Error logging in to perform this task. ' 
+
+            if not silent_fail: 
+                r.add(message) 
+            else: 
+                debug(message) 
         
         await r.send_self() 
     
