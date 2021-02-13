@@ -1440,26 +1440,28 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
     
     @task
     async def execute(self, comm, c, m, *args): 
-        await comm.attempt_run(self, c, m, *args) 
-    
-    async def handle_command(self, m, c, prefix, words): 
         message_str = f'''Message content: {m.content}
 Message author: {m.author}
 Message channel: {c}
 Message guild: {m.guild}''' 
 
-        debug(message_str) 
+        debug(message_str)  
 
         permissions = c.permissions_for(c.guild.me) 
-        
+
         if permissions.send_messages: 
-            command, *args = words
-            command = command[len(prefix):] 
+            await comm.attempt_run(self, c, m, *args) 
+        else: 
+            await self.send(m.author, f"I can't send messages in {c.mention}! ")
+    
+    async def handle_command(self, m, c, prefix, words): 
+        command, *args = words
+        command = command[len(prefix):] 
 
-            comm = commands.Command.get_command(command) 
+        comm = commands.Command.get_command(command) 
 
-            if comm: 
-                await self.execute(comm, c, m, *args) 
+        if comm: 
+            await self.execute(comm, c, m, *args) 
     
     async def on_message(self, msg): 
         c = msg.channel
