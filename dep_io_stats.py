@@ -234,7 +234,7 @@ class Dep_io_Stats(discord.Client):
         async def req_channel_func(self, c, m, *args): 
             sb_channel = self.rev_channel() 
 
-            if c.id == sb_channel.id: 
+            if sb_channel and c.id == sb_channel.id: 
                 return await func(self, c, m, *args) 
             else: 
                 await self.send(c, content="This command is reserved for Skin Board channels.", reference=m) 
