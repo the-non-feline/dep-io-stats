@@ -3,11 +3,12 @@ import tools
 class Command: 
     COMMANDS = {} 
 
-    def __init__(self, func, name, definite_usages, indefinite_usages): 
+    def __init__(self, func, name, definite_usages, indefinite_usages, public): 
         self.name = name
         self.definite_usages = definite_usages
         self.indefinite_usages = indefinite_usages
         self.func = func
+        self.public = public
 
         self.COMMANDS[self.name] = self
     
@@ -16,8 +17,13 @@ class Command:
         return cls.COMMANDS.get(name.lower(), None) 
     
     @classmethod
-    def all_commands(cls): 
-        return cls.COMMANDS.keys() 
+    def all_commands(cls, public_only=True): 
+        comms = cls.COMMANDS.values() 
+
+        if public_only: 
+            comms = filter(lambda comm: comm.public, comms) 
+        
+        return map(lambda comm: comm.name, comms) 
     
     def usages_str(self, client, c, m): 
         prefix = client.prefix(c) 

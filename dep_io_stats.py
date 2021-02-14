@@ -23,6 +23,7 @@ import report
 class Dep_io_Stats(discord.Client): 
     REV_CHANNEL_SENTINEL = 'none' 
     REV_CHANNEL_KEY = 'rev_channel' 
+    REV_INTERVAL_KEY = 'rev_interval' 
 
     DEFAULT_PREFIX = ',' 
     MAX_PREFIX = 5
@@ -230,9 +231,9 @@ class Dep_io_Stats(discord.Client):
     async def default_args_check(self, c, m, *args): 
         return True
 
-    def command(name, definite_usages={}, indefinite_usages={}): 
+    def command(name, definite_usages={}, indefinite_usages={}, public=True): 
         def decorator(func): 
-            command_obj = commands.Command(func, name, definite_usages, indefinite_usages) 
+            command_obj = commands.Command(func, name, definite_usages, indefinite_usages, public) 
 
             return command_obj
         
@@ -783,7 +784,7 @@ class Dep_io_Stats(discord.Client):
 
     async def self_embed(self, channel): 
         prefix = self.prefix(channel) 
-        com_list_str = tools.format_iterable(commands.Command.all_commands(), formatter='`{}`') 
+        com_list_str = tools.format_iterable(commands.Command.all_commands(public_only=True), formatter='`{}`') 
 
         guilds = self.guilds
         guild_count = len(guilds) 
@@ -1303,14 +1304,14 @@ String ID: {string_id}''')
     
     @command('fakerev', definite_usages={
         (): 'Not even Fede knows of the mysterious function of this command...', 
-    }) 
+    }, public=False) 
     @requires_owner
     async def fake_review(self, c, m): 
         await self.check_review(c, self.fake_check) 
     
     @command('rev', definite_usages={
         (): 'Not even Fede knows of the mysterious function of this command...', 
-    }) 
+    }, public=False) 
     @requires_owner
     async def real_review(self, c, m): 
         rev_channel = self.rev_channel() 
@@ -1384,7 +1385,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
     @command('statstest', definite_usages={
         ('<account_ID>',): 'View Deeeep.io account with ID `<account_ID>`', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
-    }) 
+    }, public=False) 
     @requires_owner
     async def cheat_stats(self, c, m, query): 
         acc_id = self.get_acc_id(query) 
@@ -1420,13 +1421,13 @@ You only need to do this when linking; you can change it back afterward. Read <{
     @command('revc', definite_usages={
         (): "Perform actions", 
         (REV_CHANNEL_SENTINEL,): 'Perform different actions', 
-    }) 
+    }, public=False) 
     @requires_owner
     async def set_rev_channel(self, c, m, flag=None): 
         if flag == self.REV_CHANNEL_SENTINEL: 
             self.rev_data_table.delete(key=self.REV_CHANNEL_KEY) 
 
-            await self.send(c, content='Removed.') 
+            await self.send(c, content="Channel removed as the logging channel.") 
         elif flag is None: 
             data = {
                 'key': self.REV_CHANNEL_KEY, 
@@ -1435,13 +1436,32 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
             self.rev_data_table.upsert(data, ['key'], ensure=True) 
 
-            await self.send(c, content=f'Set.') 
+            await self.send(c, content=f'Set this channel as the logging channel for skin review.') 
+        else: 
+            return True
+
+    @command('revi', definite_usages={
+        ('<i>',): 'Does something', 
+    }, public=False) 
+    @requires_owner
+    async def set_rev_interval(self, c, m, interval): 
+        if interval.isnumeric(): 
+            minutes = int(interval) 
+
+            data = {
+                'key': self.REV_INTERVAL_KEY, 
+                'interval': minutes, 
+            } 
+
+            self.rev_data_table.upsert(data, ['key'], ensure=True) 
+
+            await self.send(c, content=f'Set interval to {minutes} minutes. ') 
         else: 
             return True
     
     @command('shutdown', definite_usages={
         (): "Turn off the bot", 
-    }) 
+    }, public=False) 
     @requires_owner
     async def shut_down(self, c, m): 
         await self.send(c, content='shutting down') 
@@ -1467,7 +1487,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
 
                 await self.send(c, content=f"That's not a valid command name. Type `{prefix}{self.send_help.name}` for a list of commands. ", reference=m) 
         else: 
-            com_list_str = tools.format_iterable(commands.Command.all_commands(), formatter='`{}`') 
+            com_list_str = tools.format_iterable(commands.Command.all_commands(public_only=True), formatter='`{}`') 
             prefix = self.prefix(c) 
 
             await self.send(c, content=f'''All commands for this bot: {com_list_str}. 
