@@ -24,4 +24,6 @@ c = {
     'check': ':white_check_mark:', 
     'warning': ':warning:', 
     'x': ':x:', 
+    'ghost': ':ghost:', 
+    'clock': ':clock2:', 
 }

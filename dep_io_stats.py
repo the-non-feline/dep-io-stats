@@ -72,6 +72,8 @@ class Dep_io_Stats(discord.Client):
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
     MAP_REGEX = '\A(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
 
+    PENDING_SKINS_LIST_URL = 'https://api.deeeep.io/skins/pending' 
+
     def __init__(self, logs_file_name, storage_file_name, email, password): 
         self.email = email
         self.password = password
@@ -227,6 +229,17 @@ class Dep_io_Stats(discord.Client):
             return req_perms_func
         
         return decorator
+    
+    def requires_sb_channel(func): 
+        async def req_channel_func(self, c, m, *args): 
+            sb_channel = self.rev_channel() 
+
+            if c.id == sb_channel.id: 
+                return await func(self, c, m, *args) 
+            else: 
+                await self.send(c, content="This command is reserved for Skin Board channels.", reference=m) 
+        
+        return req_channel_func
     
     async def default_args_check(self, c, m, *args): 
         return True
@@ -488,6 +501,25 @@ class Dep_io_Stats(discord.Client):
         roles = self.get_roles(acc_json, acc_id, members_list) 
 
         return acc_json, contribs, roles
+        
+    def get_reskins(self): 
+        pending_list = self.async_get(self.PENDING_SKINS_LIST_URL)[0] 
+
+        if pending_list: 
+            unnoticed_pending = [] 
+            upcoming_pending = [] 
+
+            for pending in pending_list: 
+                if pending['parent']: 
+                    if pending['upcoming']: 
+                        upcoming_pending.append(pending) 
+                    else: 
+                        unnoticed_pending.append(pending) 
+        else: 
+            unnoticed_pending = None
+            upcoming_pending = None
+        
+        return unnoticed_pending, upcoming_pending
     
     def get_skin(self, skins_list, query): 
         suggestions = [] 
@@ -1154,6 +1186,37 @@ String ID: {string_id}''')
 
         return embed
     
+    def reskins_embed(self): 
+        color = discord.Color.random() 
+
+        pending, upcoming = self.get_reskins() 
+
+        embed = trimmed_embed.TrimmedEmbed(type='rich', title='Pending Reskins', description='Unreleased reskins in Creators Center', color=color) 
+
+        if pending is None: 
+            pending_str = 'There was an error fetching skins.' 
+        elif pending: 
+            pending_list = map(lambda skin: skin['name'], pending) 
+
+            pending_str = tools.make_list(pending_list) 
+        else: 
+            pending_str = 'There are no unnoticed reskins.' 
+        
+        embed.add_field(name=f"Unnoticed reskins {c['ghost']}", value=pending_str, inline=False) 
+
+        if upcoming is None: 
+            upcoming_str = 'There was an error fetching skins.' 
+        elif upcoming: 
+            upcoming_list = map(lambda skin: skin['name'], upcoming) 
+
+            upcoming_str = tools.make_list(upcoming_list) 
+        else: 
+            upcoming_str = 'There are no upcoming reskins.' 
+        
+        embed.add_field(name=f"Upcoming reskins {c['clock']}", value=upcoming_str, inline=False) 
+
+        return embed
+    
     async def on_ready(self): 
         self.readied = True
         
@@ -1458,6 +1521,13 @@ You only need to do this when linking; you can change it back afterward. Read <{
             await self.send(c, content=f'Set interval to {minutes} minutes. ') 
         else: 
             return True
+    
+    @command('reskins', definite_usages={
+        (): 'Get a list of all pending reskins in Creators Center', 
+    }) 
+    @requires_sb_channel
+    async def display_reskins(self, c, m): 
+        await self.send(c, embed=self.reskins_embed()) 
     
     @command('shutdown', definite_usages={
         (): "Turn off the bot", 
