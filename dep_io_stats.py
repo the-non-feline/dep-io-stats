@@ -21,6 +21,8 @@ import trimmed_embed
 import report
 
 class Dep_io_Stats(discord.Client): 
+    REV_CHANNEL_SENTINEL = 'none' 
+
     DEFAULT_PREFIX = ',' 
     MAX_PREFIX = 5
     PREFIX_SENTINEL = 'none' 
@@ -75,6 +77,7 @@ class Dep_io_Stats(discord.Client):
         self.db = dataset.connect(storage_file_name) 
         self.links_table = self.db.get_table('account_links') 
         self.prefixes_table = self.db.get_table('prefixes') 
+        self.rev_channel_table = self.db.get_table('rev_channel') 
 
         self.logs_file = open(logs_file_name, mode='w+', encoding='utf-8') 
 
@@ -99,6 +102,16 @@ class Dep_io_Stats(discord.Client):
             return p['prefix'] 
         else: 
             return self.DEFAULT_PREFIX
+    
+    def rev_channel(self): 
+        c_entry = self.rev_channel_table.find_one() 
+
+        if c_entry: 
+            c_id = c_entry['channel_id'] 
+
+            c = self.get_channel(c_id) 
+
+            return c
     
     async def send(self, c, *args, **kwargs): 
         try: 
@@ -1299,7 +1312,12 @@ String ID: {string_id}''')
     }) 
     @requires_owner
     async def real_review(self, c, m): 
-        await self.check_review(c, self.real_check) 
+        rev_channel = self.rev_channel() 
+
+        if rev_channel: 
+            await self.check_review(rev_channel, self.real_check) 
+        else: 
+            await self.send(c, content='Not set', reference=m) 
     
     async def link_help(self, c, m): 
         await self.send(c, content=f'Click here for instructions on how to link your account. <{self.LINK_HELP_IMG}>', reference=m) 
@@ -1397,6 +1415,27 @@ You only need to do this when linking; you can change it back afterward. Read <{
                 await self.send(c, content=f'Custom prefix is now `{prefix}`. ') 
             else: 
                 await self.send(c, content=f'Prefix must not exceed {self.MAX_PREFIX} characters. ', reference=m) 
+    
+    @command('revc', definite_usages={
+        (): "Perform actions", 
+        (REV_CHANNEL_SENTINEL,): 'Perform different actions', 
+    }) 
+    @requires_owner
+    async def set_rev_channel(self, c, m, flag=None): 
+        self.rev_channel_table.delete() 
+        
+        if flag == self.REV_CHANNEL_SENTINEL: 
+            await self.send(c, content='Removed.') 
+        elif flag is None: 
+            data = {
+                'channel_id': c.id, 
+            } 
+
+            self.rev_channel_table.upsert(data, ['channel_id'], ensure=True) 
+
+            await self.send(c, content=f'Set.') 
+        else: 
+            return True
     
     @command('shutdown', definite_usages={
         (): "Turn off the bot", 
