@@ -22,6 +22,7 @@ import report
 
 class Dep_io_Stats(discord.Client): 
     REV_CHANNEL_SENTINEL = 'none' 
+    REV_CHANNEL_KEY = 'rev_channel' 
 
     DEFAULT_PREFIX = ',' 
     MAX_PREFIX = 5
@@ -77,7 +78,7 @@ class Dep_io_Stats(discord.Client):
         self.db = dataset.connect(storage_file_name) 
         self.links_table = self.db.get_table('account_links') 
         self.prefixes_table = self.db.get_table('prefixes') 
-        self.rev_channel_table = self.db.get_table('rev_channel') 
+        self.rev_data_table = self.db.get_table('rev_data') 
 
         self.logs_file = open(logs_file_name, mode='w+', encoding='utf-8') 
 
@@ -104,7 +105,7 @@ class Dep_io_Stats(discord.Client):
             return self.DEFAULT_PREFIX
     
     def rev_channel(self): 
-        c_entry = self.rev_channel_table.find_one() 
+        c_entry = self.rev_data_table.find_one(key=self.REV_CHANNEL_KEY) 
 
         if c_entry: 
             c_id = c_entry['channel_id'] 
@@ -1422,16 +1423,17 @@ You only need to do this when linking; you can change it back afterward. Read <{
     }) 
     @requires_owner
     async def set_rev_channel(self, c, m, flag=None): 
-        self.rev_channel_table.delete() 
-        
         if flag == self.REV_CHANNEL_SENTINEL: 
+            self.rev_data_table.delete(key=self.REV_CHANNEL_KEY) 
+
             await self.send(c, content='Removed.') 
         elif flag is None: 
             data = {
+                'key': self.REV_CHANNEL_KEY, 
                 'channel_id': c.id, 
             } 
 
-            self.rev_channel_table.upsert(data, ['channel_id'], ensure=True) 
+            self.rev_data_table.upsert(data, ['key'], ensure=True) 
 
             await self.send(c, content=f'Set.') 
         else: 
