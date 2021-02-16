@@ -1460,14 +1460,14 @@ You only need to do this when linking; you can change it back afterward. Read <{
     
     @command('prefix', definite_usages={
         ('<prefix>',): "Set the server-wide prefix for this bot to `<prefix>`", 
-        (PREFIX_SENTINEL,): 'Reset the server prefix to default', 
+        (PREFIX_SENTINEL,): f'Reset the server prefix to the default, `{DEFAULT_PREFIX}`', 
     }) 
     @requires_perms(req_one=('manage_messages', 'manage_roles')) 
     async def set_prefix(self, c, m, prefix): 
         if prefix == self.PREFIX_SENTINEL: 
             self.prefixes_table.delete(guild_id=c.guild.id) 
 
-            await self.send(c, content='Deleted custom prefix. ') 
+            await self.send(c, content=f'Reset to default prefix `{self.DEFAULT_PREFIX}`') 
         else: 
             if len(prefix) <= self.MAX_PREFIX: 
                 data = {
