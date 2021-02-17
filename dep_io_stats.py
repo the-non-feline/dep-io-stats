@@ -24,6 +24,7 @@ class Dep_io_Stats(discord.Client):
     REV_CHANNEL_SENTINEL = 'none' 
     REV_CHANNEL_KEY = 'rev_channel' 
     REV_INTERVAL_KEY = 'rev_interval' 
+    REV_LAST_CHECKED_KEY = 'rev_last_checked' 
 
     DEFAULT_PREFIX = ',' 
     MAX_PREFIX = 5
@@ -97,6 +98,8 @@ class Dep_io_Stats(discord.Client):
         self.readied = False
         self.token = None
 
+        self.auto_rev_process = None
+
         super().__init__() 
     
     def prefix(self, c): 
@@ -124,6 +127,9 @@ class Dep_io_Stats(discord.Client):
             debug('that was illegal') 
     
     async def logout(self): 
+        if self.auto_rev_process: 
+            self.auto_rev_process.cancel() 
+        
         self.logs_file.close() 
         #self.levels_file.close() 
 
@@ -1217,8 +1223,54 @@ String ID: {string_id}''')
 
         return embed
     
+    def time_exceeded(self): 
+        last_checked_row = self.rev_data_table.find_one(key=self.REV_LAST_CHECKED_KEY) 
+
+        if last_checked_row: 
+            interval_row = self.rev_data_table.find_one(key=self.REV_INTERVAL_KEY) 
+
+            if interval_row: 
+                last_checked = last_checked_row['time'] 
+                interval = interval_row['interval'] 
+
+                current_time = time.time() 
+
+                return current_time - last_checked >= interval
+        else: 
+            return True
+    
+    async def auto_rev(self): 
+        debug(time.time()) 
+    
+    def write_new_time(self): 
+        data = {
+            'key': self.REV_LAST_CHECKED_KEY, 
+            'time': time.time(), 
+        } 
+
+        self.rev_data_table.upsert(data, ['key'], ensure=True) 
+    
+    async def auto_rev_loop(self): 
+        while True: 
+            try: 
+                if self.time_exceeded(): 
+                    await self.auto_rev() 
+
+                    self.write_new_time() 
+                
+                await asyncio.sleep(1) 
+            except asyncio.CancelledError: 
+                raise
+            except: 
+                debug('', exc_info=True) 
+    
     async def on_ready(self): 
         self.readied = True
+
+        if not self.auto_rev_process: 
+            self.auto_rev_process = self.loop.create_task(self.auto_rev_loop()) 
+
+            debug('created auto rev process') 
         
         debug('ready') 
     
@@ -1380,7 +1432,7 @@ String ID: {string_id}''')
         rev_channel = self.rev_channel() 
 
         if rev_channel: 
-            await self.check_review(rev_channel, self.real_check) 
+            await self.check_review(rev_channel, self.real_check, silent_fail=True) 
         else: 
             await self.send(c, content='Not set', reference=m) 
     
