@@ -719,6 +719,13 @@ class Dep_io_Stats(discord.Client):
                 skin_id = skin['id'] 
                 skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
 
+                skin_link = skin['reddit_link'] 
+
+                if skin_link: 
+                    desc = f'[Reddit link]({skin_link})' 
+                else: 
+                    desc = None
+
                 asset_name = skin['asset'] 
 
                 if asset_name[0].isnumeric(): 
@@ -733,7 +740,7 @@ class Dep_io_Stats(discord.Client):
                 c_username = creator['username'] 
                 c_str = f'{c_name} (@{c_username})' 
 
-                embed = trimmed_embed.TrimmedEmbed(title=skin_name, type='rich', url=skin_url, color=color) 
+                embed = trimmed_embed.TrimmedEmbed(title=skin_name, type='rich', description=desc, url=skin_url, color=color) 
 
                 embed.set_author(name=f'Skin {rej_type}') 
 
