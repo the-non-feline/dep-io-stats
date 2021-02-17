@@ -1572,16 +1572,16 @@ You only need to do this when linking; you can change it back afterward. Read <{
     @requires_owner
     async def set_rev_interval(self, c, m, interval): 
         if interval.isnumeric(): 
-            minutes = int(interval) 
+            seconds = int(interval) 
 
             data = {
                 'key': self.REV_INTERVAL_KEY, 
-                'interval': minutes, 
+                'interval': seconds, 
             } 
 
             self.rev_data_table.upsert(data, ['key'], ensure=True) 
 
-            await self.send(c, content=f'Set interval to {minutes} minutes. ') 
+            await self.send(c, content=f'Set interval to {seconds} seconds. ') 
         else: 
             return True
     
