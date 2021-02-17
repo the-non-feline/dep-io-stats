@@ -1240,7 +1240,7 @@ String ID: {string_id}''')
             return True
     
     async def auto_rev(self): 
-        debug(time.time()) 
+        debug(f'Checked at {time.time()}') 
     
     def write_new_time(self): 
         data = {
