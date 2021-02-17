@@ -1236,11 +1236,22 @@ String ID: {string_id}''')
                 current_time = time.time() 
 
                 return current_time - last_checked >= interval
+            else: 
+                debug('No interval set') 
         else: 
+            debug('No last_checked') 
+
             return True
     
     async def auto_rev(self): 
         debug(f'Checked at {time.time()}') 
+
+        rev_channel = self.rev_channel() 
+
+        if rev_channel: 
+            await self.check_review(rev_channel, self.real_check, silent_fail=True) 
+        else: 
+            debug('No rev channel set') 
     
     def write_new_time(self): 
         data = {
