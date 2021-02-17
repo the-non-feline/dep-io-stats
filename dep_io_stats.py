@@ -1261,13 +1261,17 @@ String ID: {string_id}''')
 
         self.rev_data_table.upsert(data, ['key'], ensure=True) 
     
+    @task
+    async def auto_rev_task(self): 
+        await self.auto_rev() 
+
+        self.write_new_time() 
+    
     async def auto_rev_loop(self): 
         while True: 
             try: 
                 if self.time_exceeded(): 
-                    await self.auto_rev() 
-
-                    self.write_new_time() 
+                    await self.auto_rev_task() 
                 
                 await asyncio.sleep(1) 
             except asyncio.CancelledError: 
