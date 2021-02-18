@@ -69,6 +69,7 @@ class Dep_io_Stats(discord.Client):
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
     STATS_UNBALANCE_BLACKLIST = ['OT', 'TT', 'PT', 'ST', 'SS', 'HA'] 
     FLOAT_CHECK_REGEX = '\A(?P<abs_val>[0-9]*\.?[0-9]*)\Z' 
+    REDDIT_LINK_REGEX = '\A(?:https?://)?(?:www.)?reddit.com/(?:r|u|(?:user))/[0-9a-zA-Z]+/comments/[0-9a-zA-Z]+/[0-9a-zA-Z_]+/?(?:\?.*)?\Z' 
 
     MAP_URL_ADDITION = 's/' 
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
@@ -595,6 +596,11 @@ class Dep_io_Stats(discord.Client):
 
         return broken, unbalance_sign
     
+    def valid_reddit_link(self, link): 
+        m = re.compile(self.REDDIT_LINK_REGEX).match(link) 
+
+        return m
+    
     def reject_reasons(self, skin): 
         reasons = [] 
 
@@ -604,8 +610,12 @@ class Dep_io_Stats(discord.Client):
 
         debug(skin_url) 
 
-        if not skin['reddit_link']: 
-            reasons.append('lack of Reddit link') 
+        reddit_link = skin['reddit_link']
+
+        if not reddit_link: 
+            reasons.append('missing Reddit link') 
+        elif not self.valid_reddit_link(reddit_link): 
+            reasons.append('invalid Reddit link')
         
         broken, unbalance_sign = self.unbalanced_stats(skin) 
 
