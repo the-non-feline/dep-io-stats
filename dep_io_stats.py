@@ -35,6 +35,7 @@ class Dep_io_Stats(discord.Client):
     INVITE_LINK = 'https://discord.com/oauth2/authorize?client_id=796151711571116042&permissions=347136&scope=bot' 
 
     DATE_FORMAT = '%B %d, %Y' 
+    REV_LOG_TIME_FORMAT = '%m-%d-%Y at %I:%M:%S %p'
 
     MAX_TITLE = 256
     MAX_DESC = 2048
@@ -1255,7 +1256,9 @@ String ID: {string_id}''')
             return True
     
     async def auto_rev(self): 
-        debug(f'Checked at {time.time()}') 
+        time_str = time.strftime(self.REV_LOG_TIME_FORMAT) 
+
+        debug(f'Checked at {time_str}') 
 
         rev_channel = self.rev_channel() 
 
