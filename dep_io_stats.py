@@ -597,7 +597,11 @@ class Dep_io_Stats(discord.Client):
     def reject_reasons(self, skin): 
         reasons = [] 
 
-        debug(skin['id']) 
+        skin_id = skin['id'] 
+
+        skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+
+        debug(skin_url) 
 
         if not skin['reddit_link']: 
             reasons.append('lack of Reddit link') 
