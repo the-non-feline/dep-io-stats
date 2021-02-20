@@ -66,6 +66,21 @@ class Dep_io_Stats(discord.Client):
     SKIN_URL_TEMPLATE = 'https://api.deeeep.io/skins/{}' 
     SKIN_REVIEW_TEMPLATE = 'https://api.deeeep.io/skins/{}/review' 
 
+    STAT_CHANGE_TRANSLATIONS = {
+        'HM': '{} HP', 
+        'DM': '{} damage', 
+        'DB': '{}% armor', 
+        'DR': '{}% damage reflection', 
+        'AP': '{}% armor penetration', 
+        'BR': '{}% bleed reduction', 
+        'OT': '{}s oxygen time', 
+        'TT': '{}s temperature time', 
+        'PT': '{}s pressure time', 
+        'ST': '{}s salinity time', 
+        'SS': '{}x size scale', 
+        'HA': '{} habitat attribute', 
+    }
+
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
     STATS_UNBALANCE_BLACKLIST = ['OT', 'TT', 'PT', 'ST', 'SS', 'HA'] 
     FLOAT_CHECK_REGEX = '\A(?P<abs_val>[0-9]*\.?[0-9]*)\Z' 
@@ -949,7 +964,21 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         embed.add_field(name=f"Sales {c['stonkalot']}", value=f'{sales:,}') 
 
         if stat_changes: 
-            stat_changes_str = tools.make_list(stat_changes.split(';')) 
+            stat_changes_list = [] 
+
+            for change in stat_changes.split(';'): 
+                attribute, value = change.split('=') 
+
+                translation_format = self.STAT_CHANGE_TRANSLATIONS.get(attribute, None) 
+
+                if translation_format: 
+                    to_append = translation_format.format(value) 
+                else: 
+                    to_append = change
+                
+                stat_changes_list.append(to_append) 
+            
+            stat_changes_str = tools.make_list(stat_changes_list)  
 
             embed.add_field(name=f"Stat changes {c['change']}", value=stat_changes_str, inline=False) 
         
