@@ -121,7 +121,7 @@ class Dep_io_Stats(discord.Client):
 
         self.auto_rev_process = None
 
-        super().__init__() 
+        super().__init__(activity=discord.Game(name='starting up'), status=discord.Status.dnd) 
     
     def prefix(self, c): 
         p = self.prefixes_table.find_one(guild_id=c.guild.id) 
@@ -150,6 +150,8 @@ class Dep_io_Stats(discord.Client):
     async def logout(self): 
         if self.auto_rev_process: 
             self.auto_rev_process.cancel() 
+        
+        await self.change_presence(status=discord.Status.offline)
         
         self.logs_file.close() 
         #self.levels_file.close() 
@@ -1359,6 +1361,8 @@ String ID: {string_id}''')
 
             debug('created auto rev process') 
         
+        await self.change_presence(activity=discord.Game(name='all systems operational'), status=discord.Status.online)
+        
         debug('ready') 
     
     def decode_mention(self, c, mention): 
@@ -1676,6 +1680,8 @@ You only need to do this when linking; you can change it back afterward. Read <{
         await self.send(c, content='shutting down') 
 
         self.logging_out = True
+
+        await self.change_presence(status=discord.Status.dnd, activity=discord.Game(name='shutting down')) 
     
     @command('help', definite_usages={
         (): 'Get a list of all commands', 
