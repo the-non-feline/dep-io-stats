@@ -79,6 +79,10 @@ class Dep_io_Stats(discord.Client):
         'ST': '{}s salinity time', 
         'SS': '{}x size scale', 
         'HA': '{} habitat attribute', 
+    } 
+    STAT_CHANGE_MULTIPLIERS = {
+        'HM': 100, 
+        'DM': 20, 
     }
 
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
@@ -969,10 +973,24 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             for change in stat_changes.split(';'): 
                 attribute, value = change.split('=') 
 
+                try: 
+                    float_value = float(value) 
+                except ValueError: 
+                    float_str = value
+                else: 
+                    float_value *= self.STAT_CHANGE_MULTIPLIERS.get(attribute, 1) 
+
+                    trunced = int(float_value) 
+
+                    if float_value == trunced: 
+                        float_value = trunced
+                    
+                    float_str = f'{float_value:+}' 
+
                 translation_format = self.STAT_CHANGE_TRANSLATIONS.get(attribute, None) 
 
                 if translation_format: 
-                    to_append = translation_format.format(value) 
+                    to_append = translation_format.format(float_str) 
                 else: 
                     to_append = change
                 
