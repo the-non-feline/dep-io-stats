@@ -1504,7 +1504,7 @@ String ID: {string_id}''')
             if map_json: 
                 await self.send(c, embed=self.map_embed(map_json)) 
             else: 
-                await self.send(c, content=f"That's not a valid map. ", reference=m) 
+                await self.send(c, content=f"That's not a valid map (or Mapmaker could be broken). ", reference=m) 
         else: 
             return True
     
@@ -1574,7 +1574,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         else: 
             self.links_table.delete(user_id=m.author.id) 
 
-            await self.send(c, content='Unlinked your account. ') 
+            await self.send(c, content='Unlinked your account. ', reference=m) 
     
     @command('link', definite_usages={
         (): 'View help on linking accounts', 
