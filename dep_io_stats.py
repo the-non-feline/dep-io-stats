@@ -66,6 +66,8 @@ class Dep_io_Stats(discord.Client):
     SKIN_URL_TEMPLATE = 'https://api.deeeep.io/skins/{}' 
     SKIN_REVIEW_TEMPLATE = 'https://api.deeeep.io/skins/{}/review' 
 
+    STONKS_THRESHOLD = 150
+
     STAT_CHANGE_TRANSLATIONS = {
         'HM': '{} HP', 
         'DM': '{} damage', 
@@ -967,7 +969,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         embed.add_field(name=f"Animal {c['fish']}", value=animal_id) 
         embed.add_field(name=f"Price {c['deeeepcoin']}", value=f'{price:,}') 
-        embed.add_field(name=f"Sales {c['stonkalot']}", value=f'{sales:,}') 
+
+        sales_emoji = c['stonkalot'] if sales >= self.STONKS_THRESHOLD else c['stonkanot'] 
+
+        embed.add_field(name=f"Sales {sales_emoji}", value=f'{sales:,}') 
 
         if stat_changes: 
             stat_changes_list = [] 

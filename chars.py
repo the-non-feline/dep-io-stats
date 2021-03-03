@@ -10,6 +10,7 @@ c = {
     'tools': ':tools:', 
     'fish': ':fish:', 
     'stonkalot': '<:stonkalot:800488843047338015>', 
+    'stonkanot': '<:stonkanot:800252653464191006>', 
     'wrench': ':wrench:', 
     'palette': ':art:', 
     'thumbsup': ':thumbsup:', 
