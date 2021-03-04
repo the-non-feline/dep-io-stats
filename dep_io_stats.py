@@ -1549,49 +1549,51 @@ String ID: {string_id}''')
         return acc_id
     
     async def link_dep_acc(self, c, m, query): 
-        if query != self.LINK_SENTINEL: 
-            acc_id = self.get_acc_id(query) 
-            
-            if acc_id: 
-                acc_data = self.get_acc_data(acc_id) 
+        acc_id = self.get_acc_id(query) 
+        
+        if acc_id: 
+            acc_data = self.get_acc_data(acc_id) 
 
-                if acc_data: 
-                    name = acc_data['name'] 
-                    username = acc_data['username'] 
+            if acc_data: 
+                name = acc_data['name'] 
+                username = acc_data['username'] 
 
-                    if name == str(m.author): 
-                        data = {
-                            'user_id': m.author.id, 
-                            'acc_id': acc_id, 
-                        } 
+                if name == str(m.author): 
+                    data = {
+                        'user_id': m.author.id, 
+                        'acc_id': acc_id, 
+                    } 
 
-                        self.links_table.upsert(data, ['user_id'], ensure=True) 
+                    self.links_table.upsert(data, ['user_id'], ensure=True) 
 
-                        await self.send(c, content=f"Successfully linked to Deeeep.io account with username `{username}` and ID `{acc_id}`. \
+                    await self.send(c, content=f"Successfully linked to Deeeep.io account with username `{username}` and ID `{acc_id}`. \
 You can change the account's name back now. ", reference=m) 
-                    else: 
-                        await self.send(c, content=f"You must set your Deeeep.io account's name to your discord tag (`{m.author!s}`) when linking. \
-You only need to do this when linking; you can change it back afterward. Read <{self.LINK_HELP_IMG}> for more info. ", reference=m) 
                 else: 
-                    return True
+                    await self.send(c, content=f"You must set your Deeeep.io account's name to your discord tag (`{m.author!s}`) when linking. \
+You only need to do this when linking; you can change it back afterward. Read <{self.LINK_HELP_IMG}> for more info. ", reference=m) 
             else: 
                 return True
         else: 
-            self.links_table.delete(user_id=m.author.id) 
-
-            await self.send(c, content='Unlinked your account. ', reference=m) 
+            return True
     
     @command('link', definite_usages={
         (): 'View help on linking accounts', 
         ('<account_ID>',): 'Link Deeeep.io account with ID `<account_ID>` to your account', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
-        (LINK_SENTINEL,): 'Unlink your account', 
     }) 
     async def link(self, c, m, query=None): 
         if query: 
             return await self.link_dep_acc(c, m, query) 
         else: 
             await self.link_help(c, m) 
+    
+    @command('unlink', definite_usages={
+        (): 'Unlink your Deeeep.io account', 
+    })
+    async def unlink(self, c, m): 
+        self.links_table.delete(user_id=m.author.id) 
+
+        await self.send(c, content='Unlinked your account. ', reference=m) 
     
     @command('statstest', definite_usages={
         ('<account_ID>',): 'View Deeeep.io account with ID `<account_ID>`', 
