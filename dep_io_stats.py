@@ -566,7 +566,9 @@ class Dep_io_Stats(discord.Client):
 
             if lowered_name == lowered_query: 
                 return skin
-            elif lowered_query in lowered_name or lowered_name in lowered_query: 
+            elif len(suggestions) == self.MAX_SKIN_SUGGESTIONS: 
+                return None
+            elif lowered_query in lowered_name: 
                 suggestions.append(skin) 
         else: 
             return suggestions
@@ -1459,26 +1461,33 @@ String ID: {string_id}''')
             skin_data = self.get_skin(skins_list, skin_name) 
 
             skin_json = None
+            suggestions_str = '' 
 
             if type(skin_data) is list: 
                 if len(skin_data) == 1: 
                     skin_json = skin_data[0] 
                 else: 
-                    text = "That's not a valid skin name. " 
-
-                    if 0 < len(skin_data) <= self.MAX_SKIN_SUGGESTIONS: 
+                    if skin_data: 
                         skin_names = (skin['name'] for skin in skin_data) 
 
                         suggestions_str = tools.format_iterable(skin_names, formatter='`{}`') 
 
-                        text += f"Maybe you meant one of these? {suggestions_str}" 
-
-                    await self.send(c, content=text, reference=m) 
-            else: 
+                        suggestions_str = f"Maybe you meant one of these? {suggestions_str}" 
+                
+                debug(f'Suggestions length: {len(skin_data)}') 
+            elif skin_data: 
                 skin_json = skin_data
+
+                debug('match found') 
+            else: 
+                debug('limit exceeded') 
 
             if skin_json: 
                 await self.send(c, embed=self.skin_embed(skin_json)) 
+            else: 
+                text = "That's not a valid skin name. " + suggestions_str
+
+                await self.send(c, content=text) 
         else: 
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
     
