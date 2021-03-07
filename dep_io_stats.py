@@ -106,6 +106,7 @@ class Dep_io_Stats(discord.Client):
         self.links_table = self.db.get_table('account_links') 
         self.prefixes_table = self.db.get_table('prefixes') 
         self.rev_data_table = self.db.get_table('rev_data') 
+        self.blacklists_table = self.db.get_table('blacklists') 
 
         self.logs_file = open(logs_file_name, mode='w+', encoding='utf-8') 
 
@@ -132,6 +133,11 @@ class Dep_io_Stats(discord.Client):
             return p['prefix'] 
         else: 
             return self.DEFAULT_PREFIX
+    
+    def blacklisted(self, c, blacklist_type, target): 
+        b_entry = self.blacklists_table.find_one(guild_id=c.guild.id, type=blacklist_type, target=target) 
+
+        return b_entry
     
     def rev_channel(self): 
         c_entry = self.rev_data_table.find_one(key=self.REV_CHANNEL_KEY) 
@@ -1432,18 +1438,83 @@ String ID: {string_id}''')
         link = None
 
         if user_id: 
-            link = self.links_table.find_one(user_id=user_id) 
+            if not self.blacklisted(c, 'user', user_id): 
+                link = self.links_table.find_one(user_id=user_id) 
 
-            #debug('f') 
+                #debug('f') 
 
-            if link: 
-                acc_id = link['acc_id'] 
+                if link: 
+                    acc_id = link['acc_id'] 
 
-                await self.send(c, embed=self.acc_embed(acc_id)) 
+                    if not self.blacklisted(c, 'account', acc_id): 
+                        await self.send(c, embed=self.acc_embed(acc_id)) 
+                    else: 
+                        await self.send(c, content='This account is blacklisted from being displayed on this server. ', reference=m) 
+                    
+                elif user_id == m.author.id: 
+                    await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ", reference=m) 
+                else: 
+                    await self.send(c, content=f"This user isn't linked.", reference=m) 
             elif user_id == m.author.id: 
-                await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ", reference=m) 
+                await self.send(c, content=f"You're blacklisted from displaying your account on this server.", reference=m) 
             else: 
-                await self.send(c, content=f"This user isn't linked.", reference=m) 
+                await self.send(c, content='This user is blacklisted from displaying their account on this server. ', reference=m) 
+        else: 
+            return True
+    
+    def convert_target(self, lower_type, target_str): 
+        if lower_type == 'user': 
+            target = self.decode_mention(c, target_str) 
+        elif lower_type == 'account': 
+            target = int(target_str) if target_str.isnumeric() else None
+        elif lower_type == 'map': 
+            target = target_str.lower() 
+        else: 
+            target = None
+        
+        return target
+    
+    @command('blacklist', definite_usages={
+        ('user', '<mention>'): 'Blacklist the mentioned user from displaying their Deeeep.io account **on this server only**', 
+        ('user', '<user_id>'): 'Like above, but with discord ID instead to avoid pings', 
+        ('account', '<account_id>'): 'Blacklists the Deeeep.io account with account ID of `<account_id>` from being displayed **on this server only**', 
+        ('map', '<string_id>'): 'Blacklists the map with string ID of `<string_id>` from being displayed **on this server only**', 
+    }) 
+    @requires_perms(req_one=('manage_messages',)) 
+    async def blacklist(self, c, m, blacklist_type, target_str): 
+        lower_type = blacklist_type.lower() 
+
+        target = self.convert_target(lower_type, target_str) 
+
+        if target: 
+            data = {
+                'type': lower_type, 
+                'guild_id': c.guild.id, 
+                'target': target, 
+            } 
+
+            self.blacklists_table.upsert(data, ['type', 'guild_id', 'target'], ensure=True) 
+
+            await self.send(c, content=f'Successfully blacklisted {lower_type} `{target}` on this server.') 
+        else: 
+            return True
+    
+    @command('unblacklist', definite_usages={
+        ('user', '<mention>'): 'Unblacklist the mentioned user from displaying their Deeeep.io account **on this server only**', 
+        ('user', '<user_id>'): 'Like above, but with discord ID instead to avoid pings', 
+        ('account', '<account_id>'): 'Unblacklists the Deeeep.io account with account ID of `<account_id>` from being displayed **on this server only**', 
+        ('map', '<string_id>'): 'Unblacklists the map with string ID of `<string_id>` from being displayed **on this server only**', 
+    }) 
+    @requires_perms(req_one=('manage_messages',)) 
+    async def unblacklist(self, c, m, blacklist_type, target_str): 
+        lower_type = blacklist_type.lower() 
+
+        target = self.convert_target(lower_type, target_str) 
+
+        if target: 
+            self.blacklists_table.delete(guild_id=c.guild.id, type=lower_type, target=target) 
+
+            await self.send(c, content=f'Successfully unblacklisted {lower_type} `{target}` on this server.') 
         else: 
             return True
     
@@ -1509,16 +1580,19 @@ String ID: {string_id}''')
         map_string_id = self.get_map_string_id(map_query) 
 
         if map_string_id: 
-            map_string_id = self.MAP_URL_ADDITION + map_string_id
-            
-            map_url = self.MAP_URL_TEMPLATE.format(map_string_id) 
+            if not self.blacklisted(c, 'map', map_string_id.lower()): 
+                map_string_id = self.MAP_URL_ADDITION + map_string_id
+                
+                map_url = self.MAP_URL_TEMPLATE.format(map_string_id) 
 
-            map_json = self.async_get(map_url)[0] 
+                map_json = self.async_get(map_url)[0] 
 
-            if map_json: 
-                await self.send(c, embed=self.map_embed(map_json)) 
+                if map_json: 
+                    await self.send(c, embed=self.map_embed(map_json)) 
+                else: 
+                    await self.send(c, content=f"That's not a valid map (or Mapmaker could be broken). ", reference=m) 
             else: 
-                await self.send(c, content=f"That's not a valid map (or Mapmaker could be broken). ", reference=m) 
+                await self.send(c, content=f'The map `{map_string_id}` is blacklisted from being displayed on this server. ')
         else: 
             return True
     
