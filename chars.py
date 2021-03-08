@@ -27,4 +27,5 @@ c = {
     'x': ':x:', 
     'ghost': ':ghost:', 
     'clock': ':clock2:', 
+    'image': ':frame_photo:', 
 }

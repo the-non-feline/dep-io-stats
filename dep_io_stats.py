@@ -779,8 +779,6 @@ class Dep_io_Stats(discord.Client):
                     asset_name = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_name
 
                 asset_url = tools.salt_url(self.SKIN_ASSET_URL_TEMPLATE.format(asset_name)) 
-
-                debug(asset_url) 
                 
                 creator = skin['user'] 
                 c_name = creator['name'] 
@@ -791,7 +789,7 @@ class Dep_io_Stats(discord.Client):
 
                 embed.set_author(name=f'Skin {rej_type}') 
 
-                embed.set_thumbnail(url=asset_url) 
+                embed.add_field(name=f"Image link {c['image']}", value=f'[Image]({asset_url})') 
 
                 embed.add_field(name=f"Creator {c['carpenter']}", value=c_str, inline=False) 
                 embed.add_field(name=f"Rejection reasons {c['scroll']}", value=reason_str, inline=False) 
@@ -1468,7 +1466,7 @@ String ID: {string_id}''')
         elif lower_type == 'account': 
             target = int(target_str) if target_str.isnumeric() else None
         elif lower_type == 'map': 
-            target = target_str.lower() 
+            target = int(target_str) if target_str.isnumeric() else None
         else: 
             target = None
         
@@ -1478,7 +1476,7 @@ String ID: {string_id}''')
         ('user', '<mention>'): 'Blacklist the mentioned user from displaying their Deeeep.io account **on this server only**', 
         ('user', '<user_id>'): 'Like above, but with discord ID instead to avoid pings', 
         ('account', '<account_id>'): 'Blacklists the Deeeep.io account with account ID of `<account_id>` from being displayed **on this server only**', 
-        ('map', '<string_id>'): 'Blacklists the map with string ID of `<string_id>` from being displayed **on this server only**', 
+        ('map', '<map_id>'): 'Blacklists the map with string ID of `<map_id>` from being displayed **on this server only**', 
     }) 
     @requires_perms(req_one=('manage_messages',)) 
     async def blacklist(self, c, m, blacklist_type, target_str): 
@@ -1580,19 +1578,21 @@ String ID: {string_id}''')
         map_string_id = self.get_map_string_id(map_query) 
 
         if map_string_id: 
-            if not self.blacklisted(c, 'map', map_string_id.lower()): 
-                map_string_id = self.MAP_URL_ADDITION + map_string_id
-                
-                map_url = self.MAP_URL_TEMPLATE.format(map_string_id) 
+            map_string_id = self.MAP_URL_ADDITION + map_string_id
+            
+            map_url = self.MAP_URL_TEMPLATE.format(map_string_id) 
 
-                map_json = self.async_get(map_url)[0] 
+            map_json = self.async_get(map_url)[0] 
 
-                if map_json: 
+            if map_json: 
+                ID = map_json['id'] 
+
+                if not self.blacklisted(c, 'map', ID): 
                     await self.send(c, embed=self.map_embed(map_json)) 
                 else: 
-                    await self.send(c, content=f"That's not a valid map (or Mapmaker could be broken). ", reference=m) 
+                    await self.send(c, content=f'This map is blacklisted from being displayed on this server. ', reference=m)
             else: 
-                await self.send(c, content=f'The map `{map_string_id}` is blacklisted from being displayed on this server. ')
+                await self.send(c, content=f"That's not a valid map (or Mapmaker could be broken). ", reference=m) 
         else: 
             return True
     
