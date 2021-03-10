@@ -1447,7 +1447,7 @@ String ID: {string_id}''')
                     if not self.blacklisted(c, 'account', acc_id): 
                         await self.send(c, embed=self.acc_embed(acc_id)) 
                     else: 
-                        await self.send(c, content='This account is blacklisted from being displayed on this server. ', reference=m) 
+                        await self.send(c, content=f'This account (ID {acc_id}) is blacklisted from being displayed on this server. ', reference=m) 
                     
                 elif user_id == m.author.id: 
                     await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ", reference=m) 
@@ -1590,7 +1590,7 @@ String ID: {string_id}''')
                 if not self.blacklisted(c, 'map', ID): 
                     await self.send(c, embed=self.map_embed(map_json)) 
                 else: 
-                    await self.send(c, content=f'This map is blacklisted from being displayed on this server. ', reference=m)
+                    await self.send(c, content=f'This map (ID {ID}) is blacklisted from being displayed on this server. ', reference=m)
             else: 
                 await self.send(c, content=f"That's not a valid map (or Mapmaker could be broken). ", reference=m) 
         else: 
