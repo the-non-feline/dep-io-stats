@@ -57,7 +57,7 @@ class Dep_io_Stats(discord.Client):
     LOGIN_URL = 'https://api.deeeep.io/auth/local/signin' 
     SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
     LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 
-    PFP_REGEX = '\A(?:https?://)?(?:www.)?deeeep.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z' 
+    PFP_REGEX = '\A(?:https?://)?(?:www\.)?deeeep\.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z' 
 
     DEFAULT_PFP = 'https://deeeep.io/new/assets/placeholder.png' 
 
@@ -90,11 +90,11 @@ class Dep_io_Stats(discord.Client):
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
     STATS_UNBALANCE_BLACKLIST = ['OT', 'TT', 'PT', 'ST', 'SS', 'HA'] 
     FLOAT_CHECK_REGEX = '\A(?P<abs_val>[0-9]*\.?[0-9]*)\Z' 
-    REDDIT_LINK_REGEX = '\A(?:https?://)?(?:www.)?reddit.com/(?:r|u|(?:user))/[0-9a-zA-Z]+/comments/[0-9a-zA-Z]+/[0-9a-zA-Z_]+/?(?:\?.*)?\Z' 
+    REDDIT_LINK_REGEX = '\A(?:https?://)?(?:www\.)?reddit\.com/(?:r|u|(?:user))/[0-9a-zA-Z]+/comments/[0-9a-zA-Z]+/.+/?(?:\?.*)?\Z' 
 
     MAP_URL_ADDITION = 's/' 
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
-    MAP_REGEX = '\A(?:(?:https?://)?(?:www.)?mapmaker.deeeep.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
+    MAP_REGEX = '\A(?:(?:https?://)?(?:www\.)?mapmaker\.deeeep\.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
 
     PENDING_SKINS_LIST_URL = 'https://api.deeeep.io/skins/pending' 
 
@@ -1019,8 +1019,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         if season: 
             embed.add_field(name=f"Season {c['calendar']}", value=season) 
         
-        if usable: 
-            embed.add_field(name=f"Usable {c['check']}", value=usable) 
+        if usable is not None: 
+            usable_emoji = c['check'] if usable else c['x'] 
+
+            embed.add_field(name=f"Usable {usable_emoji}", value=usable) 
         
         if when_created: 
             date_created = parser.isoparse(when_created) 
@@ -1190,6 +1192,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         likes = map_json['likes'] 
         objects = map_json['objects'] 
         clone_of = map_json['cloneof_id'] 
+        locked = map_json['locked'] 
 
         when_created = map_json['created_at'] 
         when_updated = map_json['updated_at'] 
@@ -1264,6 +1267,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             date_updated = parser.isoparse(when_updated) 
 
             embed.add_field(name=f"Date last updated {c['wrench']}", value=date_updated.strftime(self.DATE_FORMAT)) 
+        
+        lock_emoji = c['lock'] if locked else c['unlock'] 
+        
+        embed.add_field(name=f"Locked {lock_emoji}", value=locked) 
 
         if tags_list: 
             tags_str = tools.format_iterable(tags_list, formatter='`{}`') 

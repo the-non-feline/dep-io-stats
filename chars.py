@@ -28,4 +28,6 @@ c = {
     'ghost': ':ghost:', 
     'clock': ':clock2:', 
     'image': ':frame_photo:', 
+    'lock': ':lock:', 
+    'unlock': ':unlock:', 
 }
