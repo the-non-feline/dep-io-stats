@@ -1743,7 +1743,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
                 await self.send(c, content=f'Prefix must not exceed {self.MAX_PREFIX} characters. ', reference=m) 
     
     @command('revc', definite_usages={
-        ('<channel>',): "Set this channel as the logging channel for skn review", 
+        ('<channel>',): "Sets `<channel>` as the logging channel for skn review", 
         (): 'Like above, but with the current channel', 
         (REV_CHANNEL_SENTINEL,): 'Un-set the logging channel', 
     }, public=False) 
