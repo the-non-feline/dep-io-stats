@@ -48,6 +48,7 @@ class Dep_io_Stats(discord.Client):
     OWNER_ID = 315682382147485697
 
     MENTION_REGEX = '\A<@!?(?P<member_id>[0-9]+)>\Z' 
+    CHANNEL_REGEX = '\A<#(?P<channel_id>[0-9]+)>\Z' 
 
     DATA_URL_TEMPLATE = 'https://api.deeeep.io/users/{}' 
     PFP_URL_TEMPLATE = 'https://deeeep.io/files/{}' 
@@ -107,6 +108,7 @@ class Dep_io_Stats(discord.Client):
         self.prefixes_table = self.db.get_table('prefixes') 
         self.rev_data_table = self.db.get_table('rev_data') 
         self.blacklists_table = self.db.get_table('blacklists') 
+        self.sb_channels_table = self.db.get_table('sb_channels') 
 
         self.logs_file = open(logs_file_name, mode='w+', encoding='utf-8') 
 
@@ -148,6 +150,11 @@ class Dep_io_Stats(discord.Client):
             c = self.get_channel(c_id) 
 
             return c
+    
+    def is_sb_channel(self, channel_id): 
+        c_entry = self.sb_channels_table.find_one(channel_id=channel_id) 
+
+        return c_entry
     
     async def send(self, c, *args, **kwargs): 
         try: 
@@ -269,9 +276,7 @@ class Dep_io_Stats(discord.Client):
     
     def requires_sb_channel(func): 
         async def req_channel_func(self, c, m, *args): 
-            sb_channel = self.rev_channel() 
-
-            if sb_channel and c.id == sb_channel.id: 
+            if self.is_sb_channel(c.id): 
                 return await func(self, c, m, *args) 
             else: 
                 await self.send(c, content="This command is reserved for Skin Board channels.", reference=m) 
@@ -1397,7 +1402,22 @@ String ID: {string_id}''')
         
         #debug(member_id) 
         
-        return int(member_id) if member_id else None
+        return int(member_id) if member_id is not None else None
+    
+    def decode_channel(self, c, mention): 
+        channel_id = None
+
+        if not mention.isnumeric(): 
+            m = re.compile(self.CHANNEL_REGEX).match(mention)
+
+            if m: 
+                channel_id = m.group('channel_id') 
+        else: 
+            channel_id = mention
+        
+        #debug(member_id) 
+        
+        return int(channel_id) if channel_id is not None else None
     
     async def prompt_for_message(self, c, member_id, choices=None, custom_check=lambda to_check: True, timeout=None,  timeout_warning=10, default_choice=None): 
         mention = '<@{}>'.format(member_id) 
@@ -1443,7 +1463,7 @@ String ID: {string_id}''')
 
         link = None
 
-        if user_id: 
+        if user_id is not None: 
             if not self.blacklisted(c, 'user', user_id): 
                 link = self.links_table.find_one(user_id=user_id) 
 
@@ -1642,7 +1662,7 @@ String ID: {string_id}''')
     async def link_dep_acc(self, c, m, query): 
         acc_id = self.get_acc_id(query) 
         
-        if acc_id: 
+        if acc_id is not None: 
             acc_data = self.get_acc_data(acc_id) 
 
             if acc_data: 
@@ -1694,7 +1714,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
     async def cheat_stats(self, c, m, query): 
         acc_id = self.get_acc_id(query) 
         
-        if acc_id: 
+        if acc_id is not None: 
             await self.send(c, embed=self.acc_embed(acc_id)) 
         else: 
             return True
@@ -1723,8 +1743,9 @@ You only need to do this when linking; you can change it back afterward. Read <{
                 await self.send(c, content=f'Prefix must not exceed {self.MAX_PREFIX} characters. ', reference=m) 
     
     @command('revc', definite_usages={
-        (): "Perform actions", 
-        (REV_CHANNEL_SENTINEL,): 'Perform different actions', 
+        ('<channel>',): "Set this channel as the logging channel for skn review", 
+        (): 'Like above, but with the current channel', 
+        (REV_CHANNEL_SENTINEL,): 'Un-set the logging channel', 
     }, public=False) 
     @requires_owner
     async def set_rev_channel(self, c, m, flag=None): 
@@ -1732,17 +1753,23 @@ You only need to do this when linking; you can change it back afterward. Read <{
             self.rev_data_table.delete(key=self.REV_CHANNEL_KEY) 
 
             await self.send(c, content="Channel removed as the logging channel.") 
-        elif flag is None: 
-            data = {
-                'key': self.REV_CHANNEL_KEY, 
-                'channel_id': c.id, 
-            } 
-
-            self.rev_data_table.upsert(data, ['key'], ensure=True) 
-
-            await self.send(c, content=f'Set this channel as the logging channel for skin review.') 
         else: 
-            return True
+            if flag is None: 
+                channel_id = c.id
+            else: 
+                channel_id = self.decode_channel(c, flag) 
+            
+            if channel_id is not None: 
+                data = {
+                    'key': self.REV_CHANNEL_KEY, 
+                    'channel_id': channel_id, 
+                } 
+
+                self.rev_data_table.upsert(data, ['key'], ensure=True) 
+
+                await self.send(c, content=f'Set <#{channel_id}> as the logging channel for skin review.') 
+            else: 
+                return True
 
     @command('revi', definite_usages={
         ('<i>',): 'Does something', 
@@ -1760,6 +1787,37 @@ You only need to do this when linking; you can change it back afterward. Read <{
             self.rev_data_table.upsert(data, ['key'], ensure=True) 
 
             await self.send(c, content=f'Set interval to {seconds} seconds. ') 
+        else: 
+            return True
+    
+    @command('sbchannel', definite_usages={
+        ('add', '<channel>'): 'Adds `<channel>` as a Skin Board channel', 
+        ('add',): 'Like above, but with the current channel', 
+        ('remove', '<channel>'): 'Removes `<channel>` as a Skin Board channel', 
+        ('remove',): 'Like above, but with the current channel', 
+    }) 
+    @requires_owner
+    async def set_sb_channels(self, c, m, flag, channel=None): 
+        if channel: 
+            channel_id = self.decode_channel(c, channel) 
+        else: 
+            channel_id = c.id
+        
+        if channel_id is not None: 
+            if flag == 'remove': 
+                self.sb_channels_table.delete(channel_id=channel_id) 
+
+                await self.send(c, content=f"<#{channel_id}> removed as a Skin Board channel.") 
+            elif flag == 'add': 
+                data = {
+                    'channel_id': channel_id, 
+                } 
+
+                self.sb_channels_table.upsert(data, ['channel_id'], ensure=True) 
+
+                await self.send(c, content=f'Added <#{channel_id}> as a Skin Board channel.') 
+            else: 
+                return True
         else: 
             return True
     
