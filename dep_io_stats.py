@@ -789,7 +789,8 @@ class Dep_io_Stats(discord.Client):
 
                 embed.set_author(name=f'Skin {rej_type}') 
 
-                embed.add_field(name=f"Image link {c['image']}", value=f'[Image]({asset_url})') 
+                embed.set_thumbnail(url=asset_url) 
+                #embed.add_field(name=f"Image link {c['image']}", value=f'[Image]({asset_url})') 
 
                 embed.add_field(name=f"Creator {c['carpenter']}", value=c_str, inline=False) 
                 embed.add_field(name=f"Rejection reasons {c['scroll']}", value=reason_str, inline=False) 
