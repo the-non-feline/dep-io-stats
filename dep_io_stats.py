@@ -922,7 +922,7 @@ class Dep_io_Stats(discord.Client):
 
 Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command>`''' 
 
-        embed.add_field(name=f"Commands {c['scroll']}", value=com_list, inline=False) 
+        embed.add_field(name=f"Public commands {c['scroll']}", value=com_list, inline=False) 
 
         embed.set_footer(text=f'Used by {user_count} users across {guild_count} guilds') 
 
@@ -1795,9 +1795,11 @@ You only need to do this when linking; you can change it back afterward. Read <{
         ('add',): 'Like above, but with the current channel', 
         ('remove', '<channel>'): 'Removes `<channel>` as a Skin Board channel', 
         ('remove',): 'Like above, but with the current channel', 
-    }) 
+    }, public=False) 
     @requires_owner
     async def set_sb_channels(self, c, m, flag, channel=None): 
+        flag = flag.lower() 
+
         if channel: 
             channel_id = self.decode_channel(c, channel) 
         else: 
@@ -1840,7 +1842,7 @@ You only need to do this when linking; you can change it back afterward. Read <{
         await self.change_presence(status=discord.Status.dnd, activity=discord.Game(name='shutting down')) 
     
     @command('help', definite_usages={
-        (): 'Get a list of all commands', 
+        (): 'Get a list of all public commands', 
         ('<command>',): 'Get help on `<command>`', 
     }) 
     async def send_help(self, c, m, command_name=None): 
@@ -1856,12 +1858,12 @@ You only need to do this when linking; you can change it back afterward. Read <{
             else: 
                 prefix = self.prefix(c) 
 
-                await self.send(c, content=f"That's not a valid command name. Type `{prefix}{self.send_help.name}` for a list of commands. ", reference=m) 
+                await self.send(c, content=f"That's not a valid command name. Type `{prefix}{self.send_help.name}` for a list of public commands. ", reference=m) 
         else: 
             com_list_str = tools.format_iterable(commands.Command.all_commands(public_only=True), formatter='`{}`') 
             prefix = self.prefix(c) 
 
-            await self.send(c, content=f'''All commands for this bot: {com_list_str}. 
+            await self.send(c, content=f'''All public commands for this bot: {com_list_str}. 
 Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command>`''') 
     
     @command('info', definite_usages={
