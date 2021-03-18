@@ -35,7 +35,8 @@ class Dep_io_Stats(discord.Client):
     INVITE_LINK = 'https://discord.com/oauth2/authorize?client_id=796151711571116042&permissions=347136&scope=bot' 
 
     DATE_FORMAT = '%B %d, %Y' 
-    REV_LOG_TIME_FORMAT = '%m-%d-%Y at %I:%M:%S %p'
+    REV_LOG_TIME_FORMAT = '%m-%d-%Y at %I:%M:%S %p' 
+    MESSAGE_LOG_TIME_FORMAT = REV_LOG_TIME_FORMAT
 
     MAX_TITLE = 256
     MAX_DESC = 2048
@@ -1874,10 +1875,13 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
     
     @task
     async def execute(self, comm, c, m, *args): 
+        message_time_str = m.created_at.strftime(self.MESSAGE_LOG_TIME_FORMAT) 
+
         message_str = f'''Message content: {m.content}
 Message author: {m.author}
 Message channel: {c}
-Message guild: {m.guild}''' 
+Message guild: {m.guild}
+Message time: {message_time_str}''' 
 
         debug(message_str)  
 
