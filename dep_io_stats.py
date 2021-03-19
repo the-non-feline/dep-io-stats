@@ -99,6 +99,8 @@ class Dep_io_Stats(discord.Client):
     MAP_REGEX = '\A(?:(?:https?://)?(?:www\.)?mapmaker\.deeeep\.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
 
     PENDING_SKINS_LIST_URL = 'https://api.deeeep.io/skins/pending' 
+    PENDING_MOTIONS_URL = 'https://api.deeeep.io/motions/pending?targetType=skin' 
+    RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/recent?targetType=skin' 
 
     def __init__(self, logs_file_name, storage_file_name, email, password): 
         self.email = email
@@ -544,25 +546,93 @@ class Dep_io_Stats(discord.Client):
         roles = self.get_roles(acc_json, acc_id, members_list) 
 
         return acc_json, contribs, roles
+    
+    @staticmethod
+    def compile_ids_from_motions(motions_list): 
+        motioned_ids = {} 
+
+        for motion in motions_list: 
+            motion_type = motion['target_type'] 
+
+            if motion_type == 'skin': 
+                target_id = motion['target_id'] 
+                target_version = motion['target_version'] 
+
+                motioned_ids[target_id] = target_version
+        
+        return motioned_ids
         
     def get_reskins(self): 
-        pending_list = self.async_get(self.PENDING_SKINS_LIST_URL)[0] 
+        self.get_review_token() 
 
-        if pending_list: 
+        pending_motions = rejected_motions = None
+        
+        if self.token: 
+            pending_motions_request = grequests.request('GET', self.PENDING_MOTIONS_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+            rejected_motions_request = grequests.request('GET', self.RECENT_MOTIONS_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+
+            pending_list, pending_motions, rejected_motions = self.async_get(self.PENDING_SKINS_LIST_URL, pending_motions_request, rejected_motions_request) 
+        else: 
+            pending_list = self.async_get(self.PENDING_SKINS_LIST_URL)[0] 
+
+        unnoticed_pending = None
+        upcoming_pending = None
+        motioned_pending = None
+        rejected_pending = None
+
+        if pending_list is not None: 
             unnoticed_pending = [] 
             upcoming_pending = [] 
 
+            pending_ids = {} 
+            rejected_ids = {} 
+
+            if pending_motions is not None: 
+                motioned_pending = [] 
+                pending_ids = self.compile_ids_from_motions(pending_motions) 
+            
+            if rejected_motions is not None: 
+                rejected_pending = [] 
+                rejected_ids = self.compile_ids_from_motions(rejected_motions) 
+
             for pending in pending_list: 
                 if pending['parent']: 
-                    if pending['upcoming']: 
+                    unnoticed = True
+
+                    upcoming = pending['upcoming'] 
+
+                    if upcoming: 
                         upcoming_pending.append(pending) 
-                    else: 
+
+                        unnoticed = False
+                    
+                    skin_id = pending['id'] 
+                    skin_version = pending['version'] 
+
+                    if skin_id in pending_ids: 
+                        motioned_version = pending_ids[skin_id] 
+
+                        if motioned_version == skin_version: 
+                            motioned_pending.append(pending)  
+
+                            unnoticed = False
+                    
+                    if skin_id in rejected_ids: 
+                        motioned_version = rejected_ids[skin_id] 
+
+                        if motioned_version == skin_version: 
+                            rejected_pending.append(pending)  
+
+                            unnoticed = False
+                    
+                    if unnoticed: 
                         unnoticed_pending.append(pending) 
-        else: 
-            unnoticed_pending = None
-            upcoming_pending = None
         
-        return unnoticed_pending, upcoming_pending
+        return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending
     
     def get_skin(self, skins_list, query): 
         suggestions = [] 
@@ -1289,34 +1359,46 @@ String ID: {string_id}''')
 
         return embed
     
+    @staticmethod
+    def skin_str_list(skin_list): 
+        str_list = map(lambda skin: f"{skin['name']} (v{skin['version']})", skin_list) 
+
+        final_str = tools.make_list(str_list) 
+
+        return final_str
+    
+    def switch_reskin_string(self, skin_list): 
+        if skin_list is None: 
+            list_str = 'There was an error fetching skins.' 
+        elif skin_list: 
+            list_str = self.skin_str_list(skin_list) 
+        else: 
+            list_str = 'There are no reskins in this category.' 
+
+        return list_str
+    
     def reskins_embed(self): 
         color = discord.Color.random() 
 
-        pending, upcoming = self.get_reskins() 
+        pending, upcoming, motioned, rejected = self.get_reskins() 
 
         embed = trimmed_embed.TrimmedEmbed(type='rich', title='Pending Reskins', description='Unreleased reskins in Creators Center', color=color) 
 
-        if pending is None: 
-            pending_str = 'There was an error fetching skins.' 
-        elif pending: 
-            pending_list = map(lambda skin: skin['name'], pending) 
-
-            pending_str = tools.make_list(pending_list) 
-        else: 
-            pending_str = 'There are no unnoticed reskins.' 
+        pending_str = self.switch_reskin_string(pending) 
         
         embed.add_field(name=f"Unnoticed reskins {c['ghost']}", value=pending_str, inline=False) 
 
-        if upcoming is None: 
-            upcoming_str = 'There was an error fetching skins.' 
-        elif upcoming: 
-            upcoming_list = map(lambda skin: skin['name'], upcoming) 
-
-            upcoming_str = tools.make_list(upcoming_list) 
-        else: 
-            upcoming_str = 'There are no upcoming reskins.' 
+        upcoming_str = self.switch_reskin_string(upcoming) 
         
         embed.add_field(name=f"Upcoming reskins {c['clock']}", value=upcoming_str, inline=False) 
+
+        motioned_str = self.switch_reskin_string(motioned) 
+        
+        embed.add_field(name=f"Reskins in motion {c['clock']}", value=motioned_str, inline=False) 
+
+        rejected_str = self.switch_reskin_string(rejected) 
+        
+        embed.add_field(name=f"Recently rejected reskins {c['clock']}", value=rejected_str, inline=False) 
 
         return embed
     
