@@ -558,7 +558,10 @@ class Dep_io_Stats(discord.Client):
                 target_id = motion['target_id'] 
                 target_version = motion['target_version'] 
 
-                motioned_ids[target_id] = target_version
+                if target_id in motioned_ids: 
+                    motioned_ids[target_id].append(target_version) 
+                else: 
+                    motioned_ids[target_id] = [target_version] 
         
         return motioned_ids
         
@@ -614,17 +617,17 @@ class Dep_io_Stats(discord.Client):
                     skin_version = pending['version'] 
 
                     if skin_id in pending_ids: 
-                        motioned_version = pending_ids[skin_id] 
+                        motioned_versions = pending_ids[skin_id] 
 
-                        if motioned_version == skin_version: 
+                        if skin_version in motioned_versions: 
                             motioned_pending.append(pending)  
 
                             unnoticed = False
                     
                     if skin_id in rejected_ids: 
-                        motioned_version = rejected_ids[skin_id] 
+                        motioned_versions = rejected_ids[skin_id] 
 
-                        if motioned_version == skin_version: 
+                        if skin_version in motioned_versions: 
                             rejected_pending.append(pending)  
 
                             unnoticed = False
