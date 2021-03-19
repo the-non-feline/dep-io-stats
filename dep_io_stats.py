@@ -1397,11 +1397,11 @@ String ID: {string_id}''')
 
         motioned_str = self.switch_reskin_string(motioned) 
         
-        embed.add_field(name=f"Reskins in motion {c['clock']}", value=motioned_str, inline=False) 
+        embed.add_field(name=f"Reskins in motion {c['ballot_box']}", value=motioned_str, inline=False) 
 
         rejected_str = self.switch_reskin_string(rejected) 
         
-        embed.add_field(name=f"Recently rejected reskins {c['clock']}", value=rejected_str, inline=False) 
+        embed.add_field(name=f"Recently rejected reskins {c['x']}", value=rejected_str, inline=False) 
 
         return embed
     

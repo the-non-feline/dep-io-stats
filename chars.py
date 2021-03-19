@@ -30,4 +30,5 @@ c = {
     'image': ':frame_photo:', 
     'lock': ':lock:', 
     'unlock': ':unlock:', 
+    'ballot_box': ':ballot_box:', 
 }
