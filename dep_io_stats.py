@@ -548,13 +548,13 @@ class Dep_io_Stats(discord.Client):
         return acc_json, contribs, roles
     
     @staticmethod
-    def compile_ids_from_motions(motions_list): 
+    def compile_ids_from_motions(motions_list, motion_filter=lambda motion: True): 
         motioned_ids = {} 
 
         for motion in motions_list: 
             motion_type = motion['target_type'] 
 
-            if motion_type == 'skin': 
+            if motion_type == 'skin' and motion_filter(motion): 
                 target_id = motion['target_id'] 
                 target_version = motion['target_version'] 
 
@@ -600,7 +600,7 @@ class Dep_io_Stats(discord.Client):
             
             if rejected_motions is not None: 
                 rejected_pending = [] 
-                rejected_ids = self.compile_ids_from_motions(rejected_motions) 
+                rejected_ids = self.compile_ids_from_motions(rejected_motions, motion_filter=lambda motion: motion['rejected']) 
 
             for pending in pending_list: 
                 if pending['parent']: 
