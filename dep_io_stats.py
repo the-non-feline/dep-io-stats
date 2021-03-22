@@ -92,7 +92,7 @@ class Dep_io_Stats(discord.Client):
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
     STATS_UNBALANCE_BLACKLIST = ['OT', 'TT', 'PT', 'ST', 'SS', 'HA'] 
     FLOAT_CHECK_REGEX = '\A(?P<abs_val>[0-9]*\.?[0-9]*)\Z' 
-    REDDIT_LINK_REGEX = '\A(?:https?://)?(?:www\.)?reddit\.com/(?:r|u|(?:user))/[0-9a-zA-Z]+/comments/[0-9a-zA-Z]+/.+/?(?:\?.*)?\Z' 
+    REDDIT_LINK_REGEX = '\A(?:https?://)?(?:www\.)?reddit\.com/(?:r|u|(?:user))/[0-9a-zA-Z_]+/comments/[0-9a-zA-Z]+/.+/?(?:\?.*)?\Z' 
 
     MAP_URL_ADDITION = 's/' 
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
