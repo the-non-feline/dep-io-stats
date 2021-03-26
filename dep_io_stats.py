@@ -11,6 +11,7 @@ import dateutil.parser as parser
 import json
 import logging
 import math
+import json
 
 import logs
 from logs import debug
@@ -102,7 +103,7 @@ class Dep_io_Stats(discord.Client):
     PENDING_MOTIONS_URL = 'https://api.deeeep.io/motions/pending?targetType=skin' 
     RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/recent?targetType=skin' 
 
-    def __init__(self, logs_file_name, storage_file_name, email, password): 
+    def __init__(self, logs_file_name, storage_file_name, animals_file_name, email, password): 
         self.email = email
         self.password = password
 
@@ -114,6 +115,9 @@ class Dep_io_Stats(discord.Client):
         self.sb_channels_table = self.db.get_table('sb_channels') 
 
         self.logs_file = open(logs_file_name, mode='w+', encoding='utf-8') 
+        self.animals_file_name = animals_file_name
+
+        self.set_animal_stats() 
 
         handler = logging.StreamHandler(self.logs_file) 
 
@@ -130,6 +134,20 @@ class Dep_io_Stats(discord.Client):
         self.auto_rev_process = None
 
         super().__init__(activity=discord.Game(name='starting up'), status=discord.Status.dnd) 
+    
+    def animal_stats(self): 
+        with open(self.animals_file_name, mode='r') as file: 
+            return json.load(file) 
+    
+    def set_animal_stats(self): 
+        self.temp_animal_stats = self.animal_stats() 
+
+        debug('set animal stats') 
+    
+    def find_animal(self, animal_id): 
+        stats = self.temp_animal_stats
+
+        return stats[animal_id] 
     
     def prefix(self, c): 
         p = self.prefixes_table.find_one(guild_id=c.guild.id) 
@@ -194,8 +212,24 @@ class Dep_io_Stats(discord.Client):
         debug(f'logout of Deeeep.io account status: {result}')
         ''' 
     
+    async def first_task_start(self): 
+        self.set_animal_stats() 
+    
+    async def last_task_end(self): 
+        debug('f') 
+
+        self.log_out_acc() 
+
+        logs.trim_file(self.logs_file, self.MAX_LOG) 
+
+        if self.logging_out: 
+            await self.logout() 
+    
     async def edit_tasks(self, amount): 
         try: 
+            if self.tasks == 0: 
+                await self.first_task_start() 
+            
             self.tasks += amount
 
             debug(f'now running {self.tasks} tasks') 
@@ -203,14 +237,7 @@ class Dep_io_Stats(discord.Client):
             debug('g') 
 
             if self.tasks == 0: 
-                debug('f') 
-
-                self.log_out_acc() 
-
-                logs.trim_file(self.logs_file, self.MAX_LOG) 
-
-                if self.logging_out: 
-                    await self.logout() 
+                await self.last_task_end() 
         except asyncio.CancelledError: 
             raise
         except: 
@@ -1024,6 +1051,9 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         user_name = skin['user_name'] 
         version = skin['version'] 
 
+        animal = self.find_animal(animal_id) 
+        animal_name = animal['name'] 
+
         desc = None
         reddit_link = None
         category = None
@@ -1061,7 +1091,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         #animal_name = self.get_animal(animal_id) 
 
-        embed.add_field(name=f"Animal {c['fish']}", value=animal_id) 
+        embed.add_field(name=f"Animal {c['fish']}", value=animal_name) 
         embed.add_field(name=f"Price {c['deeeepcoin']}", value=f'{price:,}') 
 
         sales_emoji = c['stonkalot'] if sales >= self.STONKS_THRESHOLD else c['stonkanot'] 
@@ -1370,9 +1400,8 @@ String ID: {string_id}''')
 
         return embed
     
-    @staticmethod
-    def skin_str_list(skin_list): 
-        str_list = map(lambda skin: f"{skin['name']} (v{skin['version']})", skin_list) 
+    def skin_str_list(self, skin_list): 
+        str_list = map(lambda skin: f"{skin['name']} (v{skin['version']}) - {self.find_animal(skin['fish_level'])['name']}", skin_list) 
 
         final_str = tools.make_list(str_list) 
 
