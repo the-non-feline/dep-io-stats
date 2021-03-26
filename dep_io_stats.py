@@ -1402,19 +1402,19 @@ String ID: {string_id}''')
 
         pending_str = self.switch_skin_string(pending) 
         
-        embed.add_field(name=f"Unnoticed skins {c['ghost']}", value=pending_str, inline=False) 
+        embed.add_field(name=f"Unnoticed skins ({len(pending)}) {c['ghost']}", value=pending_str, inline=False) 
 
         upcoming_str = self.switch_skin_string(upcoming) 
         
-        embed.add_field(name=f"Upcoming skins {c['clock']}", value=upcoming_str, inline=False) 
+        embed.add_field(name=f"Upcoming skins ({len(upcoming)}) {c['clock']}", value=upcoming_str, inline=False) 
 
         motioned_str = self.switch_skin_string(motioned) 
         
-        embed.add_field(name=f"Skins in motion {c['ballot_box']}", value=motioned_str, inline=False) 
+        embed.add_field(name=f"Skins in motion ({len(motioned)}) {c['ballot_box']}", value=motioned_str, inline=False) 
 
         rejected_str = self.switch_skin_string(rejected) 
         
-        embed.add_field(name=f"Recently rejected skins {c['x']}", value=rejected_str, inline=False) 
+        embed.add_field(name=f"Recently rejected skins ({len(rejected)}) {c['x']}", value=rejected_str, inline=False) 
 
         return embed
     
