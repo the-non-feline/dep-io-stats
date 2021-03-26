@@ -45,7 +45,7 @@ class Command:
 
             usage += ' ' + tools.format_iterable(param_list, sep=' ') 
 
-            desc += ' (spaces are permitted)' 
+            #desc += ' (spaces are permitted)' 
 
             use_and_desc = f'`{usage}` - {desc}' 
 

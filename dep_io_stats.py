@@ -565,7 +565,7 @@ class Dep_io_Stats(discord.Client):
         
         return motioned_ids
         
-    def get_reskins(self): 
+    def get_pending_skins(self, *filters): 
         self.get_review_token() 
 
         pending_motions = rejected_motions = None
@@ -603,7 +603,15 @@ class Dep_io_Stats(discord.Client):
                 rejected_ids = self.compile_ids_from_motions(rejected_motions, motion_filter=lambda motion: motion['rejected']) 
 
             for pending in pending_list: 
-                if pending['parent']: 
+                passed = True
+
+                for skin_filter in filters: 
+                    if not skin_filter(pending): 
+                        passed = False
+
+                        break
+                
+                if passed: 
                     unnoticed = True
 
                     upcoming = pending['upcoming'] 
@@ -1370,38 +1378,43 @@ String ID: {string_id}''')
 
         return final_str
     
-    def switch_reskin_string(self, skin_list): 
+    def switch_skin_string(self, skin_list): 
         if skin_list is None: 
             list_str = 'There was an error fetching skins.' 
         elif skin_list: 
             list_str = self.skin_str_list(skin_list) 
         else: 
-            list_str = 'There are no reskins in this category.' 
+            list_str = 'There are no skins in this category.' 
 
         return list_str
     
-    def reskins_embed(self): 
+    def pending_embed(self, filter_names, filters): 
         color = discord.Color.random() 
 
-        pending, upcoming, motioned, rejected = self.get_reskins() 
+        pending, upcoming, motioned, rejected = self.get_pending_skins(*filters) 
 
-        embed = trimmed_embed.TrimmedEmbed(type='rich', title='Pending Reskins', description='Unreleased reskins in Creators Center', color=color) 
+        if filter_names: 
+            filter_names_str = tools.format_iterable(filter_names, formatter='`{}`') 
+        else: 
+            filter_names_str = '(none)' 
 
-        pending_str = self.switch_reskin_string(pending) 
+        embed = trimmed_embed.TrimmedEmbed(type='rich', title=f'Pending skins with filters {filter_names_str}', description='Unreleased skins in Creators Center', color=color) 
+
+        pending_str = self.switch_skin_string(pending) 
         
-        embed.add_field(name=f"Unnoticed reskins {c['ghost']}", value=pending_str, inline=False) 
+        embed.add_field(name=f"Unnoticed skins {c['ghost']}", value=pending_str, inline=False) 
 
-        upcoming_str = self.switch_reskin_string(upcoming) 
+        upcoming_str = self.switch_skin_string(upcoming) 
         
-        embed.add_field(name=f"Upcoming reskins {c['clock']}", value=upcoming_str, inline=False) 
+        embed.add_field(name=f"Upcoming skins {c['clock']}", value=upcoming_str, inline=False) 
 
-        motioned_str = self.switch_reskin_string(motioned) 
+        motioned_str = self.switch_skin_string(motioned) 
         
-        embed.add_field(name=f"Reskins in motion {c['ballot_box']}", value=motioned_str, inline=False) 
+        embed.add_field(name=f"Skins in motion {c['ballot_box']}", value=motioned_str, inline=False) 
 
-        rejected_str = self.switch_reskin_string(rejected) 
+        rejected_str = self.switch_skin_string(rejected) 
         
-        embed.add_field(name=f"Recently rejected reskins {c['x']}", value=rejected_str, inline=False) 
+        embed.add_field(name=f"Recently rejected skins {c['x']}", value=rejected_str, inline=False) 
 
         return embed
     
@@ -1631,7 +1644,7 @@ String ID: {string_id}''')
             return True
     
     @command('skin', indefinite_usages={
-        ('<skin name>',): "View the stats of skin with `<skin name>`.", 
+        ('<skin name>',): "View the stats of skin with `<skin name>` (e.g. `Albino Cachalot`)", 
     }) 
     async def check_skin(self, c, m, *skin_query): 
         skin_name = ' '.join(skin_query) 
@@ -1909,12 +1922,33 @@ You only need to do this when linking; you can change it back afterward. Read <{
         else: 
             return True
     
-    @command('reskins', definite_usages={
-        (): 'Get a list of all pending reskins in Creators Center', 
+    PENDING_FILTERS = {
+        'reskin': lambda skin: skin['parent'], 
+        'halloween': lambda skin: skin['season'] == 'hallooween', 
+        'christmas': lambda skin: skin['season'] == 'christmas', 
+        'valentines': lambda skin: skin['season'] == 'valentines', 
+        'easter': lambda skin: skin['season'] == 'easter', 
+    } 
+
+    FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 
+    
+    @command('pending', indefinite_usages={
+        ('<filters>',): f'Get a list of all pending skins in Creators Center that match the filter(s). Valid filters are {FILTERS_STR}.', 
     }) 
     @requires_sb_channel
-    async def display_reskins(self, c, m): 
-        await self.send(c, embed=self.reskins_embed()) 
+    async def pending_search(self, c, m, *filter_strs): 
+        filters = set() 
+        filter_strs = set(map(str.lower, filter_strs)) 
+
+        for lowered in filter_strs: 
+            if lowered in self.PENDING_FILTERS: 
+                skin_filter = self.PENDING_FILTERS[lowered] 
+
+                filters.add(skin_filter) 
+            else: 
+                return True
+        
+        await self.send(c, embed=self.pending_embed(filter_strs, filters)) 
     
     @command('shutdown', definite_usages={
         (): "Turn off the bot", 
