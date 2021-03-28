@@ -93,8 +93,8 @@ class Dep_io_Stats(discord.Client):
         'BR': 100, 
     }
     STAT_CHANGE_CONVERTERS = {
-        'HM': lambda num: num * 100, 
-        'DM': lambda num: num * 20, 
+        'HM': lambda num: tools.trunc_float(num * 100), 
+        'DM': lambda num: tools.trunc_float(num * 20), 
         'SS': lambda num: float(num), 
         'HA': lambda num: habitat.Habitat(num), 
     }
@@ -1046,16 +1046,6 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         return embed
     
-    @staticmethod
-    def trunc_float(num): 
-        if math.isfinite(num): 
-            trunced = int(num) 
-
-            if num == trunced: 
-                num = trunced
-        
-        return num
-    
     def add_stat_changes(self, embed, stat_changes, animal): 
         stat_changes_list = [] 
 
@@ -1066,7 +1056,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
             if translation_format: 
                 key, display_name, formatter = translation_format
-                converter = self.STAT_CHANGE_CONVERTERS.get(attribute, self.trunc_float) 
+                converter = self.STAT_CHANGE_CONVERTERS.get(attribute, tools.trunc_float) 
 
                 multiplier = self.OLD_STAT_MULTIPLIERS.get(attribute, 1) 
 
