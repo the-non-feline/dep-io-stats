@@ -101,7 +101,7 @@ class Dep_io_Stats(discord.Client):
 
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
     STATS_UNBALANCE_BLACKLIST = ['OT', 'TT', 'PT', 'ST', 'SS', 'HA'] 
-    FLOAT_CHECK_REGEX = '\A(?P<abs_val>[0-9]*\.?[0-9]*)\Z' 
+    FLOAT_CHECK_REGEX = '\A(?P<abs_val>[-+][0-9]+(?:\.[0-9]+)?)\Z' 
     REDDIT_LINK_REGEX = '\A(?:https?://)?(?:www\.)?reddit\.com/(?:r|u|(?:user))/[0-9a-zA-Z_]+/comments/[0-9a-zA-Z]+/.+/?(?:\?.*)?\Z' 
 
     MAP_URL_ADDITION = 's/' 
@@ -716,32 +716,30 @@ class Dep_io_Stats(discord.Client):
             prev_sign = None
 
             for change_str in split_changes: 
-                stat, value = change_str.split('=') 
+                split = change_str.split('=') 
 
-                sign = value[0] 
-                abs_value = value[1:] 
+                if len(split) == 2: 
+                    stat, value = split
 
-                m = re.compile(self.FLOAT_CHECK_REGEX).match(abs_value) 
+                    sign = value[0] 
+                    abs_value = value[1:] 
 
-                if m: 
-                    abs_val = m.group('abs_val') 
+                    m = re.compile(self.FLOAT_CHECK_REGEX).match(value) 
 
-                    try: 
-                        float(abs_val) 
-                    except ValueError: 
+                    if not m: 
                         broken = True
 
-                        debug(f'{abs_value} passed regex but is not a float') 
+                        debug(f'{value} failed regex') 
+
+                    if stat not in self.STATS_UNBALANCE_BLACKLIST: 
+                        if prev_sign and prev_sign != sign: 
+                            unbalanced = False
+                        
+                        prev_sign = sign
                 else: 
                     broken = True
 
-                    debug(f'{abs_value} failed regex') 
-
-                if stat not in self.STATS_UNBALANCE_BLACKLIST: 
-                    if prev_sign and prev_sign != sign: 
-                        unbalanced = False
-                    
-                    prev_sign = sign
+                    debug(f'{change_str} is invalid')
         
         unbalance_sign = prev_sign if unbalanced else None
 
@@ -1050,36 +1048,43 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         stat_changes_list = [] 
 
         for change in stat_changes.split(';'): 
-            attribute, diff = change.split('=') 
+            split = change.split('=') 
 
-            translation_format = self.STAT_CHANGE_TRANSLATIONS.get(attribute, None) 
+            if len(split) == 2: 
+                attribute, diff = split
 
-            if translation_format: 
-                key, display_name, formatter = translation_format
-                converter = self.STAT_CHANGE_CONVERTERS.get(attribute, tools.trunc_float) 
+                translation_format = self.STAT_CHANGE_TRANSLATIONS.get(attribute, None) 
 
-                multiplier = self.OLD_STAT_MULTIPLIERS.get(attribute, 1) 
+                if translation_format: 
+                    key, display_name, formatter = translation_format
+                    converter = self.STAT_CHANGE_CONVERTERS.get(attribute, tools.trunc_float) 
 
-                old_value = animal[key] * multiplier
+                    multiplier = self.OLD_STAT_MULTIPLIERS.get(attribute, 1) 
 
-                old_value_converted = converter(old_value) 
+                    old_value = animal[key] * multiplier
 
-                old_value_str = formatter.format(old_value_converted) 
+                    old_value_converted = converter(old_value) 
 
-                try: 
-                    float_diff = float(diff) 
-                except ValueError: 
-                    new_value_str = f'invalid (`{diff}`)' 
+                    old_value_str = formatter.format(old_value_converted) 
+
+                    m = re.compile(self.FLOAT_CHECK_REGEX).match(diff) 
+
+                    if m: 
+                        float_diff = float(diff) 
+
+                        new_value = old_value + float_diff
+
+                        new_value_converted = converter(new_value) 
+                        
+                        new_value_str = formatter.format(new_value_converted) 
+                    else: 
+                        new_value_str = f'invalid ({diff})' 
+
+                    change_str = f'**{display_name}:** {old_value_str} **->** {new_value_str}' 
                 else: 
-                    new_value = old_value + float_diff
-
-                    new_value_converted = converter(new_value) 
-                    
-                    new_value_str = formatter.format(new_value_converted) 
-
-                change_str = f'**{display_name}:** {old_value_str} **->** {new_value_str}' 
+                    change_str = f'Untranslated change: {change}' 
             else: 
-                change_str = f'Untranslated change: `{attribute}: {diff}`' 
+                change_str = f'Invalid change: {change}' 
             
             stat_changes_list.append(change_str) 
         
