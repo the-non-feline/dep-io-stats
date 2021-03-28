@@ -1756,7 +1756,8 @@ String ID: {string_id}''')
     
     @command('skinbyid', definite_usages={
         ('<skin_id>',): 'View the stats of the skin with the given `<skin_id>`', 
-    }) 
+    }, public=False) 
+    @requires_owner
     async def check_skin(self, c, m, skin_id): 
         if skin_id.isnumeric(): 
             skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
