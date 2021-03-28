@@ -89,7 +89,8 @@ class Dep_io_Stats(discord.Client):
     STAT_CHANGE_CONVERTERS = {
         'HM': lambda num: num * 100, 
         'DM': lambda num: num * 20, 
-        'HA': lambda num: habitat.Habitat(num) 
+        'SS': lambda num: float(num), 
+        'HA': lambda num: habitat.Habitat(num), 
     }
 
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
@@ -1058,7 +1059,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
             if translation_format: 
                 key, display_name, formatter = translation_format
-                converter = self.STAT_CHANGE_CONVERTERS.get(attribute, lambda num: num) 
+                converter = self.STAT_CHANGE_CONVERTERS.get(attribute, self.trunc_float) 
 
                 old_value = animal[key] 
 
@@ -1073,9 +1074,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
                 else: 
                     new_value = old_value + float_diff
 
-                    trunced = self.trunc_float(new_value) 
-                    
-                    new_value_converted = converter(trunced) 
+                    new_value_converted = converter(new_value) 
                     
                     new_value_str = formatter.format(new_value_converted) 
 
