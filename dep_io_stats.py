@@ -1077,7 +1077,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
                     
                     new_value_str = formatter.format(new_value_converted) 
 
-                change_str = f'**{display_name}:** {old_value_str} -> {new_value_str}' 
+                change_str = f'**{display_name}:** {old_value_str} **->** {new_value_str}' 
             else: 
                 change_str = f'Untranslated change: `{attribute}: {diff}`' 
             
