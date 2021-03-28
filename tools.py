@@ -12,4 +12,4 @@ def salt_url(url):
     else: 
         border = '?' 
     
-    return url + border + str(time.time()) 
+    return url + border + f'ds_salt={time.time()}' 

@@ -86,6 +86,12 @@ class Dep_io_Stats(discord.Client):
         'SS': ('sizeMultiplier', 'size scale', '{}x'), 
         'HA': ('habitat', 'habitat', '{}'), 
     } 
+    OLD_STAT_MULTIPLIERS = {
+        'DB': 100, 
+        'DR': 100, 
+        'AP': 100, 
+        'BR': 100, 
+    }
     STAT_CHANGE_CONVERTERS = {
         'HM': lambda num: num * 100, 
         'DM': lambda num: num * 20, 
@@ -1042,10 +1048,11 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
     
     @staticmethod
     def trunc_float(num): 
-        trunced = int(num) 
+        if math.isfinite(num): 
+            trunced = int(num) 
 
-        if num == trunced: 
-            num = trunced
+            if num == trunced: 
+                num = trunced
         
         return num
     
@@ -1061,7 +1068,9 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
                 key, display_name, formatter = translation_format
                 converter = self.STAT_CHANGE_CONVERTERS.get(attribute, self.trunc_float) 
 
-                old_value = animal[key] 
+                multiplier = self.OLD_STAT_MULTIPLIERS.get(attribute, 1) 
+
+                old_value = animal[key] * multiplier
 
                 old_value_converted = converter(old_value) 
 
@@ -1088,7 +1097,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         embed.add_field(name=f"Stat changes {c['change']}", value=stat_changes_str, inline=False) 
         
-    def skin_embed(self, skin): 
+    def skin_embed(self, skin, direct_api=False): 
         color = discord.Color.random() 
 
         stat_changes = skin['attributes'] 
@@ -1099,10 +1108,12 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         price = skin['price'] 
         sales = skin['sales'] 
         last_updated = skin['updated_at'] 
-        user_name = skin['user_name'] 
         version = skin['version'] 
 
+        asset_name = skin['asset'] 
+
         animal = self.find_animal(animal_id) 
+
         animal_name = animal['name'] 
 
         desc = None
@@ -1111,9 +1122,14 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         season = None
         usable = None
 
-        skin_url = self.SKIN_URL_TEMPLATE.format(ID) 
+        user = None
 
-        skin_json = self.async_get(skin_url)[0] 
+        if not direct_api: 
+            skin_url = self.SKIN_URL_TEMPLATE.format(ID) 
+
+            skin_json = self.async_get(skin_url)[0] 
+        else: 
+            skin_json = skin
 
         if skin_json: 
             desc = skin_json['description'] 
@@ -1125,11 +1141,11 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             season = skin_json['season'] 
             usable = skin_json['usable'] 
 
+            user = skin_json['user'] 
+
         #debug(desc) 
 
         embed = trimmed_embed.TrimmedEmbed(title=skin['name'], description=desc, color=color, url=reddit_link) 
-
-        asset_name = skin['asset'] 
 
         if asset_name[0].isnumeric(): 
             asset_name = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_name
@@ -1179,9 +1195,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         
         embed.add_field(name=f"Version {c['wrench']}", value=version_str, inline=version_inline) 
 
-        if user_name: 
-            user_username = skin['user_username'] 
-            user_pfp = skin['user_picture'] 
+        if user: 
+            user_name = user['name']
+            user_username = user['username'] 
+            user_pfp = user['picture'] 
 
             creator = f'{user_name} (@{user_username})' 
 
@@ -1736,6 +1753,22 @@ String ID: {string_id}''')
                 await self.send(c, content=text) 
         else: 
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
+    
+    @command('skinbyid', definite_usages={
+        ('<skin_id>',): 'View the stats of the skin with the given `<skin_id>`', 
+    }) 
+    async def check_skin(self, c, m, skin_id): 
+        if skin_id.isnumeric(): 
+            skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+
+            skin_json = self.async_get(skin_url)[0] 
+
+            if skin_json: 
+                await self.send(c, embed=self.skin_embed(skin_json)) 
+            else: 
+                await self.send(c, content=f"That's not a valid skin ID (or the game might be down).", reference=m) 
+        else: 
+            return True
     
     def get_map_string_id(self, query): 
         m = re.compile(self.MAP_REGEX).match(query)
