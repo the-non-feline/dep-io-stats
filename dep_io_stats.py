@@ -20,6 +20,7 @@ import commands
 from chars import c
 import trimmed_embed
 import report
+import habitat
 
 class Dep_io_Stats(discord.Client): 
     REV_CHANNEL_SENTINEL = 'none' 
@@ -72,22 +73,23 @@ class Dep_io_Stats(discord.Client):
     STONKS_THRESHOLD = 150
 
     STAT_CHANGE_TRANSLATIONS = {
-        'HM': '{} HP', 
-        'DM': '{} damage', 
-        'DB': '{}% armor', 
-        'DR': '{}% damage reflection', 
-        'AP': '{}% armor penetration', 
-        'BR': '{}% bleed reduction', 
-        'OT': '{}s oxygen time', 
-        'TT': '{}s temperature time', 
-        'PT': '{}s pressure time', 
-        'ST': '{}s salinity time', 
-        'SS': '{}x size scale', 
-        'HA': '{} habitat attribute', 
+        'HM': ('healthMultiplier', 'health', '{}'), 
+        'DM': ('damageMultiplier', 'damage', '{}'), 
+        'DB': ('damageBlock', 'armor', '{}%'), 
+        'DR': ('damageReflection', 'damage reflect', '{}%'), 
+        'AP': ('armorPenetration', 'armor penetration', '{}%'), 
+        'BR': ('bleedReduction', 'bleed reduction', '{}%'), 
+        'OT': ('oxygenTime', 'oxygen time', '{}s'), 
+        'TT': ('temperatureTime', 'temperature time', '{}s'), 
+        'PT': ('pressureTime', 'pressure time', '{}s'), 
+        'ST': ('salinityTime', 'salinity time', '{}s'), 
+        'SS': ('sizeMultiplier', 'size scale', '{}x'), 
+        'HA': ('habitat', 'habitat', '{}'), 
     } 
-    STAT_CHANGE_MULTIPLIERS = {
-        'HM': 100, 
-        'DM': 20, 
+    STAT_CHANGE_CONVERTERS = {
+        'HM': lambda num: num * 100, 
+        'DM': lambda num: num * 20, 
+        'HA': lambda num: habitat.Habitat(num) 
     }
 
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
@@ -1037,6 +1039,56 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         return embed
     
+    @staticmethod
+    def trunc_float(num): 
+        trunced = int(num) 
+
+        if num == trunced: 
+            num = trunced
+        
+        return num
+    
+    def add_stat_changes(self, embed, stat_changes, animal): 
+        stat_changes_list = [] 
+
+        for change in stat_changes.split(';'): 
+            attribute, diff = change.split('=') 
+
+            translation_format = self.STAT_CHANGE_TRANSLATIONS.get(attribute, None) 
+
+            if translation_format: 
+                key, display_name, formatter = translation_format
+                converter = self.STAT_CHANGE_CONVERTERS.get(attribute, lambda num: num) 
+
+                old_value = animal[key] 
+
+                old_value_converted = converter(old_value) 
+
+                old_value_str = formatter.format(old_value_converted) 
+
+                try: 
+                    float_diff = float(diff) 
+                except ValueError: 
+                    new_value_str = f'invalid (`{diff}`)' 
+                else: 
+                    new_value = old_value + float_diff
+
+                    trunced = self.trunc_float(new_value) 
+                    
+                    new_value_converted = converter(trunced) 
+                    
+                    new_value_str = formatter.format(new_value_converted) 
+
+                change_str = f'**{display_name}:** {old_value_str} -> {new_value_str}' 
+            else: 
+                change_str = f'Untranslated change: `{attribute}: {diff}`' 
+            
+            stat_changes_list.append(change_str) 
+        
+        stat_changes_str = tools.make_list(stat_changes_list)  
+
+        embed.add_field(name=f"Stat changes {c['change']}", value=stat_changes_str, inline=False) 
+        
     def skin_embed(self, skin): 
         color = discord.Color.random() 
 
@@ -1099,38 +1151,8 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         embed.add_field(name=f"Sales {sales_emoji}", value=f'{sales:,}') 
 
         if stat_changes: 
-            stat_changes_list = [] 
+            self.add_stat_changes(embed, stat_changes, animal) 
 
-            for change in stat_changes.split(';'): 
-                attribute, value = change.split('=') 
-
-                try: 
-                    float_value = float(value) 
-                except ValueError: 
-                    float_str = value
-                else: 
-                    float_value *= self.STAT_CHANGE_MULTIPLIERS.get(attribute, 1) 
-
-                    trunced = int(float_value) 
-
-                    if float_value == trunced: 
-                        float_value = trunced
-                    
-                    float_str = f'{float_value:+}' 
-
-                translation_format = self.STAT_CHANGE_TRANSLATIONS.get(attribute, None) 
-
-                if translation_format: 
-                    to_append = translation_format.format(float_str) 
-                else: 
-                    to_append = change
-                
-                stat_changes_list.append(to_append) 
-            
-            stat_changes_str = tools.make_list(stat_changes_list)  
-
-            embed.add_field(name=f"Stat changes {c['change']}", value=stat_changes_str, inline=False) 
-        
         if category: 
             embed.add_field(name=f"Category {c['folder']}", value=category) 
 
