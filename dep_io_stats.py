@@ -126,6 +126,8 @@ class DS(discord.Client):
         self.logs_file = open(logs_file_name, mode='w+', encoding='utf-8') 
         self.animals_file_name = animals_file_name
 
+        self.ANIMAL_FILTERS = {} 
+
         self.set_animal_stats() 
 
         handler = logging.StreamHandler(self.logs_file) 
@@ -148,8 +150,27 @@ class DS(discord.Client):
         with open(self.animals_file_name, mode='r') as file: 
             return json.load(file) 
     
+    @staticmethod
+    def animal_check(target_id): 
+        def check(self, skin): 
+            animal = skin['fish_level'] 
+
+            return animal == target_id
+        
+        return check
+    
     def set_animal_stats(self): 
         self.temp_animal_stats = self.animal_stats() 
+
+        self.ANIMAL_FILTERS.clear() 
+
+        for index in range(len(self.temp_animal_stats)): 
+            stats = self.temp_animal_stats[index] 
+
+            name = stats['name'] 
+            animal_id = index
+
+            self.ANIMAL_FILTERS[name] = self.animal_check(animal_id) 
 
         debug('set animal stats') 
     
@@ -642,7 +663,7 @@ class DS(discord.Client):
                 passed = True
 
                 for skin_filter in filters: 
-                    if not skin_filter(pending): 
+                    if not skin_filter(self, pending): 
                         passed = False
 
                         break
@@ -753,7 +774,7 @@ class DS(discord.Client):
 
         return m
     
-    def reject_reasons(self, skin): 
+    def reject_reasons(self, skin, check_reddit=True, check_realism=False): 
         reasons = [] 
 
         skin_name = skin['name'] 
@@ -763,12 +784,19 @@ class DS(discord.Client):
 
         debug(f'{skin_name}: {skin_url}') 
 
-        reddit_link = skin['reddit_link']
+        if check_reddit: 
+            reddit_link = skin['reddit_link']
 
-        if not reddit_link: 
-            reasons.append('missing Reddit link') 
-        elif not self.valid_reddit_link(reddit_link): 
-            reasons.append('invalid Reddit link')
+            if not reddit_link: 
+                reasons.append('missing Reddit link') 
+            elif not self.valid_reddit_link(reddit_link): 
+                reasons.append('invalid Reddit link') 
+        
+        if check_realism: 
+            flair = skin['category'] 
+
+            if flair != 'real': 
+                reasons.append('not flaired realistic') 
         
         broken, unbalance_sign = self.unbalanced_stats(skin) 
 
@@ -1676,11 +1704,12 @@ You only need to do this when linking; you can change it back afterward. Read <{
             return True
     
     PENDING_FILTERS = {
-        'reskin': lambda skin: skin['parent'], 
-        'halloween': lambda skin: skin['season'] == 'hallooween', 
-        'christmas': lambda skin: skin['season'] == 'christmas', 
-        'valentines': lambda skin: skin['season'] == 'valentines', 
-        'easter': lambda skin: skin['season'] == 'easter', 
+        'reskin': lambda self, skin: skin['parent'], 
+        'halloween': lambda self, skin: skin['season'] == 'hallooween', 
+        'christmas': lambda self, skin: skin['season'] == 'christmas', 
+        'valentines': lambda self, skin: skin['season'] == 'valentines', 
+        'easter': lambda self, skin: skin['season'] == 'easter', 
+        'acceptable': lambda self, skin: not self.reject_reasons(skin, check_reddit=False, check_realism=True), 
     } 
 
     FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 

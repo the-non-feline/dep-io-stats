@@ -347,9 +347,11 @@ class DS_Commands(DS):
         filters = set() 
         filter_strs = set(map(str.lower, filter_strs)) 
 
+        total_filters = {**self.PENDING_FILTERS, **self.ANIMAL_FILTERS} 
+
         for lowered in filter_strs: 
-            if lowered in self.PENDING_FILTERS: 
-                skin_filter = self.PENDING_FILTERS[lowered] 
+            if lowered in total_filters: 
+                skin_filter = total_filters[lowered] 
 
                 filters.add(skin_filter) 
             else: 
