@@ -108,9 +108,9 @@ class DS(discord.Client):
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
     MAP_REGEX = '\A(?:(?:https?://)?(?:www\.)?mapmaker\.deeeep\.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
 
-    PENDING_SKINS_LIST_URL = 'https://api.deeeep.io/skins/pending' 
-    PENDING_MOTIONS_URL = 'https://api.deeeep.io/motions/pending?targetType=skin' 
-    RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/recent?targetType=skin' 
+    PENDING_SKINS_LIST_URL = 'https://api.deeeep.io/sk/pending' 
+    PENDING_MOTIONS_URL = 'https://api.deeeep.io/moti/pending?targetType=skin' 
+    RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/rec?targetType=skin' 
 
     def __init__(self, logs_file_name, storage_file_name, animals_file_name, email, password): 
         self.email = email
@@ -1461,52 +1461,54 @@ String ID: {string_id}''')
 
         return embed
     
-    def skin_str_list(self, skin_list): 
-        str_list = map(lambda skin: f"{skin['name']} (v{skin['version']}) - {self.find_animal(skin['fish_level'])['name']}", skin_list) 
+    def skin_str_list(self, r, skin_list): 
+        for skin in skin_list: 
+            name = skin['name'] 
+            ID = skin['id'] 
+            version = skin['version'] 
+            animal_id = skin['fish_level'] 
+            animal = self.find_animal(animal_id) 
+            animal_name = animal['name'] 
 
-        final_str = tools.make_list(str_list) 
+            skin_str = f"• {name} (v{version}) | (ID: {ID}) | {animal_name}" 
 
-        return final_str
+            r.add(skin_str) 
     
-    def switch_skin_string(self, skin_list): 
+    def build_skins_report(self, r, skin_list): 
         if skin_list is None: 
-            list_str = 'There was an error fetching skins.' 
+            r.add('There was an error fetching skins.') 
         elif skin_list: 
-            list_str = self.skin_str_list(skin_list) 
+            self.skin_str_list(r, skin_list) 
         else: 
-            list_str = 'There are no skins in this category.' 
-
-        return list_str
+            r.add('There are no skins in this category.') 
     
-    def pending_embed(self, filter_names, filters): 
+    async def pending_display(self, channel, filter_names, filters): 
         color = discord.Color.random() 
 
         pending, upcoming, motioned, rejected = self.get_pending_skins(*filters) 
+
+        r = report.Report(self, channel) 
 
         if filter_names: 
             filter_names_str = tools.format_iterable(filter_names, formatter='`{}`') 
         else: 
             filter_names_str = '(none)' 
 
-        embed = trimmed_embed.TrimmedEmbed(type='rich', title=f'Pending skins with filters {filter_names_str}', description='Unreleased skins in Creators Center', color=color) 
-
-        pending_str = self.switch_skin_string(pending) 
+        r.add(f'**__Pending skins with filters {filter_names_str}__**') 
         
-        embed.add_field(name=f"Unnoticed skins ({len(pending)}) {c['ghost']}", value=pending_str, inline=False) 
+        r.add(f"**Unnoticed skins ({len(pending)}) {c['ghost']}**") 
+        self.build_skins_report(r, pending) 
 
-        upcoming_str = self.switch_skin_string(upcoming) 
+        r.add(f"**Upcoming skins ({len(upcoming)}) {c['clock']}**") 
+        self.build_skins_report(r, upcoming) 
         
-        embed.add_field(name=f"Upcoming skins ({len(upcoming)}) {c['clock']}", value=upcoming_str, inline=False) 
-
-        motioned_str = self.switch_skin_string(motioned) 
+        r.add(f"**Skins in motion ({len(motioned)}) {c['ballot_box']}**") 
+        self.build_skins_report(r, motioned) 
         
-        embed.add_field(name=f"Skins in motion ({len(motioned)}) {c['ballot_box']}", value=motioned_str, inline=False) 
+        r.add(f"**Recently rejected skins ({len(rejected)}) {c['x']}**") 
+        self.build_skins_report(r, rejected) 
 
-        rejected_str = self.switch_skin_string(rejected) 
-        
-        embed.add_field(name=f"Recently rejected skins ({len(rejected)}) {c['x']}", value=rejected_str, inline=False) 
-
-        return embed
+        return await r.send_self() 
     
     def time_exceeded(self): 
         last_checked_row = self.rev_data_table.find_one(key=self.REV_LAST_CHECKED_KEY) 

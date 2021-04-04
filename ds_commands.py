@@ -357,7 +357,7 @@ class DS_Commands(DS):
             else: 
                 return True
         
-        await self.send(c, embed=self.pending_embed(filter_strs, filters)) 
+        await self.pending_display(c, filter_strs, filters) 
     
     @DS.command('shutdown', definite_usages={
         (): "Turn off the bot", 
