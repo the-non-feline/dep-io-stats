@@ -108,9 +108,9 @@ class DS(discord.Client):
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
     MAP_REGEX = '\A(?:(?:https?://)?(?:www\.)?mapmaker\.deeeep\.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
 
-    PENDING_SKINS_LIST_URL = 'https://api.deeeep.io/sk/pending' 
-    PENDING_MOTIONS_URL = 'https://api.deeeep.io/moti/pending?targetType=skin' 
-    RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/rec?targetType=skin' 
+    PENDING_SKINS_LIST_URL = 'https://api.deeeep.io/skins/pending' 
+    PENDING_MOTIONS_URL = 'https://api.deeeep.io/motions/pending?targetType=skin' 
+    RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/recent?targetType=skin' 
 
     def __init__(self, logs_file_name, storage_file_name, animals_file_name, email, password): 
         self.email = email
@@ -1495,17 +1495,20 @@ String ID: {string_id}''')
             filter_names_str = '(none)' 
 
         r.add(f'**__Pending skins with filters {filter_names_str}__**') 
+
+        def rl(skin_list): 
+            return len(skin_list) if skin_list is not None else 0
         
-        r.add(f"**Unnoticed skins ({len(pending)}) {c['ghost']}**") 
+        r.add(f"**Unnoticed skins ({rl(pending)}) {c['ghost']}**") 
         self.build_skins_report(r, pending) 
 
-        r.add(f"**Upcoming skins ({len(upcoming)}) {c['clock']}**") 
+        r.add(f"**Upcoming skins ({rl(upcoming)}) {c['clock']}**") 
         self.build_skins_report(r, upcoming) 
         
-        r.add(f"**Skins in motion ({len(motioned)}) {c['ballot_box']}**") 
+        r.add(f"**Skins in motion ({rl(motioned)}) {c['ballot_box']}**") 
         self.build_skins_report(r, motioned) 
         
-        r.add(f"**Recently rejected skins ({len(rejected)}) {c['x']}**") 
+        r.add(f"**Recently rejected skins ({rl(rejected)}) {c['x']}**") 
         self.build_skins_report(r, rejected) 
 
         return await r.send_self() 
