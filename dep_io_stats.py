@@ -774,7 +774,7 @@ class DS(discord.Client):
 
         return m
     
-    def reject_reasons(self, skin, check_reddit=True, check_realism=False): 
+    def reject_reasons(self, skin, check_reddit=True): 
         reasons = [] 
 
         skin_name = skin['name'] 
@@ -791,12 +791,6 @@ class DS(discord.Client):
                 reasons.append('missing Reddit link') 
             elif not self.valid_reddit_link(reddit_link): 
                 reasons.append('invalid Reddit link') 
-        
-        if check_realism: 
-            flair = skin['category'] 
-
-            if flair != 'real': 
-                reasons.append('not flaired realistic') 
         
         broken, unbalance_sign = self.unbalanced_stats(skin) 
 
@@ -1714,7 +1708,12 @@ You only need to do this when linking; you can change it back afterward. Read <{
         'christmas': lambda self, skin: skin['season'] == 'christmas', 
         'valentines': lambda self, skin: skin['season'] == 'valentines', 
         'easter': lambda self, skin: skin['season'] == 'easter', 
-        'acceptable': lambda self, skin: not self.reject_reasons(skin, check_reddit=False, check_realism=True), 
+        'acceptable': lambda self, skin: not self.reject_reasons(skin, check_reddit=False), 
+        'unacceptable': lambda self, skin: self.reject_reasons(skin, check_reddit=False), 
+        'realistic': lambda self, skin: skin['category'] == 'real', 
+        'unrealistic': lambda self, skin: skin['category'] == 'unrealistic', 
+        'stat-changing': lambda self, skin: skin['attributes'], 
+        'non-stat-changing': lambda self, skin: not skin['attributes'], 
     } 
 
     FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 
