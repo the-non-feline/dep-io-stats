@@ -340,7 +340,7 @@ class DS_Commands(DS):
             return True
     
     @DS.command('pending', indefinite_usages={
-        ('<filters>',): f'Get a list of all pending skins in Creators Center that match the filter(s). Valid filters are {DS.FILTERS_STR}.', 
+        ('<filters>',): f'Get a list of all pending skins in Creators Center that match the filter(s). Valid filters are {DS.FILTERS_STR} or any animal name.', 
     }) 
     @DS.requires_sb_channel
     async def pending_search(self, c, m, *filter_strs): 
