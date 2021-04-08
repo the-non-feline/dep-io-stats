@@ -521,7 +521,11 @@ class DS(discord.Client):
         map_contribs = self.get_map_contribs(map_list, acc_id) 
 
         if map_contribs: 
-            map_str = tools.format_iterable(map_contribs, formatter='`{}`') 
+            map_displays = [f'[{name}]({self.MAPMAKER_URL_TEMPLATE.format(name)})' for name in map_contribs] 
+
+            #debug(map_displays) 
+
+            map_str = tools.format_iterable(map_displays) 
 
             contribs.append(f'Created map(s) {map_str}') 
         
