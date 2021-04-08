@@ -527,14 +527,14 @@ class DS(discord.Client):
 
             map_str = tools.format_iterable(map_displays) 
 
-            contribs.append(f'Created map(s) {map_str}') 
+            contribs.append(f'**Maps**: {map_str}') 
         
         skin_contribs = self.get_skin_contribs(skins_list, acc_id) 
 
         if skin_contribs: 
-            skin_str = tools.format_iterable(skin_contribs, formatter='`{}`') 
+            skin_str = tools.format_iterable(skin_contribs) 
 
-            contribs.append(f'Created skin(s) {skin_str}') 
+            contribs.append(f'**Skins**: {skin_str}') 
         
         #debug(contribs) 
         
