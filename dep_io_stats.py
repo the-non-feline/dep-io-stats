@@ -19,7 +19,7 @@ import tools
 import commands
 from chars import c
 import trimmed_embed
-import report
+import reports
 import habitat
 
 class DS(discord.Client): 
@@ -727,6 +727,107 @@ class DS(discord.Client):
         else: 
             return suggestions
     
+    @staticmethod
+    def count_votes(total_motions): 
+        mapping = {} 
+
+        for motion in total_motions: 
+            votes = motion['votes'] 
+
+            for vote in votes: 
+                user_id = vote['user_id'] 
+                vote_action = vote['action'] 
+
+                if user_id not in mapping: 
+                    mapping[user_id] = [] 
+                
+                mapping[user_id].append(vote_action) 
+        
+        return mapping
+    
+    @staticmethod
+    def participation_str_list(r, member_strs): 
+        for member_str in member_strs: 
+            r.add(f'• {member_str}') 
+    
+    def build_participation_section(self, r, member_strs): 
+        if member_strs: 
+            self.participation_str_list(r, member_strs) 
+        else: 
+            r.add('There are no members in this category.') 
+    
+    def build_participation_report(self, report, count_mapping, members_list): 
+        voted_strs = [] 
+        non_voted_strs = [] 
+
+        for member in members_list: 
+            name = member['name'] 
+            username = member['username'] 
+            member_id = member['id'] 
+
+            if member_id in count_mapping: 
+                votes = count_mapping[member_id] 
+
+                approves = votes.count('approve') 
+                rejects = votes.count('reject') 
+                total_votes = len(votes) 
+
+                member_str = f'{name} (@{username}) | {total_votes} votes ({approves} approved, {rejects} rejected)' 
+
+                voted_strs.append(member_str) 
+            else: 
+                member_str = f'{name} (@{username})' 
+
+                non_voted_strs.append(member_str) 
+        
+        report.add('__**Member Participation Report**__') 
+
+        voted_length = len(voted_strs) 
+
+        report.add(f"**Voted recently ({voted_length}) {c['ballot_box']}**") 
+        self.build_participation_section(report, voted_strs) 
+
+        non_voted_length = len(non_voted_strs) 
+
+        report.add(f"**Didn't vote recently ({non_voted_length}) {c['x']}**") 
+        self.build_participation_section(report, non_voted_strs) 
+    
+    def get_motion_participation(self, report): 
+        self.get_review_token() 
+
+        members_list = None
+
+        if self.token: 
+            pending_motions_request = grequests.request('GET', self.PENDING_MOTIONS_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+            recent_motions_request = grequests.request('GET', self.RECENT_MOTIONS_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+            list_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+
+            jsons = self.async_get(pending_motions_request, recent_motions_request, list_request) 
+
+            if None not in jsons: # None in jsons indicates at least one request failed
+                pending_motions, recent_motions, members_list = jsons
+
+                total_motions = (pending_motions or []) + (recent_motions or []) 
+
+                counts = self.count_votes(total_motions) 
+
+                self.build_participation_report(report, counts, members_list) 
+            else: 
+                report.add('There was an error fetching motions and/or members.') 
+    
+    async def send_participation_report(self, c): 
+        r = reports.Report(self, c) 
+
+        self.get_motion_participation(r) 
+
+        await r.send_self() 
+    
     def unbalanced_stats(self, skin): 
         broken = False
         unbalanced = False
@@ -964,7 +1065,7 @@ class DS(discord.Client):
                 ''' 
     
     async def check_review(self, c, processor, silent_fail=False): 
-        r = report.Report(self, c) 
+        r = reports.Report(self, c) 
 
         self.get_review_token() 
 
@@ -1485,7 +1586,7 @@ String ID: {string_id}''')
 
         pending, upcoming, motioned, rejected = self.get_pending_skins(*filters) 
 
-        r = report.Report(self, channel) 
+        r = reports.Report(self, channel) 
 
         if filter_names: 
             filter_names_str = tools.format_iterable(filter_names, formatter='`{}`') 

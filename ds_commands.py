@@ -5,7 +5,7 @@ import tools
 import commands
 from chars import c
 import trimmed_embed
-import report
+import reports
 import habitat
 import commands
 import dep_io_stats
@@ -358,6 +358,13 @@ class DS_Commands(DS):
                 return True
         
         await self.pending_display(c, filter_strs, filters) 
+    
+    @DS.command('participation', definite_usages={
+        (): "Get a summary of Skin Board members' recent votes", 
+    }, public=False) 
+    @DS.requires_owner
+    async def participation(self, c, m): 
+        await self.send_participation_report(c) 
     
     @DS.command('shutdown', definite_usages={
         (): "Turn off the bot", 
