@@ -1239,6 +1239,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         animal_name = animal['name'] 
 
         desc = None
+        extra_assets = None
         reddit_link = None
         category = None
         season = None
@@ -1255,6 +1256,8 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         if skin_json: 
             desc = skin_json['description'] 
+
+            extra_assets = skin_json['assets_data'] 
 
             #debug(desc) 
 
@@ -1316,6 +1319,23 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             version_inline = False
         
         embed.add_field(name=f"Version {c['wrench']}", value=version_str, inline=version_inline) 
+        
+        if extra_assets: 
+            urls_list = [] 
+
+            for asset_type, asset_data in extra_assets.items(): 
+                asset_filename = asset_data['asset'] 
+
+                if asset_filename[0].isnumeric(): 
+                    asset_filename = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_filename
+                
+                extra_asset_url = self.SKIN_ASSET_URL_TEMPLATE.format(asset_filename) 
+
+                urls_list.append(f'[{asset_type}]({extra_asset_url})') 
+            
+            extra_assets_str = tools.make_list(urls_list) 
+
+            embed.add_field(name=f"Additional assets {c['palette']}", value=extra_assets_str, inline=False) 
 
         if user: 
             user_name = user['name']
