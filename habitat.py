@@ -71,6 +71,8 @@ class Habitat(int):
 
         return display
 
-thing = Habitat(110) 
+num = -16
+
+thing = Habitat(111 + num) 
 
 print(thing) 

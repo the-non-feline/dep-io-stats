@@ -362,7 +362,7 @@ class DS_Commands(DS):
     @DS.command('participation', definite_usages={
         (): "Get a summary of Skin Board members' recent votes", 
     }, public=False) 
-    @DS.requires_owner
+    @DS.requires_sb_channel
     async def participation(self, c, m): 
         await self.send_participation_report(c) 
     
