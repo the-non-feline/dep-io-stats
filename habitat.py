@@ -24,55 +24,58 @@ class Habitat(int):
             
         return conversion
 
+    def convert_to_list(self): 
+        conversion = self.convert_to_base(self, 2) 
+
+        #print(conversion) 
+
+        length = len(conversion) 
+
+        partial_display = [] 
+
+        for index in range(0, length, 2): 
+            #print(index) 
+
+            next_index = index + 1
+
+            current_flag = conversion[index] 
+            current_name = self.NAMES[index] if current_flag else False
+
+            #print(current_name) 
+            
+            if next_index >= length: 
+                next_flag = False
+            else: 
+                next_flag = conversion[next_index] 
+            
+            next_name = self.NAMES[next_index] if next_flag else False
+
+            #print(next_name) 
+
+            if current_name and next_name: 
+                string = f'{current_name}/{next_name}' 
+            else: 
+                string = current_name or next_name
+            
+            #print(string) 
+            
+            if string: 
+                partial_display.append(string) 
+        
+        return partial_display
+
     def __str__(self): 
         len_flags = len(self.NAMES) 
 
         if 0 <= self < 2**len_flags: 
-            conversion = self.convert_to_base(self, 2) 
-
-            #print(conversion) 
-
-            length = len(conversion) 
-
-            partial_display = [] 
-
-            for index in range(0, length, 2): 
-                #print(index) 
-
-                next_index = index + 1
-
-                current_flag = conversion[index] 
-                current_name = self.NAMES[index] if current_flag else False
-
-                #print(current_name) 
-                
-                if next_index >= length: 
-                    next_flag = False
-                else: 
-                    next_flag = conversion[next_index] 
-                
-                next_name = self.NAMES[next_index] if next_flag else False
-
-                #print(next_name) 
-
-                if current_name and next_name: 
-                    string = f'{current_name}/{next_name}' 
-                else: 
-                    string = current_name or next_name
-                
-                #print(string) 
-                
-                if string: 
-                    partial_display.append(string) 
-            
-            display = tools.format_iterable(partial_display) 
+            display = tools.format_iterable(self.convert_to_list()) 
         else: 
             display = f'invalid habitat ({self!r})' 
 
         return display
 
-num = -16
+num = 0
 
-thing = Habitat(111 + num) 
+thing = Habitat(102 + num) 
 
 print(thing) 

@@ -23,3 +23,24 @@ def trunc_float(num):
             num = trunced
     
     return num
+
+def decamelcase(string): 
+    words = [] 
+
+    current_word = '' 
+
+    for char in string: 
+        if char.upper() == char: 
+            if current_word: 
+                words.append(current_word) 
+
+                current_word = '' 
+        
+        current_word += char
+    
+    if current_word: 
+        words.append(current_word) 
+
+        current_word = '' 
+    
+    return words

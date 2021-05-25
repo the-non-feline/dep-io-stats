@@ -1083,6 +1083,25 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         return embed
     
+    @classmethod
+    def parse_translation_format(cls, key): 
+        translation_format = cls.STAT_FORMATS[key] 
+
+        display_name, formatter, *rest = translation_format
+
+        converter = tools.trunc_float
+        multiplier = 1
+
+        if rest: 
+            element = rest[0] 
+
+            if type(element) in (float, int): 
+                multiplier = element
+            else: 
+                converter = element
+        
+        return display_name, formatter, converter, multiplier
+    
     def add_stat_changes(self, embed, stat_changes, animal): 
         stat_changes_list = [] 
 
@@ -1092,13 +1111,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             if len(split) == 2: 
                 attribute, diff = split
 
-                translation_format = self.STAT_CHANGE_TRANSLATIONS.get(attribute, None) 
+                key = self.STAT_CHANGE_TRANSLATIONS.get(attribute, None) 
 
-                if translation_format: 
-                    key, display_name, formatter = translation_format
-                    converter = self.STAT_CHANGE_CONVERTERS.get(attribute, tools.trunc_float) 
-
-                    multiplier = self.OLD_STAT_MULTIPLIERS.get(attribute, 1) 
+                if key: 
+                    display_name, formatter, converter, multiplier = self.parse_translation_format(key) 
 
                     old_value = animal[key] * multiplier
 
@@ -1738,6 +1754,104 @@ You only need to do this when linking; you can change it back afterward. Read <{
                 return True
         else: 
             return True
+    
+    @classmethod
+    def format_stat(cls, animal, stat_key): 
+        stat_value = animal[stat_key] 
+
+        display_name, formatter, converter, multiplier = cls.parse_translation_format(stat_key) 
+
+        stat_value *= multiplier
+        stat_value = converter(stat_value) 
+
+        stat_value_str = formatter.format(stat_value) 
+
+        name = display_name.capitalize()
+
+        return name, stat_value_str
+    
+    @classmethod
+    def animal_embed(cls, animal): 
+        title = animal['name'] 
+        color = discord.Color.random() 
+
+        image_url = cls.CHARACTER_TEMPLATE.format(title) 
+        image_url = tools.salt_url(image_url) 
+
+        embed = discord.Embed(title=title, type='rich', color=color)
+
+        embed.set_thumbnail(url=image_url) 
+
+        stat_names = [] 
+        stat_values = [] 
+
+        for stat in cls.NORMAL_STATS: 
+            name, value = cls.format_stat(animal, stat) 
+
+            stat_names.append(name)
+            stat_values.append(value) 
+
+        animal_habitat = habitat.Habitat(animal['habitat']) 
+        habitat_list = animal_habitat.convert_to_list() 
+
+        for index in range(len(cls.BIOME_STATS)): 
+            stat = cls.BIOME_STATS[index] 
+
+            name, value = cls.format_stat(animal, stat) 
+
+            if index >= 1: 
+                habitat_display_index = index - 1
+                habitat_display = habitat_list[habitat_display_index] 
+            
+                value += f' ({habitat_display})' 
+
+            stat_names.append(name)
+            stat_values.append(value) 
+
+        boost_stats = ['boosts'] 
+
+        has_charge = animal['hasSecondaryAbility'] 
+
+        if has_charge: 
+            boost_stats.append('secondaryAbilityLoadTime') 
+
+        for stat in boost_stats: 
+            name, value = cls.format_stat(animal, stat) 
+
+            stat_names.append(name)
+            stat_values.append(value) 
+        
+        stat_names_str = tools.make_list(stat_names, bullet_point='') 
+        stat_values_str = tools.make_list(stat_values, bullet_point='') 
+        
+        embed.add_field(name='Stat', value=stat_names_str) 
+        embed.add_field(name='Value', value=stat_values_str) 
+
+        passives = [] 
+
+        can_walk = animal['canStand'] 
+
+        if can_walk: 
+            walk_speed = animal['walkSpeedMultiplier'] 
+
+            passives.append(f'Can walk at {walk_speed:.0%} speed') 
+
+        for boolean in cls.BOOLEANS: 
+            value = animal[boolean] 
+
+            if value: 
+                boolean_list = tools.decamelcase(boolean) 
+
+                string = tools.format_iterable(boolean_list, sep=' ').capitalize() 
+            
+                passives.append(string) 
+        
+        if passives: 
+            passives_string = tools.make_list(passives) 
+
+            embed.add_field(name='Passive abilities', value=passives_string, inline=False) 
+        
+        return embed
     
     @task
     async def execute(self, comm, c, m, *args): 

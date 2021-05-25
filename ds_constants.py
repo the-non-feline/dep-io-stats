@@ -52,19 +52,46 @@ class DS_Constants:
     STONKS_THRESHOLD = 150
 
     STAT_CHANGE_TRANSLATIONS = {
-        'HM': ('healthMultiplier', 'health', '{}'), 
-        'DM': ('damageMultiplier', 'damage', '{}'), 
-        'DB': ('damageBlock', 'armor', '{}%'), 
-        'DR': ('damageReflection', 'damage reflect', '{}%'), 
-        'AP': ('armorPenetration', 'armor penetration', '{}%'), 
-        'BR': ('bleedReduction', 'bleed reduction', '{}%'), 
-        'OT': ('oxygenTime', 'oxygen time', '{}s'), 
-        'TT': ('temperatureTime', 'temperature time', '{}s'), 
-        'PT': ('pressureTime', 'pressure time', '{}s'), 
-        'ST': ('salinityTime', 'salinity time', '{}s'), 
-        'SS': ('sizeMultiplier', 'size scale', '{}x'), 
-        'HA': ('habitat', 'habitat', '{}'), 
+        'HM': 'healthMultiplier', 
+        'DM': 'damageMultiplier', 
+        'DB': 'damageBlock', 
+        'DR': 'damageReflection', 
+        'AP': 'armorPenetration', 
+        'BR': 'bleedReduction', 
+        'OT': 'oxygenTime', 
+        'TT': 'temperatureTime', 
+        'PT': 'pressureTime', 
+        'ST': 'salinityTime', 
+        'SS': 'sizeMultiplier', 
+        'HA': 'habitat', 
     } 
+
+    STAT_FORMATS = {
+        'boosts': ('boosts', '{}'), 
+        'level': ('tier', '{}', lambda num: num + 1), 
+        'oxygenTime': ('oxygen time', '{}s'), 
+        'temperatureTime': ('temperature time', '{}s'),
+        'pressureTime': ('pressure time', '{}s'),
+        'salinityTime': ('salinity time', '{}s'),
+        'speedMultiplier': ('base speed', '{:.0%}'),
+        'walkSpeedMultiplier': ('walk speed', '{:.0%}'),
+        'sizeMultiplier': ('size scale', '{}x', lambda num: float(num)), 
+        'sizeScale': ('dimensions', "{0['x']} x {0['y']}"),
+        'damageMultiplier': ('damage', '{}', lambda num: tools.trunc_float(num * 20)), 
+        'healthMultiplier': ('health', '{} HP', lambda num: tools.trunc_float(num * 100)),
+        'damageBlock': ('armor', '{}%', 100),
+        'damageReflection': ('damage reflection', '{}%', 100), 
+        'bleedReduction': ('bleed reduction', '{}%', 100), 
+        'armorPenetration': ('armor penetration', '{}%', 100), 
+        'habitat': ('habitat', '{}', lambda num: habitat.Habitat(num)), 
+        'secondaryAbilityLoadTime': ('charged boost load time', '{} ms'), 
+    }
+    
+    NORMAL_STATS = 'level', 'healthMultiplier', 'damageMultiplier', 'speedMultiplier', 'sizeMultiplier', 'damageBlock', 'damageReflection', 'bleedReduction', \
+'armorPenetration' 
+    BIOME_STATS = 'oxygenTime', 'temperatureTime', 'pressureTime', 'salinityTime' 
+
+    BOOLEANS = 'canFly', 'canSwim', 'needsAir', 'canClimb', 'poisonResistant', 'ungrabbable', 'canDig', 'canWalkUnderwater' 
     
     OLD_STAT_MULTIPLIERS = {
         'DB': 100, 
@@ -92,6 +119,8 @@ class DS_Constants:
     PENDING_MOTIONS_URL = 'https://api.deeeep.io/motions/pending?targetType=skin' 
     RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/recent?targetType=skin' 
 
+    CHARACTER_TEMPLATE = 'https://deeeep.io/assets/characters/{}.png' 
+
     PENDING_FILTERS = {
         'reskin': lambda self, skin: skin['parent'], 
         'halloween': lambda self, skin: skin['season'] == 'hallooween', 
@@ -107,5 +136,3 @@ class DS_Constants:
     } 
 
     FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 
-
-    COMBAT_STATS = 'damageMultiplier', 'healthMultiplier', 'damageBlock', 'damageReflection', 'bleedReduction', 'armorPenetration'

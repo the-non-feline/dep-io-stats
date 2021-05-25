@@ -366,6 +366,22 @@ class DS_Commands(DS):
     async def participation(self, c, m): 
         await self.send_participation_report(c) 
     
+    @DS.command('animal', indefinite_usages={
+        ('animal',): "Get the stats of an animal", 
+    }) 
+    async def display_animal_stats(self, c, m, *animal): 
+        query_name = tools.format_iterable(animal, sep='').lower() 
+
+        for animal in self.temp_animal_stats: 
+            animal_name = animal['name'] 
+
+            if animal_name == query_name: 
+                await self.send(c, embed=self.animal_embed(animal)) 
+
+                break
+        else: 
+            await self.send(c, content="That's not a valid animal.", reference=m) 
+    
     @DS.command('shutdown', definite_usages={
         (): "Turn off the bot", 
     }, public=False) 
