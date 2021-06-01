@@ -364,30 +364,32 @@ class DS_Commands(DS):
     
     @DS.command('search', indefinite_usages={
         ('pending', '<filters>',): f'Get a list of all pending skins in Creators Center that match the filter(s). Valid filters are {DS.PENDING_FILTERS_STR} or any animal name.', 
-        ('approved', '<filters>'): f'Get a list of all approved (added) skins in Creators Center that match the filter(s). Valid filters are {DS.APPROVED_FILTERS_STR} or any animal name.'
+        ('approved', '<filters>'): f'Get a list of all approved (added) skins in Creators Center that match the filter(s). Valid filters are {DS.APPROVED_FILTERS_STR} or any animal name.', 
+        ('<filters>',): 'Shortcut for searching with `approved`', 
     }) 
-    async def skin_search(self, c, m, list_name, *filters): 
-        list_name = list_name.lower() 
+    async def skin_search(self, c, m, *filters): 
+        list_name = filters[0].lower() 
 
         if list_name == 'approved': 
             displayer = self.approved_search
             filters_dict = self.APPROVED_FILTERS
+
+            filters = filters[1:] 
         elif list_name == 'pending': 
             displayer = self.pending_search
             filters_dict = self.PENDING_FILTERS
+
+            filters = filters[1:] 
         else: 
+            displayer = self.approved_search
+            filters_dict = self.APPROVED_FILTERS
+        
+        if len(filters) == 0: 
             return True
 
         converted_filters = self.convert_filters(filters_dict, *filters) 
 
         if converted_filters is not None: 
-            if list_name == 'approved': 
-                displayer = self.approved_search
-            elif list_name == 'pending': 
-                displayer = self.pending_search
-            else: 
-                return True
-            
             report = reports.Report(self, c) 
 
             if filters: 

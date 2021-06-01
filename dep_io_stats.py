@@ -1570,7 +1570,7 @@ String ID: {string_id}''')
         
         approved_length = self.rl(approved) 
 
-        r.add(f'**__Approved skins with filters {filter_names_str}__ ({approved_length})**') 
+        r.add(f"**__Approved skins with filters {filter_names_str}__ ({approved_length})** {c['check']}") 
 
         hidden_str = None
 
