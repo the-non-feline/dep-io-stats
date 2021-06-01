@@ -339,15 +339,11 @@ class DS_Commands(DS):
         else: 
             return True
     
-    @DS.command('pending', indefinite_usages={
-        ('<filters>',): f'Get a list of all pending skins in Creators Center that match the filter(s). Valid filters are {DS.FILTERS_STR} or any animal name.', 
-    }) 
-    @DS.requires_sb_channel
-    async def pending_search(self, c, m, *filter_strs): 
+    def convert_filters(self, filters_dict, *filter_strs): 
         filters = set() 
         filter_strs = set(map(str.lower, filter_strs)) 
 
-        total_filters = {**self.PENDING_FILTERS, **self.ANIMAL_FILTERS} 
+        total_filters = {**filters_dict, **self.ANIMAL_FILTERS} 
 
         for lowered in filter_strs: 
             if lowered in total_filters: 
@@ -355,9 +351,55 @@ class DS_Commands(DS):
 
                 filters.add(skin_filter) 
             else: 
+                return None
+        else: 
+            return filters
+    
+    @DS.requires_sb_channel
+    async def pending_search(self, c, m, report, filters_str, filters): 
+        await self.pending_display(report, filters_str, filters) 
+    
+    async def approved_search(self, c, m, report, filters_str, filters): 
+        await self.approved_display(report, filters_str, filters) 
+    
+    @DS.command('search', indefinite_usages={
+        ('pending', '<filters>',): f'Get a list of all pending skins in Creators Center that match the filter(s). Valid filters are {DS.PENDING_FILTERS_STR} or any animal name.', 
+        ('approved', '<filters>'): f'Get a list of all approved (added) skins in Creators Center that match the filter(s). Valid filters are {DS.APPROVED_FILTERS_STR} or any animal name.'
+    }) 
+    async def skin_search(self, c, m, list_name, *filters): 
+        list_name = list_name.lower() 
+
+        if list_name == 'approved': 
+            displayer = self.approved_search
+            filters_dict = self.APPROVED_FILTERS
+        elif list_name == 'pending': 
+            displayer = self.pending_search
+            filters_dict = self.PENDING_FILTERS
+        else: 
+            return True
+
+        converted_filters = self.convert_filters(filters_dict, *filters) 
+
+        if converted_filters is not None: 
+            if list_name == 'approved': 
+                displayer = self.approved_search
+            elif list_name == 'pending': 
+                displayer = self.pending_search
+            else: 
                 return True
-        
-        await self.pending_display(c, filter_strs, filters) 
+            
+            report = reports.Report(self, c) 
+
+            if filters: 
+                filter_names_str = tools.format_iterable(filters, formatter='`{}`') 
+            else: 
+                filter_names_str = '(none)' 
+            
+            await displayer(c, m, report, filter_names_str, converted_filters) 
+
+            await report.send_self() 
+        else: 
+            return True
     
     @DS.command('participation', definite_usages={
         (): "Get a summary of Skin Board members' recent votes", 

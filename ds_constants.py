@@ -69,15 +69,15 @@ class DS_Constants:
     STAT_FORMATS = {
         'boosts': ('boosts', '{}'), 
         'level': ('tier', '{}', lambda num: num + 1), 
-        'oxygenTime': ('oxygen time', '{}s'), 
-        'temperatureTime': ('temperature time', '{}s'),
-        'pressureTime': ('pressure time', '{}s'),
-        'salinityTime': ('salinity time', '{}s'),
+        'oxygenTime': ('oxygen time', '{} seconds'), 
+        'temperatureTime': ('temperature time', '{} seconds'),
+        'pressureTime': ('pressure time', '{} seconds'),
+        'salinityTime': ('salinity time', '{} seconds'),
         'speedMultiplier': ('base speed', '{:.0%}'),
         'walkSpeedMultiplier': ('walk speed', '{:.0%}'),
         'sizeMultiplier': ('size scale', '{}x', lambda num: float(num)), 
         'sizeScale': ('dimensions', "{0['x']} x {0['y']}"),
-        'damageMultiplier': ('damage', '{}', lambda num: tools.trunc_float(num * 20)), 
+        'damageMultiplier': ('damage', '{} HP', lambda num: tools.trunc_float(num * 20)), 
         'healthMultiplier': ('health', '{} HP', lambda num: tools.trunc_float(num * 100)),
         'damageBlock': ('armor', '{}%', 100),
         'damageReflection': ('damage reflection', '{}%', 100), 
@@ -121,18 +121,32 @@ class DS_Constants:
 
     CHARACTER_TEMPLATE = 'https://deeeep.io/assets/characters/{}.png' 
 
+    CHARACTER_EXCEPTIONS = {
+        'lanternfish': 'https://deeeep.io/new/assets/characters/lanternfish.png', 
+        'pelican': 'https://deeeep.io/new/assets/characters/pelican.png', 
+    }
+
+    APPROVED_FILTERS = {
+        'acceptable': lambda self, skin: not self.reject_reasons(skin, check_reddit=False), 
+        'unacceptable': lambda self, skin: self.reject_reasons(skin, check_reddit=False), 
+        'stat-changing': lambda self, skin: skin['attributes'], 
+        'non-stat-changing': lambda self, skin: not skin['attributes'], 
+        'free': lambda self, skin: skin['price'] == 0, 
+        'not-free': lambda self, skin: skin['price'] != 0, 
+    }
     PENDING_FILTERS = {
         'reskin': lambda self, skin: skin['parent'], 
         'halloween': lambda self, skin: skin['season'] == 'hallooween', 
         'christmas': lambda self, skin: skin['season'] == 'christmas', 
         'valentines': lambda self, skin: skin['season'] == 'valentines', 
         'easter': lambda self, skin: skin['season'] == 'easter', 
-        'acceptable': lambda self, skin: not self.reject_reasons(skin, check_reddit=False), 
-        'unacceptable': lambda self, skin: self.reject_reasons(skin, check_reddit=False), 
         'realistic': lambda self, skin: skin['category'] == 'real', 
         'unrealistic': lambda self, skin: skin['category'] == 'unrealistic', 
-        'stat-changing': lambda self, skin: skin['attributes'], 
-        'non-stat-changing': lambda self, skin: not skin['attributes'], 
     } 
 
-    FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 
+    PENDING_FILTERS.update(APPROVED_FILTERS) 
+
+    APPROVED_FILTERS_STR = tools.format_iterable(APPROVED_FILTERS.keys(), formatter='`{}`') 
+    PENDING_FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 
+
+    SEARCH_LIMIT = 50

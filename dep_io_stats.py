@@ -537,6 +537,18 @@ class DS(ds_constants.DS_Constants, discord.Client):
                     motioned_ids[target_id] = [target_version] 
         
         return motioned_ids
+    
+    def filter_skins(self, skins_list, *filters): 
+        passed_skins = [] 
+
+        for skin in skins_list: 
+            for skin_filter in filters: 
+                if not skin_filter(self, skin): 
+                    break
+            else: 
+                passed_skins.append(skin) 
+        
+        return passed_skins
         
     def get_pending_skins(self, *filters): 
         self.get_review_token() 
@@ -574,49 +586,50 @@ class DS(ds_constants.DS_Constants, discord.Client):
             if rejected_motions is not None: 
                 rejected_pending = [] 
                 rejected_ids = self.compile_ids_from_motions(rejected_motions, motion_filter=lambda motion: motion['rejected']) 
+            
+            filtered_skins = self.filter_skins(pending_list, *filters) 
 
-            for pending in pending_list: 
-                passed = True
+            for pending in filtered_skins: 
+                unnoticed = True
 
-                for skin_filter in filters: 
-                    if not skin_filter(self, pending): 
-                        passed = False
+                upcoming = pending['upcoming'] 
 
-                        break
+                if upcoming: 
+                    upcoming_pending.append(pending) 
+
+                    unnoticed = False
                 
-                if passed: 
-                    unnoticed = True
+                skin_id = pending['id'] 
+                skin_version = pending['version'] 
 
-                    upcoming = pending['upcoming'] 
+                if skin_id in pending_ids: 
+                    motioned_versions = pending_ids[skin_id] 
 
-                    if upcoming: 
-                        upcoming_pending.append(pending) 
+                    if skin_version in motioned_versions: 
+                        motioned_pending.append(pending)  
 
                         unnoticed = False
-                    
-                    skin_id = pending['id'] 
-                    skin_version = pending['version'] 
+                
+                if skin_id in rejected_ids: 
+                    motioned_versions = rejected_ids[skin_id] 
 
-                    if skin_id in pending_ids: 
-                        motioned_versions = pending_ids[skin_id] 
+                    if skin_version in motioned_versions: 
+                        rejected_pending.append(pending)  
 
-                        if skin_version in motioned_versions: 
-                            motioned_pending.append(pending)  
-
-                            unnoticed = False
-                    
-                    if skin_id in rejected_ids: 
-                        motioned_versions = rejected_ids[skin_id] 
-
-                        if skin_version in motioned_versions: 
-                            rejected_pending.append(pending)  
-
-                            unnoticed = False
-                    
-                    if unnoticed: 
-                        unnoticed_pending.append(pending) 
+                        unnoticed = False
+                
+                if unnoticed: 
+                    unnoticed_pending.append(pending) 
         
         return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending
+    
+    def get_approved_skins(self, *filters): 
+        approved = self.async_get(self.SKINS_LIST_URL)[0] 
+
+        if approved is not None: 
+            filtered = self.filter_skins(approved, *filters) 
+
+            return filtered
     
     def get_skin(self, skins_list, query): 
         suggestions = [] 
@@ -1529,36 +1542,50 @@ String ID: {string_id}''')
         else: 
             r.add('There are no skins in this category.') 
     
-    async def pending_display(self, channel, filter_names, filters): 
+    @staticmethod
+    def rl(skin_list): 
+        return len(skin_list) if skin_list is not None else 0
+    
+    async def pending_display(self, r, filter_names_str, filters): 
         color = discord.Color.random() 
 
         pending, upcoming, motioned, rejected = self.get_pending_skins(*filters) 
 
-        r = reports.Report(self, channel) 
-
-        if filter_names: 
-            filter_names_str = tools.format_iterable(filter_names, formatter='`{}`') 
-        else: 
-            filter_names_str = '(none)' 
-
         r.add(f'**__Pending skins with filters {filter_names_str}__**') 
-
-        def rl(skin_list): 
-            return len(skin_list) if skin_list is not None else 0
         
-        r.add(f"**Unnoticed skins ({rl(pending)}) {c['ghost']}**") 
+        r.add(f"**Unnoticed skins ({self.rl(pending)}) {c['ghost']}**") 
         self.build_skins_report(r, pending) 
 
-        r.add(f"**Upcoming skins ({rl(upcoming)}) {c['clock']}**") 
+        r.add(f"**Upcoming skins ({self.rl(upcoming)}) {c['clock']}**") 
         self.build_skins_report(r, upcoming) 
         
-        r.add(f"**Skins in motion ({rl(motioned)}) {c['ballot_box']}**") 
+        r.add(f"**Skins in motion ({self.rl(motioned)}) {c['ballot_box']}**") 
         self.build_skins_report(r, motioned) 
         
-        r.add(f"**Recently rejected skins ({rl(rejected)}) {c['x']}**") 
+        r.add(f"**Recently rejected skins ({self.rl(rejected)}) {c['x']}**") 
         self.build_skins_report(r, rejected) 
+    
+    async def approved_display(self, r, filter_names_str, filters): 
+        approved = self.get_approved_skins(*filters) 
 
-        return await r.send_self() 
+        r.add(f'**__Approved skins with filters {filter_names_str}__**') 
+
+        approved_length = self.rl(approved) 
+
+        hidden_str = None
+
+        if approved_length > self.SEARCH_LIMIT: 
+            to_display = approved[:self.SEARCH_LIMIT] 
+            diff = approved_length - self.SEARCH_LIMIT
+
+            hidden_str = f'*{diff} results hidden. Perform the search in a Skin Board channel to display the full results.*' 
+        else: 
+            to_display = approved
+        
+        self.build_skins_report(r, to_display) 
+
+        if hidden_str: 
+            r.add(hidden_str) 
     
     def time_exceeded(self): 
         last_checked_row = self.rev_data_table.find_one(key=self.REV_LAST_CHECKED_KEY) 
@@ -1772,10 +1799,16 @@ You only need to do this when linking; you can change it back afterward. Read <{
     
     @classmethod
     def animal_embed(cls, animal): 
-        title = animal['name'] 
+        animal_name = animal['name'] 
+
+        title = f'Animal stats - {animal_name.capitalize()}' 
         color = discord.Color.random() 
 
-        image_url = cls.CHARACTER_TEMPLATE.format(title) 
+        if animal_name in cls.CHARACTER_EXCEPTIONS: 
+            image_url = cls.CHARACTER_EXCEPTIONS[animal_name] 
+        else: 
+            image_url = cls.CHARACTER_TEMPLATE.format(animal_name) 
+
         image_url = tools.salt_url(image_url) 
 
         embed = discord.Embed(title=title, type='rich', color=color)
