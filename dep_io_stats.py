@@ -545,7 +545,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
         should_trim = not self.is_sb_channel(channel.id) 
 
         for skin in skins_list: 
-            debug('checking skin') 
+            #debug('checking skin') 
 
             filtered_len = len(passed_skins) 
 
