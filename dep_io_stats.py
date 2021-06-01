@@ -583,6 +583,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
         upcoming_pending = None
         motioned_pending = None
         rejected_pending = None
+        trimmed_string = None
 
         if pending_list is not None: 
             unnoticed_pending = [] 
@@ -599,7 +600,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
                 rejected_pending = [] 
                 rejected_ids = self.compile_ids_from_motions(rejected_motions, motion_filter=lambda motion: motion['rejected']) 
             
-            filtered_skins, trimmed_str = self.filter_skins(channel, pending_list, *filters) 
+            filtered_skins, trimmed_string = self.filter_skins(channel, pending_list, *filters) 
 
             for pending in filtered_skins: 
                 unnoticed = True
@@ -633,7 +634,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
                 if unnoticed: 
                     unnoticed_pending.append(pending) 
         
-        return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending, trimmed_str
+        return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending, trimmed_string
     
     def get_approved_skins(self, channel, *filters): 
         filtered_skins = None
