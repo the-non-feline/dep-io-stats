@@ -149,4 +149,4 @@ class DS_Constants:
     APPROVED_FILTERS_STR = tools.format_iterable(APPROVED_FILTERS.keys(), formatter='`{}`') 
     PENDING_FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 
 
-    SEARCH_LIMIT = 50
+    SEARCH_LIMIT = 30

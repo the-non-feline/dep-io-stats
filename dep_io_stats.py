@@ -1567,18 +1567,20 @@ String ID: {string_id}''')
     
     async def approved_display(self, r, filter_names_str, filters): 
         approved = self.get_approved_skins(*filters) 
-
-        r.add(f'**__Approved skins with filters {filter_names_str}__**') 
-
+        
         approved_length = self.rl(approved) 
+
+        r.add(f'**__Approved skins with filters {filter_names_str}__ ({approved_length})**') 
 
         hidden_str = None
 
-        if approved_length > self.SEARCH_LIMIT: 
+        channel_id = r.channel.id
+
+        if not self.is_sb_channel(channel_id) and approved_length > self.SEARCH_LIMIT: 
             to_display = approved[:self.SEARCH_LIMIT] 
             diff = approved_length - self.SEARCH_LIMIT
 
-            hidden_str = f'*{diff} results hidden. Perform the search in a Skin Board channel to display the full results.*' 
+            hidden_str = f'***{diff} results hidden. Perform the search in a Skin Board channel to display the full results.***' 
         else: 
             to_display = approved
         
