@@ -636,12 +636,15 @@ class DS(ds_constants.DS_Constants, discord.Client):
         return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending, trimmed_str
     
     def get_approved_skins(self, channel, *filters): 
+        filtered_skins = None
+        trimmed_str = None
+
         approved = self.async_get(self.SKINS_LIST_URL)[0] 
 
         if approved is not None: 
             filtered_skins, trimmed_str = self.filter_skins(channel, approved, *filters) 
 
-            return filtered_skins, trimmed_str
+        return filtered_skins, trimmed_str
     
     def get_skin(self, skins_list, query): 
         suggestions = [] 
