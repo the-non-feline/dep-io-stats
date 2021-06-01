@@ -538,19 +538,31 @@ class DS(ds_constants.DS_Constants, discord.Client):
         
         return motioned_ids
     
-    def filter_skins(self, skins_list, *filters): 
+    def filter_skins(self, channel, skins_list, *filters): 
         passed_skins = [] 
+        trimmed_str = None
+
+        should_trim = not self.is_sb_channel(channel.id) 
 
         for skin in skins_list: 
+            debug('checking skin') 
+
+            filtered_len = len(passed_skins) 
+
+            if should_trim and filtered_len == self.SEARCH_LIMIT: 
+                trimmed_str = f'***Search limited to {self.SEARCH_LIMIT} results. Perform the search in a Skin Board channel to display the full results.***' 
+
+                break
+            
             for skin_filter in filters: 
                 if not skin_filter(self, skin): 
                     break
             else: 
                 passed_skins.append(skin) 
         
-        return passed_skins
+        return passed_skins, trimmed_str
         
-    def get_pending_skins(self, *filters): 
+    def get_pending_skins(self, channel, *filters): 
         self.get_review_token() 
 
         pending_motions = rejected_motions = None
@@ -587,7 +599,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
                 rejected_pending = [] 
                 rejected_ids = self.compile_ids_from_motions(rejected_motions, motion_filter=lambda motion: motion['rejected']) 
             
-            filtered_skins = self.filter_skins(pending_list, *filters) 
+            filtered_skins, trimmed_str = self.filter_skins(channel, pending_list, *filters) 
 
             for pending in filtered_skins: 
                 unnoticed = True
@@ -621,15 +633,15 @@ class DS(ds_constants.DS_Constants, discord.Client):
                 if unnoticed: 
                     unnoticed_pending.append(pending) 
         
-        return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending
+        return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending, trimmed_str
     
-    def get_approved_skins(self, *filters): 
+    def get_approved_skins(self, channel, *filters): 
         approved = self.async_get(self.SKINS_LIST_URL)[0] 
 
         if approved is not None: 
-            filtered = self.filter_skins(approved, *filters) 
+            filtered_skins, trimmed_str = self.filter_skins(channel, approved, *filters) 
 
-            return filtered
+            return filtered_skins, trimmed_str
     
     def get_skin(self, skins_list, query): 
         suggestions = [] 
@@ -1549,7 +1561,7 @@ String ID: {string_id}''')
     async def pending_display(self, r, filter_names_str, filters): 
         color = discord.Color.random() 
 
-        pending, upcoming, motioned, rejected = self.get_pending_skins(*filters) 
+        pending, upcoming, motioned, rejected, trimmed_str = self.get_pending_skins(r.channel, *filters) 
 
         r.add(f'**__Pending skins with filters {filter_names_str}__**') 
         
@@ -1564,27 +1576,18 @@ String ID: {string_id}''')
         
         r.add(f"**Recently rejected skins ({self.rl(rejected)}) {c['x']}**") 
         self.build_skins_report(r, rejected) 
+
+        if trimmed_str: 
+            r.add(trimmed_str) 
     
     async def approved_display(self, r, filter_names_str, filters): 
-        approved = self.get_approved_skins(*filters) 
+        approved, hidden_str = self.get_approved_skins(r.channel, *filters) 
         
         approved_length = self.rl(approved) 
 
         r.add(f"**__Approved skins with filters {filter_names_str}__ ({approved_length})** {c['check']}") 
-
-        hidden_str = None
-
-        channel_id = r.channel.id
-
-        if not self.is_sb_channel(channel_id) and approved_length > self.SEARCH_LIMIT: 
-            to_display = approved[:self.SEARCH_LIMIT] 
-            diff = approved_length - self.SEARCH_LIMIT
-
-            hidden_str = f'***{diff} results hidden. Perform the search in a Skin Board channel to display the full results.***' 
-        else: 
-            to_display = approved
         
-        self.build_skins_report(r, to_display) 
+        self.build_skins_report(r, approved) 
 
         if hidden_str: 
             r.add(hidden_str) 
