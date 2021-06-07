@@ -355,12 +355,18 @@ class DS_Commands(DS):
         else: 
             return filters
     
-    @DS.requires_sb_channel
-    async def pending_search(self, c, m, report, filters_str, filters): 
-        await self.pending_display(report, filters_str, filters) 
+    async def pending_search(self, report, filters_str, filters): 
+        channel = report.channel
+
+        if self.is_sb_channel(channel.id): 
+            await self.pending_display(report, filters_str, filters) 
+        else: 
+            await self.approved_display(report, 'pending', filters_str, filters) 
+
+            report.add(f'***Use this command in a Skin Board channel to get more detailed information.***')
     
-    async def approved_search(self, c, m, report, filters_str, filters): 
-        await self.approved_display(report, filters_str, filters) 
+    async def approved_search(self, report, filters_str, filters): 
+        await self.approved_display(report, 'approved', filters_str, filters) 
     
     @DS.command('search', indefinite_usages={
         ('pending', '<filters>',): f'Get a list of all pending skins in Creators Center that match the filter(s). Valid filters are {DS.PENDING_FILTERS_STR} or any animal name.', 
@@ -397,7 +403,7 @@ class DS_Commands(DS):
             else: 
                 filter_names_str = '(none)' 
             
-            await displayer(c, m, report, filter_names_str, converted_filters) 
+            await displayer(report, filter_names_str, converted_filters) 
 
             await report.send_self() 
         else: 

@@ -636,11 +636,11 @@ class DS(ds_constants.DS_Constants, discord.Client):
         
         return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending, trimmed_string
     
-    def get_approved_skins(self, channel, *filters): 
+    def get_approved_skins(self, channel, url, *filters): 
         filtered_skins = None
         trimmed_str = None
 
-        approved = self.async_get(self.SKINS_LIST_URL)[0] 
+        approved = self.async_get(url)[0] 
 
         if approved is not None: 
             filtered_skins, trimmed_str = self.filter_skins(channel, approved, *filters) 
@@ -1584,12 +1584,17 @@ String ID: {string_id}''')
         if trimmed_str: 
             r.add(trimmed_str) 
     
-    async def approved_display(self, r, filter_names_str, filters): 
-        approved, hidden_str = self.get_approved_skins(r.channel, *filters) 
+    async def approved_display(self, r, actual_type, filter_names_str, filters): 
+        if actual_type == 'approved': 
+            url = self.SKINS_LIST_URL
+        elif actual_type == 'pending': 
+            url = self.PENDING_SKINS_LIST_URL
+        
+        approved, hidden_str = self.get_approved_skins(r.channel, url, *filters) 
         
         approved_length = self.rl(approved) 
 
-        r.add(f"**__Approved skins with filters {filter_names_str}__ ({approved_length})** {c['check']}") 
+        r.add(f"**__{actual_type.capitalize()} skins with filters {filter_names_str}__ ({approved_length})** {c['check']}") 
         
         self.build_skins_report(r, approved) 
 
