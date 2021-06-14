@@ -1202,6 +1202,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         season = None
         usable = None
 
+        status = {
+            attr: None for attr in self.SKIN_STATUS_ATTRS
+        } 
+
         user = None
 
         if not direct_api: 
@@ -1224,6 +1228,9 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             usable = skin_json['usable'] 
 
             user = skin_json['user'] 
+
+            for attr in self.SKIN_STATUS_ATTRS: 
+                status[attr] = skin_json[attr] 
 
         #debug(desc) 
 
@@ -1293,6 +1300,24 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             extra_assets_str = tools.make_list(urls_list) 
 
             embed.add_field(name=f"Additional assets {c['palette']}", value=extra_assets_str, inline=False) 
+        
+        status_strs = [] 
+
+        for status_attr, status_value in status.items(): 
+            if status_value == True: 
+                emoji = c['check'] 
+            elif status_value == False: 
+                emoji = c['x'] 
+            else: 
+                emoji = c['question_mark'] 
+            
+            status_str = f'`{emoji}` {status_attr.capitalize()}' 
+
+            status_strs.append(status_str) 
+        
+        status_list_str = tools.make_list(status_strs, bullet_point='') 
+
+        embed.add_field(name=f"Creators Center status {c['magnifying_glass']}", value=status_list_str, inline=False)
 
         if user: 
             user_name = user['name']

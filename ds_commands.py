@@ -97,10 +97,31 @@ class DS_Commands(DS):
         else: 
             return True
     
-    @DS.command('skin', indefinite_usages={
-        ('<skin name>',): "View the stats of skin with `<skin name>` (e.g. `Albino Cachalot`)", 
-    }) 
-    async def check_skin(self, c, m, *skin_query): 
+    async def skin_by_id(self, c, m, *skin_query): 
+        if len(skin_query) == 1: 
+            skin_id = skin_query[0] 
+        else: 
+            return True
+        
+        if skin_id.isnumeric(): 
+            skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+
+            skin_json = self.async_get(skin_url)[0] 
+
+            if skin_json: 
+                safe = skin_json['approved'] or skin_json['reviewed'] and not skin_json['rejected'] 
+
+                if self.is_sb_channel(c.id) or safe: 
+                    await self.send(c, embed=self.skin_embed(skin_json)) 
+                else: 
+                    await self.send(c, content=f"You can only view approved or pending skins in this channel. Use this in a Skin Board channel to bypass this restriction.", 
+reference=m) 
+            else: 
+                await self.send(c, content=f"That's not a valid skin ID (or the game might be down).", reference=m) 
+        else: 
+            return True
+    
+    async def skin_by_name(self, c, m, *skin_query): 
         skin_name = ' '.join(skin_query) 
 
         skins_list_url = self.SKINS_LIST_URL
@@ -141,20 +162,27 @@ class DS_Commands(DS):
         else: 
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
     
-    @DS.command('skinbyid', definite_usages={
-        ('<skin_id>',): 'View the stats of the skin with the given `<skin_id>`', 
-    }, public=False) 
-    @DS.requires_sb_channel
-    async def check_skin_by_id(self, c, m, skin_id): 
-        if skin_id.isnumeric(): 
-            skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+    @DS.command('skin', indefinite_usages={
+        ('name', '<skin name>'): "View the stats of skin with `<skin name>` (e.g. `Albino Cachalot`)", 
+        ('id', '<skin_id>'): 'View the stats of the skin with the given `<skin_id>`', 
+        ('<skin_name>',): "Shortcut for displaying with `name`", 
+    }) 
+    async def skin_command(self, c, m, *skin_query): 
+        search_type = skin_query[0].lower() 
 
-            skin_json = self.async_get(skin_url)[0] 
+        if search_type == 'id': 
+            displayer = self.skin_by_id
 
-            if skin_json: 
-                await self.send(c, embed=self.skin_embed(skin_json)) 
-            else: 
-                await self.send(c, content=f"That's not a valid skin ID (or the game might be down).", reference=m) 
+            skin_query = skin_query[1:] 
+        elif search_type == 'name': 
+            displayer = self.skin_by_name
+
+            skin_query = skin_query[1:] 
+        else: 
+            displayer = self.skin_by_name
+        
+        if skin_query: 
+            return await displayer(c, m, *skin_query) 
         else: 
             return True
     

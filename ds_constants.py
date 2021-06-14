@@ -150,3 +150,5 @@ class DS_Constants:
     PENDING_FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 
 
     SEARCH_LIMIT = 30
+
+    SKIN_STATUS_ATTRS = 'approved', 'reviewed', 'rejected'
