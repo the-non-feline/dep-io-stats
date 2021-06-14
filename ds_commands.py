@@ -163,7 +163,7 @@ reference=m)
             await self.send(c, content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
     
     @DS.command('skin', indefinite_usages={
-        ('name', '<skin name>'): "View the stats of skin with `<skin name>` (e.g. `Albino Cachalot`)", 
+        ('name', '<skin name>'): "View the stats of **approved** skin with `<skin name>` (e.g. `Albino Cachalot`)", 
         ('id', '<skin_id>'): 'View the stats of the skin with the given `<skin_id>`', 
         ('<skin_name>',): "Shortcut for displaying with `name`", 
     }) 
