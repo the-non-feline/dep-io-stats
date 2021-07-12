@@ -1788,7 +1788,7 @@ String ID: {string_id}''')
             await self.send(c, content="""**__STEP 1:__** Sign in to your Deeeep.io account. 
 
 **__STEP 2:__** Locate your **username** (shown in the first image), **OR** copy the **URL of your profile picture** (shown in the second image)""", files=[ul_file, lc_file]) 
-            await self.send(c, content="""-
+            await self.send(c, content=f"""-
 **__STEP 3:__** Change your "Nombre" to your Discord tag (`{m.author}`). **Don't forget to save.**""", file=nc_file) 
 
         await self.send(c, content=f"""-
@@ -1826,7 +1826,7 @@ The bot should give you a confirmation message indicating the linking was succes
 
             return self.async_get(search_request)[0] 
     
-    async def link_dep_acc(self, c, m, query): 
+    def search_by_id_or_username(self, query): 
         acc_data = None
 
         true_username = self.get_true_username(query) 
@@ -1839,6 +1839,11 @@ The bot should give you a confirmation message indicating the linking was succes
 
             if acc_id is not None: 
                 acc_data = self.get_acc_data(acc_id) 
+        
+        return acc_data
+    
+    async def link_dep_acc(self, c, m, query): 
+        acc_data = self.search_by_id_or_username(query) 
 
         if acc_data: 
             name = acc_data['name'] 

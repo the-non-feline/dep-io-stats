@@ -256,9 +256,11 @@ reference=m)
     }, public=False) 
     @DS.requires_owner
     async def cheat_stats(self, c, m, query): 
-        acc_id = self.get_acc_id(query) 
+        acc_data = self.search_by_id_or_username(query) 
         
-        if acc_id is not None: 
+        if acc_data is not None: 
+            acc_id = str(acc_data['id']) 
+
             await self.send(c, embed=self.acc_embed(acc_id)) 
         else: 
             return True
