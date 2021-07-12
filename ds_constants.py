@@ -12,7 +12,7 @@ class DS_Constants:
     PREFIX_SENTINEL = 'remove' 
 
     INVITE_LINK = 'https://discord.com/oauth2/authorize?client_id=796151711571116042&permissions=347136&scope=bot' 
-    EXAMPLE_USERNAME = '@iliekp_724' 
+    EXAMPLE_USERNAME = 'iliekp_724' 
     EXAMPLE_PFP_URL = 'https://deeeep.io/files/379126.gif?1626117634391' 
     USERNAME_LOCATION = 'username location.PNG' 
     LINK_COPYING = 'link copying.PNG' 
