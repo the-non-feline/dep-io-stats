@@ -1778,46 +1778,87 @@ String ID: {string_id}''')
         #debug(map_id) 
     
     async def link_help(self, c, m): 
-        await self.send(c, content=f'Click here for instructions on how to link your account. <{self.LINK_HELP_IMG}>', reference=m) 
+        prefix = self.prefix(c) 
+
+        with open(self.USERNAME_LOCATION, mode='rb') as ul, open(self.LINK_COPYING, mode='rb') as lc, open(self.NOMBRE_CHANGE, mode='rb') as nc: 
+            ul_file = discord.File(ul) 
+            lc_file = discord.File(lc) 
+            nc_file = discord.File(nc) 
+
+            await self.send(c, content="""**__STEP 1:__** Sign in to your Deeeep.io account. 
+
+**__STEP 2:__** Locate your **username** (shown in the first image), **OR** copy the **URL of your profile picture** (shown in the second image)""", files=[ul_file, lc_file]) 
+            await self.send(c, content="""-
+**__STEP 3:__** Change your "Nombre" to your Discord tag (`{m.author}`). **Don't forget to save.**""", file=nc_file) 
+
+        await self.send(c, content=f"""-
+**__STEP 4:__** Type `{prefix}link`, followed by either your username or your PFP URL. Examples: 
+
+`{prefix}link {self.EXAMPLE_USERNAME}` or `{prefix}link {self.EXAMPLE_PFP_URL}`
+
+The bot should give you a confirmation message indicating the linking was successful.""") 
     
     def get_acc_id(self, query): 
-        acc_id = None
+        m = re.compile(self.PFP_REGEX).match(query)
 
-        if not query.isnumeric(): 
-            m = re.compile(self.PFP_REGEX).match(query)
+        if m: 
+            acc_id = m.group('acc_id') 
+            
+            return acc_id
+    
+    def get_true_username(self, query): 
+        m = re.compile(self.USERNAME_REGEX).match(query) 
 
-            if m: 
-                acc_id = m.group('acc_id') 
-        else: 
-            acc_id = query
-        
-        return acc_id
+        if m: 
+            username = m.group('username') 
+
+            return username
+    
+    def search_by_username(self, username): 
+        self.get_review_token() 
+
+        if self.token: 
+            search_url = self.USERNAME_SEARCH_TEMPLATE.format(username) 
+
+            search_request = grequests.request('GET', search_url, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+
+            return self.async_get(search_request)[0] 
     
     async def link_dep_acc(self, c, m, query): 
-        acc_id = self.get_acc_id(query) 
+        acc_data = None
+
+        true_username = self.get_true_username(query) 
         
-        if acc_id is not None: 
-            acc_data = self.get_acc_data(acc_id) 
+        if true_username is not None: 
+            acc_data = self.search_by_username(true_username) 
+        
+        if acc_data is None: 
+            acc_id = self.get_acc_id(query) 
 
-            if acc_data: 
-                name = acc_data['name'] 
-                username = acc_data['username'] 
+            if acc_id is not None: 
+                acc_data = self.get_acc_data(acc_id) 
 
-                if name == str(m.author): 
-                    data = {
-                        'user_id': m.author.id, 
-                        'acc_id': acc_id, 
-                    } 
+        if acc_data: 
+            name = acc_data['name'] 
 
-                    self.links_table.upsert(data, ['user_id'], ensure=True) 
+            if name == str(m.author): 
+                acc_id = acc_data['id'] 
+                reusername = acc_data['username'] 
 
-                    await self.send(c, content=f"Successfully linked to Deeeep.io account with username `{username}` and ID `{acc_id}`. \
+                data = {
+                    'user_id': m.author.id, 
+                    'acc_id': acc_id, 
+                } 
+
+                self.links_table.upsert(data, ['user_id'], ensure=True) 
+
+                await self.send(c, content=f"Successfully linked to Deeeep.io account with username `{reusername}` and ID `{acc_id}`. \
 You can change the account's name back now. ", reference=m) 
-                else: 
-                    await self.send(c, content=f"You must set your Deeeep.io account's name to your discord tag (`{m.author!s}`) when linking. \
-You only need to do this when linking; you can change it back afterward. Read <{self.LINK_HELP_IMG}> for more info. ", reference=m) 
             else: 
-                return True
+                await self.send(c, content=f"You must set your Deeeep.io account's name to your discord tag (`{m.author!s}`) when linking. \
+You only need to do this when linking; you can change it back afterward. Type `{prefix}link` for more info.", reference=m) 
         else: 
             return True
     

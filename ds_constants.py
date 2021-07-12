@@ -9,11 +9,14 @@ class DS_Constants:
 
     DEFAULT_PREFIX = ',' 
     MAX_PREFIX = 5
-    PREFIX_SENTINEL = 'none' 
+    PREFIX_SENTINEL = 'remove' 
 
-    LINK_SENTINEL = 'remove' 
-    LINK_HELP_IMG = 'https://cdn.discordapp.com/attachments/493952969277046787/796576600413175819/linking_instructions.png' 
     INVITE_LINK = 'https://discord.com/oauth2/authorize?client_id=796151711571116042&permissions=347136&scope=bot' 
+    EXAMPLE_USERNAME = '@iliekp_724' 
+    EXAMPLE_PFP_URL = 'https://deeeep.io/files/379126.gif?1626117634391' 
+    USERNAME_LOCATION = 'username location.PNG' 
+    LINK_COPYING = 'link copying.PNG' 
+    NOMBRE_CHANGE = 'nombre change.PNG' 
 
     DATE_FORMAT = '%B %d, %Y' 
     REV_LOG_TIME_FORMAT = '%m-%d-%Y at %I:%M:%S %p' 
@@ -41,6 +44,8 @@ class DS_Constants:
     SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
     LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 
     PFP_REGEX = '\A(?:https?://)?(?:www\.)?deeeep\.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z' 
+    USERNAME_REGEX = '\A@?(?P<username>[a-zA-Z0-9_]+)\Z' 
+    USERNAME_SEARCH_TEMPLATE = 'https://api.deeeep.io/users/lookup?q={}' 
 
     DEFAULT_PFP = 'https://deeeep.io/new/assets/placeholder.png' 
 
