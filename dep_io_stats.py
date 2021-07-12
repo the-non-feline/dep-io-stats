@@ -1792,7 +1792,7 @@ String ID: {string_id}''')
 **__STEP 3:__** Change your "Nombre" to your Discord tag (`{m.author}`). **Don't forget to save.**""", file=nc_file) 
 
         await self.send(c, content=f"""-
-**__STEP 4:__** Type `{prefix}link`, followed by either your username or your PFP URL. Examples: 
+**__STEP 4:__** In this channel, type `{prefix}link`, followed by either your username or your PFP URL. Examples: 
 
 `{prefix}link {self.EXAMPLE_USERNAME}` 
 **OR**
@@ -1846,7 +1846,7 @@ The bot should give you a confirmation message indicating the linking was succes
     
     async def link_dep_acc(self, c, m, query): 
         prefix = self.prefix(c) 
-        
+
         acc_data = self.search_by_id_or_username(query) 
 
         if acc_data: 

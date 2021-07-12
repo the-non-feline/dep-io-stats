@@ -233,7 +233,7 @@ reference=m)
     
     @DS.command('link', definite_usages={
         (): 'View help on linking accounts', 
-        ('<account_ID>',): 'Link Deeeep.io account with ID `<account_ID>` to your account', 
+        ('<username>',): 'Link to the Deeeep.io account with the given username', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
     }) 
     async def link(self, c, m, query=None): 
@@ -251,7 +251,7 @@ reference=m)
         await self.send(c, content='Unlinked your account. ', reference=m) 
     
     @DS.command('statstest', definite_usages={
-        ('<account_ID>',): 'View Deeeep.io account with ID `<account_ID>`', 
+        ('<username>',): 'View the Deeeep.io account with the given username', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
     }, public=False) 
     @DS.requires_owner
