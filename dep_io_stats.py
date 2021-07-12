@@ -1794,7 +1794,9 @@ String ID: {string_id}''')
         await self.send(c, content=f"""-
 **__STEP 4:__** Type `{prefix}link`, followed by either your username or your PFP URL. Examples: 
 
-`{prefix}link {self.EXAMPLE_USERNAME}` or `{prefix}link {self.EXAMPLE_PFP_URL}`
+`{prefix}link {self.EXAMPLE_USERNAME}` 
+**OR**
+`{prefix}link {self.EXAMPLE_PFP_URL}`
 
 The bot should give you a confirmation message indicating the linking was successful.""") 
     
@@ -1843,6 +1845,8 @@ The bot should give you a confirmation message indicating the linking was succes
         return acc_data
     
     async def link_dep_acc(self, c, m, query): 
+        prefix = self.prefix(c) 
+        
         acc_data = self.search_by_id_or_username(query) 
 
         if acc_data: 
