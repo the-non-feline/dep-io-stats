@@ -22,11 +22,13 @@ import trimmed_embed
 import reports
 import habitat
 import ds_constants
+import credman
 
 class DS(ds_constants.DS_Constants, discord.Client): 
-    def __init__(self, logs_file_name, storage_file_name, animals_file_name, email, password): 
-        self.email = email
-        self.password = password
+    def __init__(self, logs_file_name, storage_file_name, animals_file_name, *credentials): 
+        self.credentials = credentials
+
+        self.credman = credman.CredMan(self, self.credentials) 
 
         self.db = dataset.connect(storage_file_name) 
         self.links_table = self.db.get_table('account_links') 
@@ -52,7 +54,6 @@ class DS(ds_constants.DS_Constants, discord.Client):
         self.logging_out = False
 
         self.readied = False
-        self.token = None
 
         self.auto_rev_process = None
 
@@ -136,13 +137,11 @@ class DS(ds_constants.DS_Constants, discord.Client):
 
         await super().logout() 
     
+    def get_token(self, index): 
+        return self.credman.tokens[index] 
+    
     def log_out_acc(self): 
-        if self.token: 
-            former_token = self.token
-
-            self.token = None
-
-            debug(f'relinquished token ({former_token})') 
+        self.credman.clear_tokens() 
 
         ''' 
         logout_request = grequests.request('GET', self.LOGOUT_URL, headers={
@@ -471,29 +470,9 @@ class DS(ds_constants.DS_Constants, discord.Client):
         server_list_url = self.SERVER_LIST_URL
         skins_list_url = self.SKINS_LIST_URL
 
-        if not self.token: 
-            login_url = self.LOGIN_URL
+        self.fetch_tokens(1) 
 
-            login_request = grequests.request('POST', login_url, data={
-                'email': self.email, 
-                'password': self.password, 
-            }) 
-
-            acc_json, server_list, skins_list, login_json = self.async_get(acc_url, server_list_url, skins_list_url, login_request) 
-
-            if login_json: 
-                if not self.token: 
-                    self.token = login_json['token'] 
-
-                    debug(f'fetched token ({self.token})') 
-                else: 
-                    debug(f'seems like another process got the token ({self.token}) already') 
-            else: 
-                debug(f'error fetching token, which is currently ({self.token})') 
-        else: 
-            debug(f'already have token ({self.token})') 
-
-            acc_json, server_list, skins_list = self.async_get(acc_url, server_list_url, skins_list_url) 
+        acc_json, server_list, skins_list = self.async_get(acc_url, server_list_url, skins_list_url) 
 
         map_list = self.get_map_list(server_list) 
         map_urls = self.get_map_urls(*map_list) 
@@ -502,9 +481,11 @@ class DS(ds_constants.DS_Constants, discord.Client):
 
         members_list = None
 
-        if self.token: 
+        token = self.get_token(0) 
+
+        if token: 
             members_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
-                'Authorization': f'Bearer {self.token}', 
+                'Authorization': f'Bearer {token}', 
             }) 
 
             round_2_urls.append(members_request) 
@@ -563,16 +544,18 @@ class DS(ds_constants.DS_Constants, discord.Client):
         return passed_skins, trimmed_str
         
     def get_pending_skins(self, channel, *filters): 
-        self.get_review_token() 
+        self.fetch_tokens(1) 
 
         pending_motions = rejected_motions = None
+
+        token = self.get_token(0) 
         
-        if self.token: 
+        if token: 
             pending_motions_request = grequests.request('GET', self.PENDING_MOTIONS_URL, headers={
-                'Authorization': f'Bearer {self.token}', 
+                'Authorization': f'Bearer {token}', 
             }) 
             rejected_motions_request = grequests.request('GET', self.RECENT_MOTIONS_URL, headers={
-                'Authorization': f'Bearer {self.token}', 
+                'Authorization': f'Bearer {token}', 
             }) 
 
             pending_list, pending_motions, rejected_motions = self.async_get(self.PENDING_SKINS_LIST_URL, pending_motions_request, rejected_motions_request) 
@@ -734,19 +717,21 @@ class DS(ds_constants.DS_Constants, discord.Client):
         self.build_participation_section(report, non_voted_strs) 
     
     def get_motion_participation(self, report): 
-        self.get_review_token() 
+        self.fetch_tokens(1) 
 
         members_list = None
 
-        if self.token: 
+        token = self.get_token(0) 
+
+        if token: 
             pending_motions_request = grequests.request('GET', self.PENDING_MOTIONS_URL, headers={
-                'Authorization': f'Bearer {self.token}', 
+                'Authorization': f'Bearer {token}', 
             }) 
             recent_motions_request = grequests.request('GET', self.RECENT_MOTIONS_URL, headers={
-                'Authorization': f'Bearer {self.token}', 
+                'Authorization': f'Bearer {token}', 
             }) 
             list_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
-                'Authorization': f'Bearer {self.token}', 
+                'Authorization': f'Bearer {token}', 
             }) 
 
             jsons = self.async_get(pending_motions_request, recent_motions_request, list_request) 
@@ -864,28 +849,8 @@ class DS(ds_constants.DS_Constants, discord.Client):
         
         return rejected, reasons
     
-    def get_review_token(self): 
-        if not self.token: 
-            login_url = self.LOGIN_URL
-
-            login_request = grequests.request('POST', login_url, data={
-                'email': self.email, 
-                'password': self.password, 
-            }) 
-
-            login_json = self.async_get(login_request)[0] 
-
-            if login_json: 
-                if not self.token: 
-                    self.token = login_json['token'] 
-
-                    debug(f'fetched token ({self.token})') 
-                else: 
-                    debug(f'seems like another process got the token ({self.token}) already') 
-            else: 
-                debug(f'error fetching token, which is currently ({self.token})') 
-        else: 
-            debug(f'already have token ({self.token})') 
+    def fetch_tokens(self, needed_num): 
+        self.credman.request_tokens(needed_num)
     
     def fake_check(self, r, rejected, reasons, list_json, silent_fail): 
         r.add(f'**{len(rejected)} out of {len(list_json)} failed**') 
@@ -928,7 +893,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
                 url = self.SKIN_REVIEW_TEMPLATE.format(skin_id) 
 
                 rej_req = grequests.request('POST', url, headers={
-                    'Authorization': f'Bearer {self.token}', 
+                    'Authorization': f'Bearer {self.get_token(0)}', 
                 }, data={
                     "version": skin_version, 
                 }) 
@@ -1008,11 +973,13 @@ class DS(ds_constants.DS_Constants, discord.Client):
     async def check_review(self, c, processor, silent_fail=False): 
         r = reports.Report(self, c) 
 
-        self.get_review_token() 
+        self.fetch_tokens(1) 
 
-        if self.token: 
+        token = self.get_token(0) 
+
+        if token: 
             list_request = grequests.request('GET', self.SKIN_REVIEW_LIST_URL, headers={
-                'Authorization': f'Bearer {self.token}', 
+                'Authorization': f'Bearer {token}', 
             }) 
 
             list_json = self.async_get(list_request)[0] 
@@ -1817,13 +1784,15 @@ The bot should give you a confirmation message indicating the linking was succes
             return username
     
     def search_by_username(self, username): 
-        self.get_review_token() 
+        self.fetch_tokens(1) 
 
-        if self.token: 
+        token = self.get_token(0) 
+
+        if token: 
             search_url = self.USERNAME_SEARCH_TEMPLATE.format(username) 
 
             search_request = grequests.request('GET', search_url, headers={
-                'Authorization': f'Bearer {self.token}', 
+                'Authorization': f'Bearer {token}', 
             }) 
 
             return self.async_get(search_request)[0] 
