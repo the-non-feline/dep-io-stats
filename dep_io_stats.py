@@ -1768,12 +1768,17 @@ String ID: {string_id}''')
 The bot should give you a confirmation message indicating the linking was successful.""") 
     
     def get_acc_id(self, query): 
-        m = re.compile(self.PFP_REGEX).match(query)
+        acc_id = None
 
-        if m: 
-            acc_id = m.group('acc_id') 
-            
-            return acc_id
+        if query.isnumeric(): 
+            acc_id = query
+        else: 
+            m = re.compile(self.PFP_REGEX).match(query)
+
+            if m: 
+                acc_id = m.group('acc_id') 
+                
+        return acc_id
     
     def get_true_username(self, query): 
         m = re.compile(self.USERNAME_REGEX).match(query) 

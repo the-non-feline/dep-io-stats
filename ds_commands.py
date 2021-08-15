@@ -235,6 +235,7 @@ reference=m)
         (): 'View help on linking accounts', 
         ('<username>',): 'Link to the Deeeep.io account with the given username', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
+        ('<account_id>',): "Like above, but with the account ID", 
     }) 
     async def link(self, c, m, query=None): 
         if query: 
@@ -253,6 +254,7 @@ reference=m)
     @DS.command('statstest', definite_usages={
         ('<username>',): 'View the Deeeep.io account with the given username', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
+        ('<account_id>',): "Like above, but with the account ID", 
     }, public=False) 
     @DS.requires_owner
     async def cheat_stats(self, c, m, query): 
