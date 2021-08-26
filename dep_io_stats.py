@@ -135,7 +135,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
         self.logs_file.close() 
         #self.levels_file.close() 
 
-        await super().logout() 
+        await super().close() 
     
     def get_token(self, index): 
         return self.credman.tokens[index] 
@@ -1201,7 +1201,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         #debug(desc) 
 
-        embed = trimmed_embed.TrimmedEmbed(title=skin['name'], description=desc, color=color, url=reddit_link) 
+        if reddit_link: 
+            embed = trimmed_embed.TrimmedEmbed(title=skin['name'], description=desc, color=color, url=reddit_link) 
+        else: 
+            embed = trimmed_embed.TrimmedEmbed(title=skin['name'], description=desc, color=color) 
 
         if asset_name[0].isnumeric(): 
             asset_name = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_name
@@ -1251,23 +1254,6 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         
         embed.add_field(name=f"Version {c['wrench']}", value=version_str, inline=version_inline) 
         
-        if extra_assets: 
-            urls_list = [] 
-
-            for asset_type, asset_data in extra_assets.items(): 
-                asset_filename = asset_data['asset'] 
-
-                if asset_filename[0].isnumeric(): 
-                    asset_filename = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_filename
-                
-                extra_asset_url = self.SKIN_ASSET_URL_TEMPLATE.format(asset_filename) 
-
-                urls_list.append(f'[{asset_type}]({extra_asset_url})') 
-            
-            extra_assets_str = tools.make_list(urls_list) 
-
-            embed.add_field(name=f"Additional assets {c['palette']}", value=extra_assets_str, inline=False) 
-        
         status_strs = [] 
 
         for status_attr, status_value in status.items(): 
@@ -1285,6 +1271,23 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         status_list_str = tools.make_list(status_strs, bullet_point='') 
 
         embed.add_field(name=f"Creators Center status {c['magnifying_glass']}", value=status_list_str, inline=False)
+        
+        if extra_assets: 
+            urls_list = [] 
+
+            for asset_type, asset_data in extra_assets.items(): 
+                asset_filename = asset_data['asset'] 
+
+                if asset_filename[0].isnumeric(): 
+                    asset_filename = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_filename
+                
+                extra_asset_url = self.SKIN_ASSET_URL_TEMPLATE.format(asset_filename) 
+
+                urls_list.append(f'[{asset_type}]({extra_asset_url})') 
+            
+            extra_assets_str = tools.make_list(urls_list) 
+
+            embed.add_field(name=f"Additional assets {c['palette']}", value=extra_assets_str, inline=False) 
 
         if user: 
             user_name = user['name']
