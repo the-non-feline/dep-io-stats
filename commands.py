@@ -78,4 +78,4 @@ class Command:
 
             await client.send(c, content=f"""The correct ways to use this command are: 
 
-{usages_str}""", reference=m) 
+{usages_str}""") 

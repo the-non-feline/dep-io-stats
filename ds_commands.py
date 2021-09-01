@@ -39,16 +39,16 @@ class DS_Commands(DS):
                     if not self.blacklisted(c, 'account', acc_id): 
                         await self.send(c, embed=self.acc_embed(acc_id)) 
                     else: 
-                        await self.send(c, content=f'This account (ID {acc_id}) is blacklisted from being displayed on this server. ', reference=m) 
+                        await self.send(c, content=f'This account (ID {acc_id}) is blacklisted from being displayed on this server. ') 
                     
                 elif user_id == m.author.id: 
-                    await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ", reference=m) 
+                    await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ") 
                 else: 
-                    await self.send(c, content=f"This user isn't linked.", reference=m) 
+                    await self.send(c, content=f"This user isn't linked.") 
             elif user_id == m.author.id: 
-                await self.send(c, content=f"You're blacklisted from displaying your account on this server.", reference=m) 
+                await self.send(c, content=f"You're blacklisted from displaying your account on this server.") 
             else: 
-                await self.send(c, content='This user is blacklisted from displaying their account on this server. ', reference=m) 
+                await self.send(c, content='This user is blacklisted from displaying their account on this server. ') 
         else: 
             return True
     
@@ -114,10 +114,9 @@ class DS_Commands(DS):
                 if self.is_sb_channel(c.id) or safe: 
                     await self.send(c, embed=self.skin_embed(skin_json)) 
                 else: 
-                    await self.send(c, content=f"You can only view approved or pending skins in this channel. Use this in a Skin Board channel to bypass this restriction.", 
-reference=m) 
+                    await self.send(c, content=f"You can only view approved or pending skins in this channel. Use this in a Skin Board channel to bypass this restriction.") 
             else: 
-                await self.send(c, content=f"That's not a valid skin ID (or the game might be down).", reference=m) 
+                await self.send(c, content=f"That's not a valid skin ID (or the game might be down).") 
         else: 
             return True
     
@@ -206,9 +205,9 @@ reference=m)
                 if not self.blacklisted(c, 'map', ID): 
                     await self.send(c, embed=self.map_embed(map_json)) 
                 else: 
-                    await self.send(c, content=f'This map (ID {ID}) is blacklisted from being displayed on this server. ', reference=m)
+                    await self.send(c, content=f'This map (ID {ID}) is blacklisted from being displayed on this server. ')
             else: 
-                await self.send(c, content=f"That's not a valid map (or Mapmaker could be broken). ", reference=m) 
+                await self.send(c, content=f"That's not a valid map (or Mapmaker could be broken). ") 
         else: 
             return True
     
@@ -229,7 +228,7 @@ reference=m)
         if rev_channel: 
             await self.check_review(rev_channel, self.real_check, silent_fail=True) 
         else: 
-            await self.send(c, content='Not set', reference=m) 
+            await self.send(c, content='Not set') 
     
     @DS.command('link', definite_usages={
         (): 'View help on linking accounts', 
@@ -249,7 +248,7 @@ reference=m)
     async def unlink(self, c, m): 
         self.links_table.delete(user_id=m.author.id) 
 
-        await self.send(c, content='Unlinked your account. ', reference=m) 
+        await self.send(c, content='Unlinked your account. ') 
     
     @DS.command('statstest', definite_usages={
         ('<username>',): 'View the Deeeep.io account with the given username', 
@@ -288,7 +287,7 @@ reference=m)
 
                 await self.send(c, content=f'Custom prefix is now `{prefix}`. ') 
             else: 
-                await self.send(c, content=f'Prefix must not exceed {self.MAX_PREFIX} characters. ', reference=m) 
+                await self.send(c, content=f'Prefix must not exceed {self.MAX_PREFIX} characters. ') 
     
     @DS.command('revc', definite_usages={
         ('<channel>',): "Sets `<channel>` as the logging channel for skn review", 
@@ -462,7 +461,7 @@ reference=m)
 
                 break
         else: 
-            await self.send(c, content="That's not a valid animal.", reference=m) 
+            await self.send(c, content="That's not a valid animal.") 
     
     @DS.command('shutdown', definite_usages={
         (): "Turn off the bot", 
@@ -492,7 +491,7 @@ reference=m)
             else: 
                 prefix = self.prefix(c) 
 
-                await self.send(c, content=f"That's not a valid command name. Type `{prefix}{self.send_help.name}` for a list of public commands. ", reference=m) 
+                await self.send(c, content=f"That's not a valid command name. Type `{prefix}{self.send_help.name}` for a list of public commands. ") 
         else: 
             com_list_str = tools.format_iterable(commands.Command.all_commands(public_only=True), formatter='`{}`') 
             prefix = self.prefix(c) 

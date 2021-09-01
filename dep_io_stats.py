@@ -202,7 +202,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
             if m.author.id == self.OWNER_ID: 
                 return await func(self, c, m, *args) 
             else: 
-                await self.send(c, content='no u (owner-only command) ', reference=m) 
+                await self.send(c, content='no u (owner-only command) ') 
         
         return req_owner_func
     
@@ -239,7 +239,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
                     else: 
                         req_str = req_one_str
                     
-                    await self.send(c, content=f'You need {req_str} to use this command', reference=m) 
+                    await self.send(c, content=f'You need {req_str} to use this command') 
             
             return req_perms_func
         
@@ -250,7 +250,7 @@ class DS(ds_constants.DS_Constants, discord.Client):
             if self.is_sb_channel(c.id): 
                 return await func(self, c, m, *args) 
             else: 
-                await self.send(c, content="This command is reserved for Skin Board channels.", reference=m) 
+                await self.send(c, content="This command is reserved for Skin Board channels.") 
         
         return req_channel_func
     
@@ -1841,10 +1841,10 @@ The bot should give you a confirmation message indicating the linking was succes
                 self.links_table.upsert(data, ['user_id'], ensure=True) 
 
                 await self.send(c, content=f"Successfully linked to Deeeep.io account with username `{reusername}` and ID `{acc_id}`. \
-You can change the account's name back now. ", reference=m) 
+You can change the account's name back now. ") 
             else: 
                 await self.send(c, content=f"You must set your Deeeep.io account's name to your discord tag (`{m.author!s}`) when linking. \
-You only need to do this when linking; you can change it back afterward. Type `{prefix}link` for more info.", reference=m) 
+You only need to do this when linking; you can change it back afterward. Type `{prefix}link` for more info.") 
         else: 
             return True
     
