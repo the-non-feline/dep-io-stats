@@ -250,11 +250,11 @@ class DS_Commands(DS):
 
         await self.send(c, content='Unlinked your account. ') 
     
-    @DS.command('statstest', definite_usages={
+    @DS.command('hackstats', definite_usages={
         ('<username>',): 'View the Deeeep.io account with the given username', 
         ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
         ('<account_id>',): "Like above, but with the account ID", 
-    }, public=False) 
+    }) 
     async def cheat_stats(self, c, m, query): 
         acc_data = self.search_by_id_or_username(query) 
         
