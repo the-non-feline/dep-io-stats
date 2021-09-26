@@ -44,7 +44,7 @@ class DS_Constants:
     SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
     LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 
     PFP_REGEX = '\A(?:https?://)?(?:www\.)?deeeep\.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z' 
-    USERNAME_REGEX = '\A@?(?P<username>[a-zA-Z0-9_]+)\Z' 
+    USERNAME_REGEX = '\A@?(?P<username>.+)\Z' 
     USERNAME_SEARCH_TEMPLATE = 'https://api.deeeep.io/users/lookup?q={}' 
 
     DEFAULT_PFP = 'https://deeeep.io/new/assets/placeholder.png' 

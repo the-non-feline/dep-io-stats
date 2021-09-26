@@ -232,11 +232,12 @@ class DS_Commands(DS):
     
     @DS.command('link', definite_usages={
         (): 'View help on linking accounts', 
-        ('<username>',): 'Link to the Deeeep.io account with the given username', 
-        ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
+        ('<account_profile_pic_URL>',): "Link to the Deeeep.io account with the URL of the account's profile picture", 
         ('<account_id>',): "Like above, but with the account ID", 
+    }, indefinite_usages={
+        ('<username>',): 'Like above, but with the given username', 
     }) 
-    async def link(self, c, m, query=None): 
+    async def link(self, c, m, *query): 
         if query: 
             return await self.link_dep_acc(c, m, query) 
         else: 
@@ -251,11 +252,14 @@ class DS_Commands(DS):
         await self.send(c, content='Unlinked your account. ') 
     
     @DS.command('hackstats', definite_usages={
-        ('<username>',): 'View the Deeeep.io account with the given username', 
-        ('<account_profile_pic_URL>',): "Like above, but with the URL of the account's profile picture", 
+        ('<account_profile_pic_URL>',): "View the Deeeep.io account with the URL of the account's profile picture", 
         ('<account_id>',): "Like above, but with the account ID", 
+    }, indefinite_usages={
+        ('<username>',): 'Like above, but with the given username', 
     }) 
-    async def cheat_stats(self, c, m, query): 
+    async def cheat_stats(self, c, m, *query): 
+        query = ' '.join(query) 
+
         acc_data = self.search_by_id_or_username(query) 
         
         if acc_data is not None: 
@@ -447,7 +451,7 @@ class DS_Commands(DS):
         await self.send_participation_report(c) 
     
     @DS.command('animal', indefinite_usages={
-        ('animal',): "Get the stats of an animal", 
+        ('<animal>',): "Get the stats of an animal", 
     }) 
     async def display_animal_stats(self, c, m, *animal): 
         query_name = tools.format_iterable(animal, sep='').lower() 

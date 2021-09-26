@@ -1822,6 +1822,7 @@ The bot should give you a confirmation message indicating the linking was succes
         return acc_data
     
     async def link_dep_acc(self, c, m, query): 
+        query = ' '.join(query) 
         prefix = self.prefix(c) 
 
         acc_data = self.search_by_id_or_username(query) 
