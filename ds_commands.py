@@ -402,7 +402,7 @@ class DS_Commands(DS):
     async def approved_search(self, report, filters_str, filters): 
         await self.approved_display(report, 'approved', filters_str, filters) 
     
-    @DS.command('search', indefinite_usages={
+    @DS.command('skins', indefinite_usages={
         ('pending', '<filters>',): f'Get a list of all pending skins in Creators Center that match the filter(s). Valid filters are {DS.PENDING_FILTERS_STR} or any animal name.', 
         ('approved', '<filters>'): f'Get a list of all approved (added) skins in Creators Center that match the filter(s). Valid filters are {DS.APPROVED_FILTERS_STR} or any animal name.', 
         ('<filters>',): 'Shortcut for searching with `approved`', 
