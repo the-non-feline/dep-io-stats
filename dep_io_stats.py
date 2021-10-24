@@ -1849,6 +1849,12 @@ You only need to do this when linking; you can change it back afterward. Type `{
         else: 
             return True
     
+    async def display_account(self, c, acc_id): 
+        if not self.blacklisted(c, 'account', acc_id): 
+            await self.send(c, embed=self.acc_embed(acc_id)) 
+        else: 
+            await self.send(c, content=f'This account (ID {acc_id}) is blacklisted from being displayed on this server. ') 
+    
     @classmethod
     def format_stat(cls, animal, stat_key): 
         stat_value = animal[stat_key] 

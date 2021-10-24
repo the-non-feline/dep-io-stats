@@ -36,10 +36,7 @@ class DS_Commands(DS):
                 if link: 
                     acc_id = link['acc_id'] 
 
-                    if not self.blacklisted(c, 'account', acc_id): 
-                        await self.send(c, embed=self.acc_embed(acc_id)) 
-                    else: 
-                        await self.send(c, content=f'This account (ID {acc_id}) is blacklisted from being displayed on this server. ') 
+                    await self.display_account(c, acc_id) 
                     
                 elif user_id == m.author.id: 
                     await self.send(c, content=f"You're not linked to an account. Type `{self.prefix(c)}link` to learn how to link an account. ") 
@@ -265,7 +262,7 @@ class DS_Commands(DS):
         if acc_data is not None: 
             acc_id = str(acc_data['id']) 
 
-            await self.send(c, embed=self.acc_embed(acc_id)) 
+            await self.display_account(c, acc_id) 
         else: 
             return True
     
