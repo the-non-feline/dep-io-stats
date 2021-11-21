@@ -138,20 +138,21 @@ class DS_Constants:
         'non-stat-changing': lambda self, skin: not skin['attributes'], 
         'free': lambda self, skin: skin['price'] == 0, 
         'not-free': lambda self, skin: skin['price'] != 0, 
-    }
-    PENDING_FILTERS = {
-        'reskin': lambda self, skin: skin['parent'], 
         'halloween': lambda self, skin: skin['season'] == 'hallooween', 
         'christmas': lambda self, skin: skin['season'] == 'christmas', 
         'valentines': lambda self, skin: skin['season'] == 'valentines', 
         'easter': lambda self, skin: skin['season'] == 'easter', 
+        'lunar-new-year': lambda self, skin: skin['season'] == 'lunar', 
         'realistic': lambda self, skin: skin['category'] == 'real', 
         'unrealistic': lambda self, skin: skin['category'] == 'unrealistic', 
+        'seasonal': lambda self, skin: skin['category'] == 'season', 
+    }
+    PENDING_FILTERS = {
+        'reskin': lambda self, skin: skin['parent'], 
     } 
 
     PENDING_FILTERS.update(APPROVED_FILTERS) 
 
-    APPROVED_FILTERS_STR = tools.format_iterable(APPROVED_FILTERS.keys(), formatter='`{}`') 
     PENDING_FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 
 
     SEARCH_LIMIT = 30

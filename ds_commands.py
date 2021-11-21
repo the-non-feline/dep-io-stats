@@ -401,7 +401,7 @@ class DS_Commands(DS):
     
     @DS.command('skins', indefinite_usages={
         ('pending', '<filters>',): f'Get a list of all pending skins in Creators Center that match the filter(s). Valid filters are {DS.PENDING_FILTERS_STR} or any animal name.', 
-        ('approved', '<filters>'): f'Get a list of all approved (added) skins in Creators Center that match the filter(s). Valid filters are {DS.APPROVED_FILTERS_STR} or any animal name.', 
+        ('approved', '<filters>'): f'Get a list of all approved (added) skins in Creators Center that match the filter(s). Valid filters are any of the ones for pending skins, **except** `reskin`.', 
         ('<filters>',): 'Shortcut for searching with `approved`', 
     }) 
     async def skin_search(self, c, m, *filters): 
