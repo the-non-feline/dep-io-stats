@@ -1241,7 +1241,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         if when_created: 
             date_created = parser.isoparse(when_created) 
 
-            embed.add_field(name=f"Date created {c['tools']}", value=date_created.strftime(self.DATE_FORMAT)) 
+            embed.add_field(name=f"Date created {c['tools']}", value=f'{tools.timestamp(date_created)}') 
 
         version_str = str(version) 
         version_inline = True
@@ -1249,7 +1249,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         if last_updated: 
             date_updated = parser.isoparse(last_updated) 
 
-            version_str += f' (updated {date_updated.strftime(self.DATE_FORMAT)})' 
+            version_str += f' (updated {tools.timestamp(date_updated)})' 
             version_inline = False
         
         embed.add_field(name=f"Version {c['wrench']}", value=version_str, inline=version_inline) 
@@ -1354,12 +1354,12 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             if when_created: 
                 date_created = parser.isoparse(when_created) 
 
-                embed.add_field(name=f"Date created {c['baby']}", value=date_created.strftime(self.DATE_FORMAT)) 
+                embed.add_field(name=f"Date created {c['baby']}", value=f'{tools.timestamp(date_created)}') 
 
             if when_last_played: 
                 date_last_played = parser.isoparse(when_last_played) 
 
-                embed.add_field(name=f"Date last played {c['video_game']}", value=date_last_played.strftime(self.DATE_FORMAT)) 
+                embed.add_field(name=f"Date last played {c['video_game']}", value=f'{tools.timestamp(date_last_played)}') 
         else: 
             embed = trimmed_embed.TrimmedEmbed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
 
@@ -1511,12 +1511,12 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         if when_created: 
             date_created = parser.isoparse(when_created) 
 
-            embed.add_field(name=f"Date created {c['tools']}", value=date_created.strftime(self.DATE_FORMAT)) 
+            embed.add_field(name=f"Date created {c['tools']}", value=f'{tools.timestamp(date_created)}') 
         
         if when_updated: 
             date_updated = parser.isoparse(when_updated) 
 
-            embed.add_field(name=f"Date last updated {c['wrench']}", value=date_updated.strftime(self.DATE_FORMAT)) 
+            embed.add_field(name=f"Date last updated {c['wrench']}", value=f'{tools.timestamp(date_updated)}') 
         
         lock_emoji = c['lock'] if locked else c['unlock'] 
         

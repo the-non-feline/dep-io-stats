@@ -1,3 +1,4 @@
+from datetime import datetime
 import time
 import math
 
@@ -44,3 +45,8 @@ def decamelcase(string):
         current_word = '' 
     
     return words
+
+def timestamp(t: datetime): 
+    secs = int(t.timestamp()) 
+
+    return f'<t:{secs}>' 

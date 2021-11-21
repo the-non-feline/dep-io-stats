@@ -2,3 +2,4 @@ dataset
 discord.py
 grequests
 mysqlclient
+python-dateutil
