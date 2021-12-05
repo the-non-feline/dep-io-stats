@@ -463,6 +463,17 @@ class DS_Commands(DS):
         else: 
             await self.send(c, content="That's not a valid animal.") 
     
+    @DS.command('habitat', definite_usages={
+        ('<habitat_number>',): "Converts `<habitat_number>` to a list of habitat flags.",
+    })
+    async def convert_habitat(self, c, m, num): 
+        if num.isnumeric(): 
+            hab = habitat.Habitat(num) 
+
+            await self.send(c, content=f'`{num}` translates to `{hab}`.')
+        else: 
+            return True
+    
     @DS.command('shutdown', definite_usages={
         (): "Turn off the bot", 
     }, public=False) 
