@@ -24,6 +24,8 @@ import habitat
 import ds_constants
 import credman
 
+char_map = c
+
 class DS(ds_constants.DS_Constants, discord.Client): 
     def __init__(self, logs_file_name, storage_file_name, animals_file_name, *credentials): 
         self.credentials = credentials
@@ -1758,10 +1760,10 @@ String ID: {string_id}''')
             await self.send(c, content="""**__STEP 1:__** Sign in to your Deeeep.io account. 
 
 **__STEP 2:__** Locate your **username** (shown in the first image), **OR** copy the **URL of your profile picture** (shown in the second image)""", files=[ul_file, lc_file]) 
-            await self.send(c, content=f"""-
+            await self.send(c, content=f"""{char_map['void']}
 **__STEP 3:__** Change your "Nombre" to your Discord tag (`{m.author}`). **Don't forget to save.**""", file=nc_file) 
 
-        await self.send(c, content=f"""-
+        await self.send(c, content=f"""{char_map['void']}
 **__STEP 4:__** In this channel, type `{prefix}link`, followed by either your username or your PFP URL. Examples: 
 
 `{prefix}link {self.EXAMPLE_USERNAME}` 

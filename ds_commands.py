@@ -3,7 +3,7 @@ import logs
 from logs import debug
 import tools
 import commands
-from chars import c
+from chars import c as char_map
 import trimmed_embed
 import reports
 import habitat
@@ -473,6 +473,16 @@ class DS_Commands(DS):
             await self.send(c, content=f'`{num}` translates to `{hab}`.')
         else: 
             return True
+    
+    @DS.command('tree', definite_usages={
+        (): "Displays the evolution tree (as of the Snow and Below beta version)",
+    })
+    async def evo_tree(self, c, m):
+        with open(self.TREE, mode='rb') as tree_file:
+            discord_file = discord.File(tree_file)
+
+            await self.send(c, content=f"""The current evolution tree as of Snow and Below beta:
+{char_map['void']}""", file=discord_file)
     
     @DS.command('shutdown', definite_usages={
         (): "Turn off the bot", 

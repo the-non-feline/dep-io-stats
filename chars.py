@@ -11,6 +11,7 @@ c = {
     'fish': ':fish:', 
     'stonkalot': '<:stonkalot:800488843047338015>', 
     'stonkanot': '<:stonkanot:816781803381194822>', 
+    'void': '<:void:928733461454393404>',
     'wrench': ':wrench:', 
     'palette': ':art:', 
     'thumbsup': ':thumbsup:', 

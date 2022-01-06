@@ -17,6 +17,7 @@ class DS_Constants:
     USERNAME_LOCATION = 'username location.PNG' 
     LINK_COPYING = 'link copying.PNG' 
     NOMBRE_CHANGE = 'nombre change.PNG' 
+    TREE = 'evolution tree.png'
 
     DATE_FORMAT = '%B %d, %Y' 
     REV_LOG_TIME_FORMAT = '%m-%d-%Y at %I:%M:%S %p' 
