@@ -23,10 +23,11 @@ import reports
 import habitat
 import ds_constants
 import credman
+import slash_util
 
 char_map = c
 
-class DS(ds_constants.DS_Constants, discord.Client): 
+class DS(ds_constants.DS_Constants, slash_util.Bot): 
     def __init__(self, logs_file_name, storage_file_name, animals_file_name, *credentials): 
         self.credentials = credentials
 
@@ -258,14 +259,6 @@ class DS(ds_constants.DS_Constants, discord.Client):
     
     async def default_args_check(self, c, m, *args): 
         return True
-
-    def command(name, definite_usages={}, indefinite_usages={}, public=True): 
-        def decorator(func): 
-            command_obj = commands.Command(func, name, definite_usages, indefinite_usages, public) 
-
-            return command_obj
-        
-        return decorator
     
     '''
     def command(name, req_params=(), optional_params=(), args_check=None): 
