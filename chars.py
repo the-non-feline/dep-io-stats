@@ -34,4 +34,6 @@ c = {
     'ballot_box': ':ballot_box:', 
     'question_mark': '❔', 
     'magnifying_glass': '🔍', 
+    'beginner': ':beginner:',
+    'reddit_logo': '<:redditlogo:977858048578158592>',
 }

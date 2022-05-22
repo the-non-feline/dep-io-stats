@@ -11,11 +11,11 @@ class TrimmedEmbed(discord.Embed):
     def __init__(self, **kwargs): 
         title = kwargs.get('title', None) 
 
-        kwargs['title'] = self.trim_maybe(title, self.MAX_TITLE) if title else discord.Embed.Empty
+        kwargs['title'] = self.trim_maybe(title, self.MAX_TITLE) if title else None
 
         desc = kwargs.get('description', None) 
 
-        kwargs['description'] = self.trim_maybe(desc, self.MAX_DESC) if desc else discord.Embed.Empty
+        kwargs['description'] = self.trim_maybe(desc, self.MAX_DESC) if desc else None
 
         super().__init__(**kwargs) 
     
@@ -32,15 +32,15 @@ class TrimmedEmbed(discord.Embed):
 
         return super().add_field(name=name, value=value, inline=inline) 
     
-    def set_footer(self, *, text=None, icon_url=discord.Embed.Empty): 
+    def set_footer(self, *, text=None, icon_url=None): 
         if text: 
             text = self.trim_maybe(text, self.MAX_FOOTER) 
         else: 
-            text = discord.Embed.Empty
+            text = None
         
         return super().set_footer(text=text, icon_url=icon_url) 
     
-    def set_author(self, *, name, url=discord.Embed.Empty, icon_url=discord.Embed.Empty): 
+    def set_author(self, *, name, url=None, icon_url=None): 
         name = self.trim_maybe(name, self.MAX_AUTHOR) 
 
         return super().set_author(name=name, url=url, icon_url=icon_url) 

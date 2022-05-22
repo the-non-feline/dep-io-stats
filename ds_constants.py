@@ -1,5 +1,6 @@
 import habitat
 import tools
+import enum
 
 class DS_Constants: 
     REV_CHANNEL_SENTINEL = 'none' 
@@ -36,24 +37,29 @@ class DS_Constants:
     MENTION_REGEX = '\A<@!?(?P<member_id>[0-9]+)>\Z' 
     CHANNEL_REGEX = '\A<#(?P<channel_id>[0-9]+)>\Z' 
 
-    DATA_URL_TEMPLATE = 'https://api.deeeep.io/users/{}' 
-    PFP_URL_TEMPLATE = 'https://deeeep.io/files/{}' 
+    DATA_URL_TEMPLATE = 'https://apibeta.deeeep.io/users/{}' 
+    PFP_URL_TEMPLATE = 'https://cdn.deeeep.io/uploads/avatars/{}' 
     SERVER_LIST_URL = 'http://api.deeeep.io/hosts?beta=1' 
     MAP_URL_TEMPLATE = 'https://api.deeeep.io/maps/{}' 
-    SKINS_LIST_URL = 'https://api.deeeep.io/skins?cat=all' 
+    SKINS_LIST_URL = 'https://apibeta.deeeep.io/skins?cat=all' 
     LOGIN_URL = 'https://api.deeeep.io/auth/local/signin' 
     SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
     LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 
     PFP_REGEX = '\A(?:https?://)?(?:www\.)?deeeep\.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z' 
     USERNAME_REGEX = '\A@?(?P<username>.+)\Z' 
     USERNAME_SEARCH_TEMPLATE = 'https://api.deeeep.io/users/lookup?q={}' 
+    PROFILE_TEMPLATE = 'https://apibeta.deeeep.io/users/u/{}'
+    BETA_PFP_TEMPLATE = 'https://cdn.deeeep.io/uploads/avatars/{}'
+    PROFILE_PAGE_TEMPLATE = 'https://beta.deeeep.io/u/{}'
 
     DEFAULT_PFP = 'https://deeeep.io/new/assets/placeholder.png' 
+    DEFAULT_BETA_PFP = 'https://beta.deeeep.io/img/avatar.png'
 
     SKIN_ASSET_URL_TEMPLATE = 'https://deeeep.io/assets/skins/{}' 
-    CUSTOM_SKIN_ASSET_URL_ADDITION = 'custom/' 
-    SKIN_URL_TEMPLATE = 'https://api.deeeep.io/skins/{}' 
+    CUSTOM_SKIN_ASSET_URL_TEMPLATE = 'https://cdn.deeeep.io/custom/skins/{}'
+    SKIN_URL_TEMPLATE = 'https://apibeta.deeeep.io/skins/{}' 
     SKIN_REVIEW_TEMPLATE = 'https://api.deeeep.io/skins/{}/review' 
+    SKIN_STORE_PAGE_TEMPLATE = 'https://beta.deeeep.io/store/skins/{}'
 
     STONKS_THRESHOLD = 150
 
@@ -82,7 +88,7 @@ class DS_Constants:
         'speedMultiplier': ('base speed', '{:.0%}'),
         'walkSpeedMultiplier': ('walk speed', '{:.0%}'),
         'sizeMultiplier': ('size scale', '{}x', lambda num: float(num)), 
-        'sizeScale': ('dimensions', "{0['x']} x {0['y']}"),
+        'sizeScale': ('dimensions', "{0[0]} width, {0[1]} height", lambda dims: (dims['x'] * 1.0, dims['y'] * 1.0)),
         'damageMultiplier': ('damage', '{} HP', lambda num: tools.trunc_float(num * 20)), 
         'healthMultiplier': ('health', '{} HP', lambda num: tools.trunc_float(num * 100)),
         'damageBlock': ('armor', '{}%', 100),
@@ -93,7 +99,7 @@ class DS_Constants:
         'secondaryAbilityLoadTime': ('charged boost load time', '{} ms'), 
     }
     
-    NORMAL_STATS = 'level', 'healthMultiplier', 'damageMultiplier', 'speedMultiplier', 'sizeMultiplier', 'damageBlock', 'damageReflection', 'bleedReduction', \
+    NORMAL_STATS = 'level', 'healthMultiplier', 'damageMultiplier', 'speedMultiplier', 'sizeMultiplier', 'sizeScale', 'damageBlock', 'damageReflection', 'bleedReduction', \
 'armorPenetration' 
     BIOME_STATS = 'oxygenTime', 'temperatureTime', 'pressureTime', 'salinityTime' 
 
@@ -132,7 +138,7 @@ class DS_Constants:
         'pelican': 'https://deeeep.io/new/assets/characters/pelican.png', 
     }
 
-    APPROVED_FILTERS = {
+    APPROVED_FILTERS_MAP = {
         'acceptable': lambda self, skin: not self.reject_reasons(skin, check_reddit=False), 
         'unacceptable': lambda self, skin: self.reject_reasons(skin, check_reddit=False), 
         'stat-changing': lambda self, skin: skin['attributes'], 
@@ -148,13 +154,22 @@ class DS_Constants:
         'unrealistic': lambda self, skin: skin['category'] == 'unrealistic', 
         'seasonal': lambda self, skin: skin['category'] == 'season', 
     }
-    PENDING_FILTERS = {
-        'reskin': lambda self, skin: skin['parent'], 
+    
+    PENDING_FILTERS_MAP = {
+        'reskin': lambda self, skin: skin['parent'] if 'parent' in skin else False, 
     } 
 
-    PENDING_FILTERS.update(APPROVED_FILTERS) 
+    PENDING_FILTERS_MAP.update(APPROVED_FILTERS_MAP)
 
+    # print(PENDING_FILTERS_MAP)
+
+    # SKIN_FILTERS = enum.Enum('SKIN_FILTERS', tuple(PENDING_FILTERS_MAP.keys()), module=__name__)
+
+    # print(list(SKIN_FILTERS))
+    
+    '''
     PENDING_FILTERS_STR = tools.format_iterable(PENDING_FILTERS.keys(), formatter='`{}`') 
+    '''
 
     SEARCH_LIMIT = 30
 

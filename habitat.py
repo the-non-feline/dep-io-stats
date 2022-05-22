@@ -63,6 +63,9 @@ class Habitat(int):
                 partial_display.append(string) 
         
         return partial_display
+    
+    def has_reef(self):
+        return self >= 2**(len(self.NAMES) - 1)
 
     def __str__(self): 
         len_flags = len(self.NAMES) 

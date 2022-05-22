@@ -3,7 +3,6 @@ import discord
 import dataset
 import asyncio
 import sys
-import requests
 import time
 import random
 import re
@@ -12,6 +11,7 @@ import json
 import logging
 import math
 import json
+import enum
 
 import logs
 from logs import debug
@@ -59,8 +59,9 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         self.readied = False
 
         self.auto_rev_process = None
+        self.ALL_FILTERS = {}
 
-        super().__init__(activity=discord.Game(name='starting up'), status=discord.Status.dnd) 
+        super().__init__(',', intents=discord.Intents(), activity=discord.Game(name='starting up'), status=discord.Status.dnd) 
     
     def animal_stats(self): 
         with open(self.animals_file_name, mode='r') as file: 
@@ -87,8 +88,14 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             animal_id = index
 
             self.ANIMAL_FILTERS[name] = self.animal_check(animal_id) 
+        
+        self.ALL_FILTERS = {**self.PENDING_FILTERS_MAP, **self.ANIMAL_FILTERS}
 
-        debug('set animal stats') 
+        # print(self.ALL_FILTERS)
+        
+        self.SKIN_FILTERS = enum.Enum("SKIN_FILTERS", tuple(self.ALL_FILTERS.keys()), module=__name__)
+
+        print('set animal stats') 
     
     def find_animal(self, animal_id): 
         stats = self.temp_animal_stats
@@ -103,8 +110,8 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         else: 
             return self.DEFAULT_PREFIX
     
-    def blacklisted(self, c, blacklist_type, target): 
-        b_entry = self.blacklists_table.find_one(guild_id=c.guild.id, type=blacklist_type, target=target) 
+    def blacklisted(self, guild_id, blacklist_type, target): 
+        b_entry = self.blacklists_table.find_one(guild_id=guild_id, type=blacklist_type, target=target) 
 
         return b_entry
     
@@ -496,6 +503,20 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
 
         return acc_json, contribs, roles
     
+    def get_profile_by_username(self, username): 
+        acc_url = self.PROFILE_TEMPLATE.format(username)
+
+        acc_json = self.async_get(acc_url)[0]
+
+        return acc_json
+    
+    def get_profile_by_id(self, id):
+        acc_url = self.DATA_URL_TEMPLATE.format(id)
+
+        acc_json = self.async_get(acc_url)[0]
+
+        return acc_json
+    
     @staticmethod
     def compile_ids_from_motions(motions_list, motion_filter=lambda motion: True): 
         motioned_ids = {} 
@@ -529,6 +550,8 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
                 trimmed_str = f'***Search limited to {self.SEARCH_LIMIT} results. Perform the search in a Skin Board channel to display the full results.***' 
 
                 break
+
+            # print(filters)
             
             for skin_filter in filters: 
                 if not skin_filter(self, skin): 
@@ -625,24 +648,24 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
 
         return filtered_skins, trimmed_str
     
-    def get_skin(self, skins_list, query): 
+    def search_with_suggestions(self, search_list, map_func, query):
         suggestions = [] 
 
-        for skin in skins_list: 
-            skin_name = skin['name'] 
+        for item in search_list: 
+            item_name = map_func(item) 
 
-            lowered_name = skin_name.lower() 
+            lowered_name = item_name.lower() 
             lowered_query = query.lower() 
 
             #debug(lowered_name) 
             #debug(lowered_query) 
 
             if lowered_name == lowered_query: 
-                return skin
+                return item
             elif len(suggestions) == self.MAX_SKIN_SUGGESTIONS: 
                 return None
             elif lowered_query in lowered_name: 
-                suggestions.append(skin) 
+                suggestions.append(item) 
         else: 
             return suggestions
     
@@ -1024,10 +1047,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
                 return animal_id
     ''' 
 
-    async def self_embed(self, channel): 
-        prefix = self.prefix(channel) 
-        com_list_str = tools.format_iterable(commands.Command.all_commands(public_only=True), formatter='`{}`') 
-
+    async def self_embed(self): 
         guilds = self.guilds
         guild_count = len(guilds) 
 
@@ -1038,7 +1058,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         color = discord.Color.random() 
 
         if self_user: 
-            avatar_url = self_user.avatar_url
+            avatar_url = self_user.avatar
             discord_tag = str(self_user) 
         else: 
             avatar_url = None
@@ -1062,13 +1082,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         if owner: 
             owner_tag = str(owner) 
 
-            embed.add_field(name=f"Creator {c['carpenter']}", value=owner_tag) 
-        
-        com_list = f'''{com_list_str}
-
-Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command>`''' 
-
-        embed.add_field(name=f"Public commands {c['scroll']}", value=com_list, inline=False) 
+            embed.add_field(name=f"Creator {c['carpenter']}", value=f'{owner_tag} (<@{self.OWNER_ID}>)')
 
         embed.set_footer(text=f'Used by {user_count} users across {guild_count} guilds') 
 
@@ -1081,7 +1095,7 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         display_name, formatter, *rest = translation_format
 
         converter = tools.trunc_float
-        multiplier = 1
+        multiplier = None
 
         if rest: 
             element = rest[0] 
@@ -1107,11 +1121,15 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
                 if key: 
                     display_name, formatter, converter, multiplier = self.parse_translation_format(key) 
 
-                    old_value = animal[key] * multiplier
+                    old_value = animal[key]
 
-                    old_value_converted = converter(old_value) 
+                    if multiplier is not None:
+                        old_value *= multiplier
+                    
+                    if converter is not None:
+                        old_value = converter(old_value) 
 
-                    old_value_str = formatter.format(old_value_converted) 
+                    old_value_str = formatter.format(old_value) 
 
                     m = re.compile(self.FLOAT_CHECK_REGEX).match(diff) 
 
@@ -1137,6 +1155,96 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         stat_changes_str = tools.make_list(stat_changes_list)  
 
         embed.add_field(name=f"Stat changes {c['change']}", value=stat_changes_str, inline=False) 
+    
+    async def display_animal(self, interaction: discord.Interaction, animal_query):
+        animal_data = self.search_with_suggestions(self.temp_animal_stats, lambda animal: animal['name'], animal_query)
+
+        animal_json = None
+        suggestions_str = '' 
+
+        if type(animal_data) is list: 
+            if len(animal_data) == 1: 
+                animal_json = animal_data[0] 
+            else: 
+                if animal_data: 
+                    animal_names = (animal['name'] for animal in animal_data) 
+
+                    suggestions_str = tools.format_iterable(animal_names, formatter='`{}`') 
+
+                    suggestions_str = f"Maybe you meant one of these? {suggestions_str}" 
+            
+            debug(f'Suggestions length: {len(animal_data)}') 
+        elif animal_data: 
+            animal_json = animal_data
+
+            debug('match found') 
+        else: 
+            debug('limit exceeded') 
+
+        if animal_json: 
+            await interaction.response.send_message(embed=self.animal_embed(animal_json)) 
+        else: 
+            text = "That's not a valid animal name. " + suggestions_str
+
+            await interaction.response.send_message(content=text)
+    
+    async def skin_by_id(self, interaction: discord.Interaction, skin_id):   
+        skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+
+        skin_json = self.async_get(skin_url)[0] 
+
+        await interaction.response.defer()
+
+        if skin_json: 
+            safe = skin_json['approved'] or skin_json['reviewed'] and not skin_json['rejected'] 
+
+            if self.is_sb_channel(interaction.channel.id) or safe: 
+                await interaction.followup.send(embed=self.skin_embed(skin_json)) 
+            else: 
+                await interaction.followup.send(content=f"You can only view approved or pending skins in this channel. Use this in a Skin Board channel to bypass this restriction.") 
+        else: 
+            await interaction.followup.send(content=f"That's not a valid skin ID (or the game might be down).") 
+
+    async def skin_by_name(self, interaction: discord.Interaction, skin_name): 
+        skins_list_url = self.SKINS_LIST_URL
+
+        await interaction.response.defer()
+
+        skins_list = self.async_get(skins_list_url)[0] 
+        
+        if skins_list: 
+            skin_data = self.search_with_suggestions(skins_list, lambda skin: skin['name'], skin_name) 
+
+            skin_json = None
+            suggestions_str = '' 
+
+            if type(skin_data) is list: 
+                if len(skin_data) == 1: 
+                    skin_json = skin_data[0] 
+                else: 
+                    if skin_data: 
+                        skin_names = (skin['name'] for skin in skin_data) 
+
+                        suggestions_str = tools.format_iterable(skin_names, formatter='`{}`') 
+
+                        suggestions_str = f"Maybe you meant one of these? {suggestions_str}" 
+                
+                debug(f'Suggestions length: {len(skin_data)}') 
+            elif skin_data: 
+                skin_json = skin_data
+
+                debug('match found') 
+            else: 
+                debug('limit exceeded') 
+
+            if skin_json: 
+                await interaction.followup.send(embed=self.skin_embed(skin_json)) 
+            else: 
+                text = "That's not a valid skin name. " + suggestions_str
+
+                await interaction.followup.send(content=text) 
+        else: 
+            await interaction.followup.send(content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
         
     def skin_embed(self, skin, direct_api=False): 
         color = discord.Color.random() 
@@ -1150,6 +1258,8 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
         sales = skin['sales'] 
         last_updated = skin['updated_at'] 
         version = skin['version'] 
+
+        store_page = self.SKIN_STORE_PAGE_TEMPLATE.format(ID)
 
         asset_name = skin['asset'] 
 
@@ -1196,15 +1306,14 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
 
         #debug(desc) 
 
-        if reddit_link: 
-            embed = trimmed_embed.TrimmedEmbed(title=skin['name'], description=desc, color=color, url=reddit_link) 
-        else: 
-            embed = trimmed_embed.TrimmedEmbed(title=skin['name'], description=desc, color=color) 
+        embed = trimmed_embed.TrimmedEmbed(title=skin['name'], description=desc, color=color, url=store_page)
 
         if asset_name[0].isnumeric(): 
-            asset_name = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_name
+            template = self.CUSTOM_SKIN_ASSET_URL_TEMPLATE
+        else:
+            template = self.SKIN_ASSET_URL_TEMPLATE
 
-        asset_url = tools.salt_url(self.SKIN_ASSET_URL_TEMPLATE.format(asset_name)) 
+        asset_url = tools.salt_url(template.format(asset_name))
 
         debug(asset_url) 
 
@@ -1248,6 +1357,9 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             version_inline = False
         
         embed.add_field(name=f"Version {c['wrench']}", value=version_str, inline=version_inline) 
+
+        if reddit_link: 
+            embed.add_field(name=f"Reddit link {c['reddit_logo']}", value=reddit_link)
         
         status_strs = [] 
 
@@ -1274,9 +1386,11 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
                 asset_filename = asset_data['asset'] 
 
                 if asset_filename[0].isnumeric(): 
-                    asset_filename = self.CUSTOM_SKIN_ASSET_URL_ADDITION + asset_filename
+                    template = self.CUSTOM_SKIN_ASSET_URL_TEMPLATE
+                else:
+                    template = self.SKIN_ASSET_URL_TEMPLATE
                 
-                extra_asset_url = self.SKIN_ASSET_URL_TEMPLATE.format(asset_filename) 
+                extra_asset_url = template.format(asset_filename)
 
                 urls_list.append(f'[{asset_type}]({extra_asset_url})') 
             
@@ -1285,11 +1399,10 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             embed.add_field(name=f"Additional assets {c['palette']}", value=extra_assets_str, inline=False) 
 
         if user: 
-            user_name = user['name']
             user_username = user['username'] 
             user_pfp = user['picture'] 
 
-            creator = f'{user_name} (@{user_username})' 
+            creator = user_username
 
             if not user_pfp: 
                 user_pfp = self.DEFAULT_PFP
@@ -1374,6 +1487,83 @@ Type `{prefix}{self.send_help.name} <command>` for help on a specified `<command
             embed.add_field(name=f"Roles {c['cooloctopus']}", value=roles_str, inline=False)
 
         return embed
+    
+    def profile_embed(self, acc: dict): 
+        color = discord.Color.random() 
+
+        if acc: 
+            acc_id = acc['id']
+            real_username = acc['username']
+
+            public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
+
+            title = real_username
+
+            desc = acc['about'] 
+
+            pfp = acc['picture'] 
+
+            #debug(pfp_url) 
+            
+            kills = acc['kill_count'] 
+            max_score = acc['highest_score'] 
+            coins = acc['coins'] 
+
+            xp = acc['xp']
+            tier = acc['tier']
+
+            death_message = acc['description']
+
+            #debug(hex(color)) 
+
+            embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', description=desc, color=color, url=public_page)
+            
+            if not pfp: 
+                pfp = self.DEFAULT_BETA_PFP
+            else: 
+                pfp = self.BETA_PFP_TEMPLATE.format(pfp) 
+            
+            pfp_url = tools.salt_url(pfp) 
+
+            debug(pfp_url) 
+            
+            embed.set_image(url=pfp_url) 
+
+            embed.add_field(name=f"Kills {c['iseedeadfish']}", value=f'{kills:,}') 
+            embed.add_field(name=f"Highscore {c['first_place']}", value=f'{max_score:,}') 
+            embed.add_field(name=f"Coins {c['deeeepcoin']}", value=f'{coins:,}') 
+
+            embed.add_field(name=f"XP {c['beginner']}", value=f'{xp:,} XP (Tier {tier})', inline=False)
+
+            when_created = acc['date_created'] 
+            when_last_played = acc['date_last_played'] 
+
+            if when_created: 
+                date_created = parser.isoparse(when_created) 
+
+                embed.add_field(name=f"Date created {c['baby']}", value=f'{tools.timestamp(date_created)}') 
+
+            if when_last_played: 
+                date_last_played = parser.isoparse(when_last_played) 
+
+                embed.add_field(name=f"Date last played {c['video_game']}", value=f'{tools.timestamp(date_last_played)}') 
+            
+            embed.add_field(name=f"Death message {c['iseedeadfish']}", value=f'*"{death_message}"*' or "None", inline=False)
+            
+            embed.set_footer(text=f'ID: {acc_id}') 
+        else: 
+            embed = trimmed_embed.TrimmedEmbed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
+
+            embed.add_field(name="Why?", value="This usually happens when the game isn't working. ") 
+            embed.add_field(name="What now?", value="Don't spam this command. Just try again when the game works again. ") 
+
+        return embed
+    
+    def profile_embed_by_username(self, username: str):
+        return self.profile_embed(self.get_profile_by_username(username))
+    
+    def profile_embed_by_id(self, id):
+        return self.profile_embed(self.get_profile_by_id(id))
     
     def count_objects(self, objs): 
         class Counter: 
@@ -1555,7 +1745,7 @@ String ID: {string_id}''')
     async def pending_display(self, r, filter_names_str, filters): 
         color = discord.Color.random() 
 
-        pending, upcoming, motioned, rejected, trimmed_str = self.get_pending_skins(r.channel, *filters) 
+        pending, upcoming, motioned, rejected, trimmed_str = self.get_pending_skins(r.interaction.channel, *filters) 
 
         r.add(f'**__Pending skins with filters {filter_names_str}__**') 
         
@@ -1575,12 +1765,14 @@ String ID: {string_id}''')
             r.add(trimmed_str) 
     
     async def approved_display(self, r, actual_type, filter_names_str, filters): 
+        print(filters)
+
         if actual_type == 'approved': 
             url = self.SKINS_LIST_URL
         elif actual_type == 'pending': 
             url = self.PENDING_SKINS_LIST_URL
         
-        approved, hidden_str = self.get_approved_skins(r.channel, url, *filters) 
+        approved, hidden_str = self.get_approved_skins(r.interaction.channel, url, *filters) 
         
         approved_length = self.rl(approved) 
 
@@ -1650,12 +1842,16 @@ String ID: {string_id}''')
                 debug('', exc_info=True) 
     
     async def on_ready(self): 
+        import ds_commands
+
         self.readied = True
 
         if not self.auto_rev_process: 
             self.auto_rev_process = self.loop.create_task(self.auto_rev_loop()) 
 
             debug('created auto rev process') 
+        
+        await ds_commands.gen_commands(self)
         
         await self.change_presence(activity=discord.Game(name='all systems operational'), status=discord.Status.online)
         
@@ -1844,11 +2040,13 @@ You only need to do this when linking; you can change it back afterward. Type `{
         else: 
             return True
     
-    async def display_account(self, c, acc_id): 
-        if not self.blacklisted(c, 'account', acc_id): 
-            await self.send(c, embed=self.acc_embed(acc_id)) 
+    async def display_account(self, interaction: discord.Interaction, acc_id): 
+        if not self.blacklisted(interaction.guild.id, 'account', acc_id): 
+            await interaction.response.defer()
+
+            await interaction.followup.send(embed=self.profile_embed_by_id(acc_id)) 
         else: 
-            await self.send(c, content=f'This account (ID {acc_id}) is blacklisted from being displayed on this server. ') 
+            await interaction.response.send_message(content=f'This account (ID {acc_id}) is blacklisted from being displayed on this server. ') 
     
     @classmethod
     def format_stat(cls, animal, stat_key): 
@@ -1856,8 +2054,13 @@ You only need to do this when linking; you can change it back afterward. Type `{
 
         display_name, formatter, converter, multiplier = cls.parse_translation_format(stat_key) 
 
-        stat_value *= multiplier
-        stat_value = converter(stat_value) 
+        if multiplier is not None:
+            stat_value *= multiplier
+
+        if converter is not None:
+            stat_value = converter(stat_value) 
+        
+        # print(stat_value)
 
         stat_value_str = formatter.format(stat_value) 
 
@@ -1929,6 +2132,9 @@ You only need to do this when linking; you can change it back afterward. Type `{
         embed.add_field(name='Value', value=stat_values_str) 
 
         passives = [] 
+
+        if animal_habitat.has_reef():
+            passives.append('Reef animal (immune to slowing corals)')
 
         can_walk = animal['canStand'] 
 

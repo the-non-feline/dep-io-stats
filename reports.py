@@ -5,9 +5,8 @@ from logs import debug
 class Report: 
     MAX_MESSAGE = 2000
 
-    def __init__(self, client, channel): 
-        self.client = client
-        self.channel = channel
+    def __init__(self, interaction: discord.Interaction): 
+        self.interaction = interaction
         self.contents = [] 
     
     async def send_message(self, sent_messages, texts, embed=None): 
@@ -16,7 +15,7 @@ class Report:
 
             debug(len(content)) 
 
-            sent_messages.append(await self.client.send(self.channel, content=content, embed=embed)) 
+            sent_messages.append(await self.interaction.followup.send(content=content, embed=embed)) 
 
             texts.clear() 
     

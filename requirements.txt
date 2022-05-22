@@ -1,5 +1,5 @@
 dataset
-discord.py
+git+https://github.com/Rapptz/discord.py
 grequests
 mysqlclient
 python-dateutil
