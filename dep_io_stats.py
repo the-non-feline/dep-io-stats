@@ -24,6 +24,8 @@ import habitat
 import ds_constants
 import credman
 import slash_util
+import discord.ui
+import ui
 
 char_map = c
 
@@ -1494,10 +1496,11 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         if acc: 
             acc_id = acc['id']
             real_username = acc['username']
+            verified = acc['verified']
 
             public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
 
-            title = real_username
+            title = real_username + (f"  {c['verified']}" if verified else '')
 
             desc = acc['about'] 
 
@@ -1508,6 +1511,8 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             kills = acc['kill_count'] 
             max_score = acc['highest_score'] 
             coins = acc['coins'] 
+            plays = acc['play_count']
+            views = acc['profile_views']
 
             xp = acc['xp']
             tier = acc['tier']
@@ -1533,6 +1538,8 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             embed.add_field(name=f"Highscore {c['first_place']}", value=f'{max_score:,}') 
             embed.add_field(name=f"Coins {c['deeeepcoin']}", value=f'{coins:,}') 
 
+            embed.add_field(name=f"Play count {c['video_game']}", value=f'{plays:,}')
+
             embed.add_field(name=f"XP {c['beginner']}", value=f'{xp:,} XP (Tier {tier})', inline=False)
 
             when_created = acc['date_created'] 
@@ -1549,6 +1556,8 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
                 embed.add_field(name=f"Date last played {c['video_game']}", value=f'{tools.timestamp(date_last_played)}') 
             
             embed.add_field(name=f"Death message {c['iseedeadfish']}", value=f'*"{death_message}"*' or "None", inline=False)
+
+            embed.add_field(name=f"Profile views {c['eyes']}", value=f'{views:,}')
             
             embed.set_footer(text=f'ID: {acc_id}') 
         else: 
@@ -1936,30 +1945,16 @@ String ID: {string_id}''')
 
             return map_string_id
         
-        #debug(map_id) 
+        #debug(map_id)
     
-    async def link_help(self, c, m): 
-        prefix = self.prefix(c) 
+    async def link_help(self, interaction: discord.Interaction): 
+        p1 = ui.Page(content='le test')
+        p2 = ui.Page(content='le trol')
+        p3 = ui.Page(content='le E')
 
-        with open(self.USERNAME_LOCATION, mode='rb') as ul, open(self.LINK_COPYING, mode='rb') as lc, open(self.NOMBRE_CHANGE, mode='rb') as nc: 
-            ul_file = discord.File(ul) 
-            lc_file = discord.File(lc) 
-            nc_file = discord.File(nc) 
+        book = ui.ScrollyBook(interaction, p1, p2, p3)
 
-            await self.send(c, content="""**__STEP 1:__** Sign in to your Deeeep.io account. 
-
-**__STEP 2:__** Locate your **username** (shown in the first image), **OR** copy the **URL of your profile picture** (shown in the second image)""", files=[ul_file, lc_file]) 
-            await self.send(c, content=f"""{char_map['void']}
-**__STEP 3:__** Change your "Nombre" to your Discord tag (`{m.author}`). **Don't forget to save.**""", file=nc_file) 
-
-        await self.send(c, content=f"""{char_map['void']}
-**__STEP 4:__** In this channel, type `{prefix}link`, followed by either your username or your PFP URL. Examples: 
-
-`{prefix}link {self.EXAMPLE_USERNAME}` 
-**OR**
-`{prefix}link {self.EXAMPLE_PFP_URL}`
-
-The bot should give you a confirmation message indicating the linking was successful.""") 
+        await book.send_first()
     
     def get_acc_id(self, query): 
         acc_id = None
@@ -1975,7 +1970,7 @@ The bot should give you a confirmation message indicating the linking was succes
         return acc_id
     
     def get_true_username(self, query): 
-        m = re.compile(self.USERNAME_REGEX).match(query) 
+        m = re.compile(self.PROFILE_PAGE_REGEX).match(query) 
 
         if m: 
             username = m.group('username') 
@@ -1983,18 +1978,9 @@ The bot should give you a confirmation message indicating the linking was succes
             return username
     
     def search_by_username(self, username): 
-        self.fetch_tokens(1) 
+        search_url = self.USERNAME_SEARCH_TEMPLATE.format(username) 
 
-        token = self.get_token(0) 
-
-        if token: 
-            search_url = self.USERNAME_SEARCH_TEMPLATE.format(username) 
-
-            search_request = grequests.request('GET', search_url, headers={
-                'Authorization': f'Bearer {token}', 
-            }) 
-
-            return self.async_get(search_request)[0] 
+        return self.async_get(search_url)[0] 
     
     def search_by_id_or_username(self, query): 
         acc_data = None
@@ -2012,33 +1998,80 @@ The bot should give you a confirmation message indicating the linking was succes
         
         return acc_data
     
-    async def link_dep_acc(self, c, m, query): 
-        query = ' '.join(query) 
-        prefix = self.prefix(c) 
+    def get_socials(self, account_id):
+        socials_url = self.SOCIALS_TEMPLATE.format(account_id)
 
-        acc_data = self.search_by_id_or_username(query) 
+        return self.async_get(socials_url)[0]
+    
+    def connect_help_book(self, interaction: discord.Interaction) -> ui.ScrollyBook:
+        signin_embed = discord.Embed(title='Sign in to your Deeeep.io account on Beta')
+        signin_embed.set_image(url=self.SIGNING_IN)
+        signin_page = ui.Page(embed=signin_embed)
+
+        profile_open_embed = discord.Embed(title='Open your Deeeep.io profile by clicking your profile picture')
+        profile_open_embed.set_image(url=self.OPENING_PROFILE)
+        profile_open_page = ui.Page(embed=profile_open_embed)
+
+        discord_embed = discord.Embed(title='Add your Discord tag as a social link on your Deeeep.io account')
+        discord_embed.set_image(url=self.ADDING_DISCORD)
+        discord_page = ui.Page(embed=discord_embed)
+
+        connect_embed = discord.Embed(title="Copy your profile page's URL, then paste that URL into the \"connect\" command")
+        connect_embed.set_image(url=self.CONNECT_COMMAND)
+        connect_page = ui.Page(embed=connect_embed)
+
+        help_book = ui.ScrollyBook(interaction, signin_page, profile_open_page, discord_page, connect_page, timeout=30)
+
+        return help_book
+    
+    async def send_connect_help(self, interaction: discord.Interaction):
+        help_book = self.connect_help_book(interaction)
+
+        await help_book.send_first()
+    
+    async def link_dep_acc(self, interaction: discord.Interaction, query: str):
+        await interaction.response.defer()
+
+        username = self.get_true_username(query)
+
+        print(username)
+
+        if username:
+            acc_data = self.search_by_username(username) 
+        else:
+            acc_data = None
 
         if acc_data: 
-            name = acc_data['name'] 
+            acc_id = acc_data['id']
 
-            if name == str(m.author): 
-                acc_id = acc_data['id'] 
-                reusername = acc_data['username'] 
+            link = self.links_table.find_one(user_id=interaction.user.id, acc_id=acc_id)
 
-                data = {
-                    'user_id': m.author.id, 
-                    'acc_id': acc_id, 
-                } 
+            if True:
+                socials = self.get_socials(acc_id)
+                tag = str(interaction.user)
 
-                self.links_table.upsert(data, ['user_id'], ensure=True) 
+                for social in socials:
+                    if social['platform_id'] == 'dc' and social['platform_user_id'] == tag:
+                        reusername = acc_data['username'] 
 
-                await self.send(c, content=f"Successfully linked to Deeeep.io account with username `{reusername}` and ID `{acc_id}`. \
-You can change the account's name back now. ") 
-            else: 
-                await self.send(c, content=f"You must set your Deeeep.io account's name to your discord tag (`{m.author!s}`) when linking. \
-You only need to do this when linking; you can change it back afterward. Type `{prefix}link` for more info.") 
+                        data = {
+                            'user_id': interaction.user.id, 
+                            'acc_id': acc_id, 
+                        } 
+
+                        self.links_table.upsert(data, ['user_id', 'acc_id'], ensure=True) 
+
+                        await interaction.followup.send(content=f"Successfully linked to Deeeep.io account with username \
+    `{reusername}` and ID `{acc_id}`.")
+
+                        return
+                else: 
+                    await interaction.followup.send(content=f"You must add your Discord tag as a social link on that account \
+to connect it.")
+            else:
+                await interaction.followup.send(content="You're already linked to this account.")
         else: 
-            return True
+            await interaction.followup.send(content="That doesn't seem like a valid profile.")
     
     async def display_account(self, interaction: discord.Interaction, acc_id): 
         if not self.blacklisted(interaction.guild.id, 'account', acc_id): 

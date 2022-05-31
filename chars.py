@@ -3,7 +3,7 @@ c = {
     'first_place': ':first_place:', 
     'deeeepcoin': '<:deeeepcoin:819071295450906655>', 
     'baby': ':baby:', 
-    'video_game': ':video_game:', 
+    'video_game': '🎮', 
     'heartpenguin': '<:heartpenguin:796307297508786187>', 
     'cooloctopus': '<:cooloctopus:797573684758970419>', 
     'change': ':twisted_rightwards_arrows:', 
@@ -36,4 +36,7 @@ c = {
     'magnifying_glass': '🔍', 
     'beginner': ':beginner:',
     'reddit_logo': '<:redditlogo:977858048578158592>',
+    'verified': '<:verified:980184804672819260>',
+    'eyes': '👀',
+    'verified_smaller': '<:verifiedsmaller:980189369170268220>',
 }

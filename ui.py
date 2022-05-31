@@ -1,0 +1,108 @@
+from faulthandler import disable
+from turtle import left
+import discord.ui
+import discord
+
+class CallbackButton(discord.ui.Button):
+    def __init__(self, callback, message_interaction, *args, style=discord.ButtonStyle.secondary, label=None, disabled=False, 
+    custom_id=None, url=None, emoji=None, row=None, **kwargs):
+        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
+
+        self.stored_callback = callback
+        self.message_interaction = message_interaction
+        self.args = args
+        self.kwargs = kwargs
+    
+    async def callback(self, button_interaction: discord.Interaction):
+        return await self.stored_callback(button_interaction, self.message_interaction, *self.args, **self.kwargs)
+
+class RestrictedView(discord.ui.View):
+    def __init__(self, original_user: discord.User | discord.Member, *, timeout=180.0):
+        super().__init__(timeout=timeout)
+        
+        self.original_user = original_user
+    
+    async def interaction_check(self, interaction: discord.Interaction):
+        if interaction.user != self.original_user:
+            await interaction.response.send_message(content=f"{interaction.user.mention} used click. It's not very effective...",
+            ephemeral=True)
+        else:
+            return True
+
+class Page:
+    def __init__(self, content=None, embed=None, allowed_mentions=None):
+        self.content = content
+        self.embed = embed
+        self.allowed_mentions = allowed_mentions
+    
+    async def send_self(self, parent, interaction: discord.Interaction):
+        await interaction.response.send_message(content=self.content, embed=self.embed, 
+        allowed_mentions=self.allowed_mentions, view=parent.view)
+    
+    async def edit_self(self, parent, interaction: discord.Interaction):
+        await interaction.response.edit_message(content=self.content, embed=self.embed, 
+        allowed_mentions=self.allowed_mentions, view=parent.view)
+
+class Book:
+    pass
+
+class ScrollyBook:
+    def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=None):
+        self.interaction = interaction
+        self.pages = pages
+        self.cur_index = 0
+        self.timeout = timeout
+
+        self.view = RestrictedView(interaction.user, timeout=self.timeout)
+
+        self.left_button = CallbackButton(self.turn_page, self.interaction, -1, style=discord.ButtonStyle.primary, label='Previous',
+        row=0)
+        self.page_number = discord.ui.Button(disabled=True, label=f'Page {self.cur_index + 1} / {len(self.pages)}',
+        row=0)
+        self.right_button = CallbackButton(self.turn_page, self.interaction, 1, style=discord.ButtonStyle.primary, label='Next',
+        row=0)
+        # self.close_button = CallbackButton(self.manual_close, self.interaction, style=discord.ButtonStyle.danger, label='Close',
+        # row=1)
+
+        self.view.add_item(self.left_button)
+        self.view.add_item(self.page_number)
+        self.view.add_item(self.right_button)
+        # self.view.add_item(self.close_button)
+
+        self.update_buttons()
+    
+    async def close_book(self):
+        self.view.clear_items()
+        
+        closed_button = discord.ui.Button(disabled=True, label=f'Time limit for using buttons already elapsed', row=0)
+        
+        self.view.add_item(closed_button)
+
+        await self.interaction.edit_original_message(view=self.view)
+    
+    async def manual_close(self, button_interaction: discord.Interaction, message_interaction: discord.Interaction):
+        self.view.stop()
+    
+    async def wait_until_finished(self):
+        await self.view.wait()
+        await self.close_book()
+    
+    async def send_first(self):
+        cur = self.pages[self.cur_index]
+
+        await cur.send_self(self, self.interaction)
+
+        await self.wait_until_finished()
+    
+    def update_buttons(self):
+        self.left_button.disabled = self.cur_index <= 0
+        self.right_button.disabled = self.cur_index >= len(self.pages) - 1
+        self.page_number.label = f'Page {self.cur_index + 1} / {len(self.pages)}'
+    
+    async def turn_page(self, button_interaction: discord.Interaction, message_interaction: discord.Interaction, direction: int):
+        self.cur_index += direction
+        cur = self.pages[self.cur_index]
+        
+        self.update_buttons()
+
+        await cur.edit_self(self, button_interaction)

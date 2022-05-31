@@ -14,7 +14,7 @@ def ds_slash(tree: app_commands.CommandTree, name: str, desc: str):
 async def gen_commands(client: dep_io_stats.DS):
     tree = client.tree
 
-    async def check_stats(interaction: discord.Interaction, user: discord.Member): 
+    async def check_stats(interaction: discord.Interaction, user: discord.Member, acc_num: int): 
         bot = interaction.client
         user_id = user.id
         
@@ -23,15 +23,24 @@ async def gen_commands(client: dep_io_stats.DS):
         link = None
 
         if not bot.blacklisted(interaction.guild.id, 'user', user_id): 
-            link = bot.links_table.find_one(user_id=user_id) 
+            links = bot.links_table.find(user_id=user_id) 
+            links = tuple(links)
 
-            #debug('f') 
+            if links:
+                acc_index = acc_num - 1
 
-            if link: 
-                acc_id = link['acc_id'] 
+                if acc_index < len(links):
+                    link = links[acc_index] 
+                    acc_id = link['acc_id'] 
 
-                await bot.display_account(interaction, acc_id) 
-                
+                    await bot.display_account(interaction, acc_id)
+                elif user_id == interaction.user.id:
+                    await interaction.response.send_message(content=f"You asked for your account #{acc_num}, \
+but you only have {len(links)} accounts.")
+                else:
+                    await interaction.response.send_message(content=f"You asked for {user.mention}'s account #{acc_num}, \
+but they only have {len(links)} accounts.", allowed_mentions=discord.AllowedMentions.none())
+                    
             elif user_id == interaction.user.id: 
                 await interaction.response.send_message(content=f"You're not linked to an account.") 
             else: 
@@ -41,14 +50,11 @@ async def gen_commands(client: dep_io_stats.DS):
         else: 
             await interaction.response.send_message(content='This user is blacklisted from displaying their account on this server.')
 
-    @ds_slash(tree, 'stats', 'Displays the Deeeep.io profile of the specified user')
-    @app_commands.describe(user='the member whose stats to check')
-    async def other_profile(interaction: discord.Interaction, user: discord.Member):
-        return await check_stats(interaction, user)
-
-    @ds_slash(tree, 'me', 'Displays your own Deeeep.io profile')
-    async def own_profile(interaction: discord.Interaction):
-        return await check_stats(interaction, interaction.user)
+    @ds_slash(tree, 'profile', "Displays the Deeeep.io profile of the specified user, or yourself")
+    @app_commands.describe(user='The member whose stats to check. Defaults to yourself if unspecified')
+    async def other_profile(interaction: discord.Interaction, user: discord.Member=None, 
+    acc_num: discord.app_commands.Range[int, 1]=1):
+        return await check_stats(interaction, user or interaction.user, acc_num)
 
     '''
     @slash_util.slash_command()
@@ -57,14 +63,14 @@ async def gen_commands(client: dep_io_stats.DS):
     '''
     
     @ds_slash(tree, 'skin', 'Displays the stats of a skin')
-    async def skin_command(interaction: discord.Interaction, search_type: typing.Literal['id', 'name'], skin_query: str): 
+    @app_commands.describe(skin_query='The name of the skin if looking up by name, or ID if by ID', search_type='How I should \
+look up the skin. Defaults to `name` if unspecified')
+    async def skin_command(interaction: discord.Interaction, skin_query: str, search_type: typing.Literal['id', 'name']='name'): 
         bot = interaction.client
 
         if search_type == 'id': 
             displayer = bot.skin_by_id
         elif search_type == 'name': 
-            displayer = bot.skin_by_name
-        else: 
             displayer = bot.skin_by_name
 
         print(skin_query)
@@ -190,7 +196,7 @@ or its link')
 
         return choices
     
-    @ds_slash(tree, 'skinz', 'Displays the list of all skins that fit the given criteria')
+    @ds_slash(tree, 'skins', 'Displays the list of all skins that fit the given criteria')
     @app_commands.autocomplete(filters=filters_autocomplete)
     async def skin_search(interaction: discord.Interaction, list_name: typing.Literal["approved", "pending"], 
     filters: str):
@@ -237,6 +243,31 @@ or its link')
             await report.send_self()
         else: 
             await interaction.followup.send(content="Those were not valid filters.")
+    
+    @ds_slash(tree, 'test', 'test command')
+    async def test_command(interaction: discord.Interaction):
+        await interaction.client.link_help(interaction)
+    
+    @ds_slash(tree, 'connect', 'Connect your Discord account to a Deeeep.io account')
+    @app_commands.describe(account='username (not_a_cat) or profile URL (https://beta.deeeep.io/u/not_a_cat)')
+    async def link_account(interaction: discord.Interaction, account: str):
+        await interaction.client.link_dep_acc(interaction, account)
+    
+    @ds_slash(tree, 'connecthelp', 'View instructions on how to connect your account')
+    async def connect_help(interaction: discord.Interaction):
+        await interaction.client.send_connect_help(interaction)
+    
+    @ds_slash(tree, 'shutdown', 'Turn off the bot')
+    async def shut_down(interaction: discord.Interaction): 
+        await interaction.response.send_message(content='shutting down') 
+
+        await interaction.client.logout()
+
+        '''
+        self.logging_out = True
+
+        await self.change_presence(status=discord.Status.dnd, activity=discord.Game(name='shutting down'))
+        '''
 
     result = await tree.sync(guild=discord.Object(273213133731135500))
     
