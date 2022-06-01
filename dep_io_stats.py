@@ -17,7 +17,7 @@ import logs
 from logs import debug
 import tools
 import commands
-from chars import c
+import chars 
 import trimmed_embed
 import reports
 import habitat
@@ -26,8 +26,6 @@ import credman
 import slash_util
 import discord.ui
 import ui
-
-char_map = c
 
 class DS(ds_constants.DS_Constants, slash_util.Bot): 
     def __init__(self, logs_file_name, storage_file_name, animals_file_name, *credentials): 
@@ -728,12 +726,12 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
 
         voted_length = len(voted_strs) 
 
-        report.add(f"**Voted recently ({voted_length}) {c['ballot_box']}**") 
+        report.add(f"**Voted recently ({voted_length}) {chars.ballot_box}**") 
         self.build_participation_section(report, voted_strs) 
 
         non_voted_length = len(non_voted_strs) 
 
-        report.add(f"**Didn't vote recently ({non_voted_length}) {c['x']}**") 
+        report.add(f"**Didn't vote recently ({non_voted_length}) {chars.x}**") 
         self.build_participation_section(report, non_voted_strs) 
     
     def get_motion_participation(self, report): 
@@ -964,17 +962,17 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
                 embed.set_author(name=f'Skin {rej_type}') 
 
                 embed.set_thumbnail(url=asset_url) 
-                #embed.add_field(name=f"Image link {c['image']}", value=f'[Image]({asset_url})') 
+                #embed.add_field(name=f"Image link {chars.image}", value=f'[Image]({asset_url})') 
 
-                embed.add_field(name=f"Creator {c['carpenter']}", value=c_str, inline=False) 
-                embed.add_field(name=f"Rejection reasons {c['scroll']}", value=reason_str, inline=False) 
+                embed.add_field(name=f"Creator {chars.carpenter}", value=c_str, inline=False) 
+                embed.add_field(name=f"Rejection reasons {chars.scroll}", value=reason_str, inline=False) 
 
                 embed.set_footer(text=f'ID: {skin_id}') 
 
                 r.add(embed) 
 
                 ''' 
-                start = f"Rejected {c['x']}" if result is not None else f"Attemped to reject {c['warning']}" 
+                start = f"Rejected {chars.x}" if result is not None else f"Attemped to reject {chars.warning}" 
 
                 reason_str = tools.format_iterable(reason, formatter='`{}`') 
 
@@ -1084,7 +1082,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         if owner: 
             owner_tag = str(owner) 
 
-            embed.add_field(name=f"Creator {c['carpenter']}", value=f'{owner_tag} (<@{self.OWNER_ID}>)')
+            embed.add_field(name=f"Creator {chars.carpenter}", value=f'{owner_tag} (<@{self.OWNER_ID}>)')
 
         embed.set_footer(text=f'Used by {user_count} users across {guild_count} guilds') 
 
@@ -1156,7 +1154,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         
         stat_changes_str = tools.make_list(stat_changes_list)  
 
-        embed.add_field(name=f"Stat changes {c['change']}", value=stat_changes_str, inline=False) 
+        embed.add_field(name=f"Stat changes {chars.change}", value=stat_changes_str, inline=False) 
     
     async def display_animal(self, interaction: discord.Interaction, animal_query):
         animal_data = self.search_with_suggestions(self.temp_animal_stats, lambda animal: animal['name'], animal_query)
@@ -1323,10 +1321,10 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
 
         #animal_name = self.get_animal(animal_id) 
 
-        embed.add_field(name=f"Animal {c['fish']}", value=animal_name) 
-        embed.add_field(name=f"Price {c['deeeepcoin']}", value=f'{price:,}') 
+        embed.add_field(name=f"Animal {chars.fish}", value=animal_name) 
+        embed.add_field(name=f"Price {chars.deeeepcoin}", value=f'{price:,}') 
 
-        sales_emoji = c['stonkalot'] if sales >= self.STONKS_THRESHOLD else c['stonkanot'] 
+        sales_emoji = chars.stonkalot if sales >= self.STONKS_THRESHOLD else chars.stonkanot
 
         embed.add_field(name=f"Sales {sales_emoji}", value=f'{sales:,}') 
 
@@ -1334,20 +1332,20 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             self.add_stat_changes(embed, stat_changes, animal) 
 
         if category: 
-            embed.add_field(name=f"Category {c['folder']}", value=category) 
+            embed.add_field(name=f"Category {chars.folder}", value=category) 
 
         if season: 
-            embed.add_field(name=f"Season {c['calendar']}", value=season) 
+            embed.add_field(name=f"Season {chars.calendar}", value=season) 
         
         if usable is not None: 
-            usable_emoji = c['check'] if usable else c['x'] 
+            usable_emoji = chars.check if usable else chars.x
 
             embed.add_field(name=f"Usable {usable_emoji}", value=usable) 
         
         if when_created: 
             date_created = parser.isoparse(when_created) 
 
-            embed.add_field(name=f"Date created {c['tools']}", value=f'{tools.timestamp(date_created)}') 
+            embed.add_field(name=f"Date created {chars.tools}", value=f'{tools.timestamp(date_created)}') 
 
         version_str = str(version) 
         version_inline = True
@@ -1358,20 +1356,20 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             version_str += f' (updated {tools.timestamp(date_updated)})' 
             version_inline = False
         
-        embed.add_field(name=f"Version {c['wrench']}", value=version_str, inline=version_inline) 
+        embed.add_field(name=f"Version {chars.wrench}", value=version_str, inline=version_inline) 
 
         if reddit_link: 
-            embed.add_field(name=f"Reddit link {c['reddit_logo']}", value=reddit_link)
+            embed.add_field(name=f"Reddit link {chars.reddit_logo}", value=reddit_link)
         
         status_strs = [] 
 
         for status_attr, status_value in status.items(): 
             if status_value == True: 
-                emoji = c['check'] 
+                emoji = chars.check
             elif status_value == False: 
-                emoji = c['x'] 
+                emoji = chars.x
             else: 
-                emoji = c['question_mark'] 
+                emoji =chars.question_mark
             
             status_str = f'`{emoji}` {status_attr.capitalize()}' 
 
@@ -1379,7 +1377,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         
         status_list_str = tools.make_list(status_strs, bullet_point='') 
 
-        embed.add_field(name=f"Creators Center status {c['magnifying_glass']}", value=status_list_str, inline=False)
+        embed.add_field(name=f"Creators Center status {chars.magnifying_glass}", value=status_list_str, inline=False)
         
         if extra_assets: 
             urls_list = [] 
@@ -1398,7 +1396,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             
             extra_assets_str = tools.make_list(urls_list) 
 
-            embed.add_field(name=f"Additional assets {c['palette']}", value=extra_assets_str, inline=False) 
+            embed.add_field(name=f"Additional assets {chars.palette}", value=extra_assets_str, inline=False) 
 
         if user: 
             user_username = user['username'] 
@@ -1454,9 +1452,9 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             
             embed.set_image(url=pfp_url) 
 
-            embed.add_field(name=f"Kills {c['iseedeadfish']}", value=f'{kills:,}') 
-            embed.add_field(name=f"Highscore {c['first_place']}", value=f'{max_score:,}') 
-            embed.add_field(name=f"Coins {c['deeeepcoin']}", value=f'{coins:,}') 
+            embed.add_field(name=f"Kills {chars.iseedeadfish}", value=f'{kills:,}') 
+            embed.add_field(name=f"Highscore {chars.first_place}", value=f'{max_score:,}') 
+            embed.add_field(name=f"Coins {chars.deeeepcoin}", value=f'{coins:,}') 
 
             when_created = acc['date_created'] 
             when_last_played = acc['date_last_played'] 
@@ -1464,29 +1462,31 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             if when_created: 
                 date_created = parser.isoparse(when_created) 
 
-                embed.add_field(name=f"Date created {c['baby']}", value=f'{tools.timestamp(date_created)}') 
+                embed.add_field(name=f"Date created {chars.baby}", value=f'{tools.timestamp(date_created)}') 
 
             if when_last_played: 
                 date_last_played = parser.isoparse(when_last_played) 
 
-                embed.add_field(name=f"Date last played {c['video_game']}", value=f'{tools.timestamp(date_last_played)}') 
+                embed.add_field(name=f"Date last played {chars.video_game}", value=f'{tools.timestamp(date_last_played)}') 
         else: 
             embed = trimmed_embed.TrimmedEmbed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
 
-            embed.add_field(name="Why?", value="This usually happens when the game isn't working. ") 
-            embed.add_field(name="What now?", value="Don't spam this command. Just try again when the game works again. ") 
+            embed.add_field(name="Why?", value="This usually happens when you have skill issue and entered an invalid user on \
+the `hackprofile` command. But it could also mean the game is down, especially if it happens on the `profile` command.") 
+            embed.add_field(name="What now?", value="If this is because you made a mistake, just git gud in the future. If the \
+game is down, nothing you can do but wait.") 
         
         embed.set_footer(text=f'ID: {acc_id}') 
 
         if contribs: 
             contribs_str = tools.make_list(contribs) 
 
-            embed.add_field(name=f"Contributions {c['heartpenguin']}", value=contribs_str, inline=False) 
+            embed.add_field(name=f"Contributions {chars.heartpenguin}", value=contribs_str, inline=False) 
         
         if roles: 
             roles_str = tools.format_iterable(roles) 
 
-            embed.add_field(name=f"Roles {c['cooloctopus']}", value=roles_str, inline=False)
+            embed.add_field(name=f"Roles {chars.cooloctopus}", value=roles_str, inline=False)
 
         return embed
     
@@ -1500,7 +1500,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
 
             public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
 
-            title = real_username + (f"  {c['verified']}" if verified else '')
+            title = real_username + (f"  {chars.verified}" if verified else '')
 
             desc = acc['about'] 
 
@@ -1534,13 +1534,13 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             
             embed.set_image(url=pfp_url) 
 
-            embed.add_field(name=f"Kills {c['iseedeadfish']}", value=f'{kills:,}') 
-            embed.add_field(name=f"Highscore {c['first_place']}", value=f'{max_score:,}') 
-            embed.add_field(name=f"Coins {c['deeeepcoin']}", value=f'{coins:,}') 
+            embed.add_field(name=f"Kills {chars.iseedeadfish}", value=f'{kills:,}') 
+            embed.add_field(name=f"Highscore {chars.first_place}", value=f'{max_score:,}') 
+            embed.add_field(name=f"Coins {chars.deeeepcoin}", value=f'{coins:,}') 
 
-            embed.add_field(name=f"Play count {c['video_game']}", value=f'{plays:,}')
+            embed.add_field(name=f"Play count {chars.video_game}", value=f'{plays:,}')
 
-            embed.add_field(name=f"XP {c['beginner']}", value=f'{xp:,} XP (Tier {tier})', inline=False)
+            embed.add_field(name=f"XP {chars.beginner}", value=f'{xp:,} XP (Tier {tier})', inline=False)
 
             when_created = acc['date_created'] 
             when_last_played = acc['date_last_played'] 
@@ -1548,23 +1548,27 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             if when_created: 
                 date_created = parser.isoparse(when_created) 
 
-                embed.add_field(name=f"Date created {c['baby']}", value=f'{tools.timestamp(date_created)}') 
+                embed.add_field(name=f"Date created {chars.baby}", value=f'{tools.timestamp(date_created)}') 
 
             if when_last_played: 
                 date_last_played = parser.isoparse(when_last_played) 
 
-                embed.add_field(name=f"Date last played {c['video_game']}", value=f'{tools.timestamp(date_last_played)}') 
+                embed.add_field(name=f"Date last played {chars.video_game}", value=f'{tools.timestamp(date_last_played)}') 
             
-            embed.add_field(name=f"Death message {c['iseedeadfish']}", value=f'*"{death_message}"*' or "None", inline=False)
+            embed.add_field(name=f"Death message {chars.iseedeadfish}", value=f'*"{death_message}"*' or "None", inline=False)
 
-            embed.add_field(name=f"Profile views {c['eyes']}", value=f'{views:,}')
+            embed.add_field(name=f"Profile views {chars.eyes}", value=f'{views:,}')
             
             embed.set_footer(text=f'ID: {acc_id}') 
         else: 
-            embed = trimmed_embed.TrimmedEmbed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
+            embed = trimmed_embed.TrimmedEmbed(title='Invalid account', type='rich', description="You have been trolled", color=color) 
 
-            embed.add_field(name="Why?", value="This usually happens when the game isn't working. ") 
-            embed.add_field(name="What now?", value="Don't spam this command. Just try again when the game works again. ") 
+            embed.add_field(name="Why?", value="""This usually happens when you have skill issue and entered an invalid user on \
+the `hackprofile` command. 
+
+But it could also mean the game is down, especially if it happens on the `profile` command.""", inline=False) 
+            embed.add_field(name="What now?", value="If this is because you made a mistake, just git gud in the future. If the \
+game is down, nothing you can do but wait.", inline=False) 
 
         return embed
     
@@ -1660,21 +1664,21 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
 
         embed = trimmed_embed.TrimmedEmbed(title=title, description=desc, color=color, url=map_link) 
 
-        embed.add_field(name=f"Likes {c['thumbsup']}", value=f'{likes:,}') 
+        embed.add_field(name=f"Likes {chars.thumbsup}", value=f'{likes:,}') 
         
-        embed.add_field(name=f"Dimensions {c['triangleruler']}", value=f'{width} x {height}') 
+        embed.add_field(name=f"Dimensions {chars.triangleruler}", value=f'{width} x {height}') 
 
         if 'settings' in map_data: 
             settings = map_data['settings'] 
             gravity = settings['gravity'] 
 
-            embed.add_field(name=f"Gravity {c['down']}", value=f'{gravity:,}') 
+            embed.add_field(name=f"Gravity {chars.down}", value=f'{gravity:,}') 
 
         obj_count_list = self.count_objects(objs) 
 
         obj_count_str = tools.make_list(obj_count_list) 
 
-        embed.add_field(name=f"Object count {c['scroll']}", value=obj_count_str, inline=False) 
+        embed.add_field(name=f"Object count {chars.scroll}", value=obj_count_str, inline=False) 
 
         creator_str = f'{creator_name} (@{creator_username})'
 
@@ -1700,26 +1704,26 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
 
                 clone_link = self.MAPMAKER_URL_TEMPLATE.format(clone_string_id) 
 
-                embed.add_field(name=f"Cloned from {c['notes']}", value=f'[{clone_title}]({clone_link})') 
+                embed.add_field(name=f"Cloned from {chars.notes}", value=f'[{clone_title}]({clone_link})') 
         
         if when_created: 
             date_created = parser.isoparse(when_created) 
 
-            embed.add_field(name=f"Date created {c['tools']}", value=f'{tools.timestamp(date_created)}') 
+            embed.add_field(name=f"Date created {chars.tools}", value=f'{tools.timestamp(date_created)}') 
         
         if when_updated: 
             date_updated = parser.isoparse(when_updated) 
 
-            embed.add_field(name=f"Date last updated {c['wrench']}", value=f'{tools.timestamp(date_updated)}') 
+            embed.add_field(name=f"Date last updated {chars.wrench}", value=f'{tools.timestamp(date_updated)}') 
         
-        lock_emoji = c['lock'] if locked else c['unlock'] 
+        lock_emoji = chars.lock if locked else chars.unlock
         
         embed.add_field(name=f"Locked {lock_emoji}", value=locked) 
 
         if tags_list: 
             tags_str = tools.format_iterable(tags_list, formatter='`{}`') 
 
-            embed.add_field(name=f"Tags {c['label']}", value=tags_str, inline=False) 
+            embed.add_field(name=f"Tags {chars.label}", value=tags_str, inline=False) 
 
         embed.set_footer(text=f'''ID: {ID}
 String ID: {string_id}''') 
@@ -1758,16 +1762,16 @@ String ID: {string_id}''')
 
         r.add(f'**__Pending skins with filters {filter_names_str}__**') 
         
-        r.add(f"**Unnoticed skins ({self.rl(pending)}) {c['ghost']}**") 
+        r.add(f"**Unnoticed skins ({self.rl(pending)}) {chars.ghost}**") 
         self.build_skins_report(r, pending) 
 
-        r.add(f"**Upcoming skins ({self.rl(upcoming)}) {c['clock']}**") 
+        r.add(f"**Upcoming skins ({self.rl(upcoming)}) {chars.clock}**") 
         self.build_skins_report(r, upcoming) 
         
-        r.add(f"**Skins in motion ({self.rl(motioned)}) {c['ballot_box']}**") 
+        r.add(f"**Skins in motion ({self.rl(motioned)}) {chars.ballot_box}**") 
         self.build_skins_report(r, motioned) 
         
-        r.add(f"**Recently rejected skins ({self.rl(rejected)}) {c['x']}**") 
+        r.add(f"**Recently rejected skins ({self.rl(rejected)}) {chars.x}**") 
         self.build_skins_report(r, rejected) 
 
         if trimmed_str: 
@@ -1785,7 +1789,7 @@ String ID: {string_id}''')
         
         approved_length = self.rl(approved) 
 
-        r.add(f"**__{actual_type.capitalize()} skins with filters {filter_names_str}__ ({approved_length})** {c['check']}") 
+        r.add(f"**__{actual_type.capitalize()} skins with filters {filter_names_str}__ ({approved_length})** {chars.check}") 
         
         self.build_skins_report(r, approved) 
 
@@ -1855,10 +1859,12 @@ String ID: {string_id}''')
 
         self.readied = True
 
+        '''
         if not self.auto_rev_process: 
             self.auto_rev_process = self.loop.create_task(self.auto_rev_loop()) 
 
             debug('created auto rev process') 
+        '''
         
         await ds_commands.gen_commands(self)
         
@@ -2020,7 +2026,7 @@ String ID: {string_id}''')
         connect_embed.set_image(url=self.CONNECT_COMMAND)
         connect_page = ui.Page(embed=connect_embed)
 
-        help_book = ui.ScrollyBook(interaction, signin_page, profile_open_page, discord_page, connect_page, timeout=30)
+        help_book = ui.ScrollyBook(interaction, signin_page, profile_open_page, discord_page, connect_page, timeout=300)
 
         return help_book
     
@@ -2046,7 +2052,7 @@ String ID: {string_id}''')
 
             link = self.links_table.find_one(user_id=interaction.user.id, acc_id=acc_id)
 
-            if True:
+            if not link:
                 socials = self.get_socials(acc_id)
                 tag = str(interaction.user)
 
@@ -2062,7 +2068,7 @@ String ID: {string_id}''')
                         self.links_table.upsert(data, ['user_id', 'acc_id'], ensure=True) 
 
                         await interaction.followup.send(content=f"Successfully linked to Deeeep.io account with username \
-    `{reusername}` and ID `{acc_id}`.")
+`{reusername}` and ID `{acc_id}`.")
 
                         return
                 else: 
@@ -2073,11 +2079,41 @@ to connect it.")
         else: 
             await interaction.followup.send(content="That doesn't seem like a valid profile.")
     
-    async def display_account(self, interaction: discord.Interaction, acc_id): 
+    async def unlink_account(self, button: ui.CallbackButton, button_interaction: discord.Interaction, 
+    message_interaction: discord.Interaction, view: discord.ui.View, acc_id: int):
+        user = button_interaction.user
+
+        self.links_table.delete(user_id=user.id, acc_id=acc_id)
+
+        button.label = 'Account unlinked'
+        button.disabled = True
+
+        await button_interaction.response.send_message(content=f'Unlinked account with ID {acc_id}.')
+        await message_interaction.edit_original_message(view=view)
+
+        view.stop()
+    
+    def generate_profile_view(self, interaction: discord.Interaction, acc_id: int):
+        view = ui.RestrictedView(interaction.user, interaction, timeout=20)
+        unlink_button = ui.CallbackButton(self.unlink_account, interaction, view, acc_id, style=discord.ButtonStyle.danger,
+        label='Unlink account')
+
+        view.add_item(unlink_button)
+
+        return view
+
+    async def display_account(self, interaction: discord.Interaction, user: discord.Member, acc_id): 
         if not self.blacklisted(interaction.guild.id, 'account', acc_id): 
             await interaction.response.defer()
 
-            await interaction.followup.send(embed=self.profile_embed_by_id(acc_id)) 
+            embed = self.profile_embed_by_id(acc_id)
+
+            if interaction.user.id == user.id:
+                view = self.generate_profile_view(interaction, acc_id)
+
+                await interaction.followup.send(embed=embed, view=view) 
+            else:
+                await interaction.followup.send(embed=embed)
         else: 
             await interaction.response.send_message(content=f'This account (ID {acc_id}) is blacklisted from being displayed on this server. ') 
     

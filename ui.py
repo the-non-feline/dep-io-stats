@@ -14,13 +14,14 @@ class CallbackButton(discord.ui.Button):
         self.kwargs = kwargs
     
     async def callback(self, button_interaction: discord.Interaction):
-        return await self.stored_callback(button_interaction, self.message_interaction, *self.args, **self.kwargs)
+        return await self.stored_callback(self, button_interaction, self.message_interaction, *self.args, **self.kwargs)
 
 class RestrictedView(discord.ui.View):
-    def __init__(self, original_user: discord.User | discord.Member, *, timeout=180.0):
+    def __init__(self, original_user: discord.User | discord.Member, original_interaction: discord.Interaction, *, timeout=180.0):
         super().__init__(timeout=timeout)
         
         self.original_user = original_user
+        self.original_interaction = original_interaction
     
     async def interaction_check(self, interaction: discord.Interaction):
         if interaction.user != self.original_user:
@@ -28,6 +29,20 @@ class RestrictedView(discord.ui.View):
             ephemeral=True)
         else:
             return True
+    
+    async def close(self):
+        self.clear_items()
+
+        closed_button = discord.ui.Button(disabled=True, label=f'Time limit for using buttons already elapsed', row=0)
+        
+        self.add_item(closed_button)
+
+        await self.original_interaction.edit_original_message(view=self)
+    
+    async def on_timeout(self) -> None:
+        await self.close()
+
+        return await super().on_timeout()
 
 class Page:
     def __init__(self, content=None, embed=None, allowed_mentions=None):
@@ -53,7 +68,7 @@ class ScrollyBook:
         self.cur_index = 0
         self.timeout = timeout
 
-        self.view = RestrictedView(interaction.user, timeout=self.timeout)
+        self.view = RestrictedView(interaction.user, interaction, timeout=self.timeout)
 
         self.left_button = CallbackButton(self.turn_page, self.interaction, -1, style=discord.ButtonStyle.primary, label='Previous',
         row=0)
@@ -71,6 +86,7 @@ class ScrollyBook:
 
         self.update_buttons()
     
+    '''
     async def close_book(self):
         self.view.clear_items()
         
@@ -86,20 +102,19 @@ class ScrollyBook:
     async def wait_until_finished(self):
         await self.view.wait()
         await self.close_book()
+    '''
     
     async def send_first(self):
         cur = self.pages[self.cur_index]
 
         await cur.send_self(self, self.interaction)
-
-        await self.wait_until_finished()
     
     def update_buttons(self):
         self.left_button.disabled = self.cur_index <= 0
         self.right_button.disabled = self.cur_index >= len(self.pages) - 1
         self.page_number.label = f'Page {self.cur_index + 1} / {len(self.pages)}'
     
-    async def turn_page(self, button_interaction: discord.Interaction, message_interaction: discord.Interaction, direction: int):
+    async def turn_page(self, button: CallbackButton, button_interaction: discord.Interaction, message_interaction: discord.Interaction, direction: int):
         self.cur_index += direction
         cur = self.pages[self.cur_index]
         

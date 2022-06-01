@@ -14,6 +14,16 @@ def ds_slash(tree: app_commands.CommandTree, name: str, desc: str):
 async def gen_commands(client: dep_io_stats.DS):
     tree = client.tree
 
+    @tree.error
+    async def error_handler(interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if type(error) is app_commands.CheckFailure:
+            await interaction.response.send_message(content='Your skill is insufficient')
+        else:
+            raise error
+    
+    def owner_check(interaction: discord.Interaction):
+        return interaction.user.id == interaction.client.OWNER_ID
+
     async def check_stats(interaction: discord.Interaction, user: discord.Member, acc_num: int): 
         bot = interaction.client
         user_id = user.id
@@ -33,7 +43,7 @@ async def gen_commands(client: dep_io_stats.DS):
                     link = links[acc_index] 
                     acc_id = link['acc_id'] 
 
-                    await bot.display_account(interaction, acc_id)
+                    await bot.display_account(interaction, user, acc_id)
                 elif user_id == interaction.user.id:
                     await interaction.response.send_message(content=f"You asked for your account #{acc_num}, \
 but you only have {len(links)} accounts.")
@@ -258,6 +268,7 @@ or its link')
         await interaction.client.send_connect_help(interaction)
     
     @ds_slash(tree, 'shutdown', 'Turn off the bot')
+    @app_commands.check(owner_check)
     async def shut_down(interaction: discord.Interaction): 
         await interaction.response.send_message(content='shutting down') 
 

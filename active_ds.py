@@ -4,7 +4,7 @@ import logs
 from logs import debug
 import tools
 import commands
-from chars import c as char_map
+import chars
 import trimmed_embed
 import reports
 import habitat

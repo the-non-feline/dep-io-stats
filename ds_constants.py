@@ -43,6 +43,7 @@ class DS_Constants:
     CHANNEL_REGEX = '\A<#(?P<channel_id>[0-9]+)>\Z' 
 
     DATA_URL_TEMPLATE = 'https://apibeta.deeeep.io/users/{}?ref=profile' 
+    SOCIALS_URL_TEMPLATE = 'https://apibeta.deeeep.io/socialNetworks/u/{}'
     PFP_URL_TEMPLATE = 'https://cdn.deeeep.io/uploads/avatars/{}' 
     SERVER_LIST_URL = 'http://apibeta.deeeep.io/hosts?beta=1' 
     MAP_URL_TEMPLATE = 'https://apibeta.deeeep.io/maps/{}' 
