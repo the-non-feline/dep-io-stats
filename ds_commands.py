@@ -16,15 +16,20 @@ async def gen_commands(client: dep_io_stats.DS):
 
     @tree.error
     async def error_handler(interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if type(error) is app_commands.CheckFailure:
-            await interaction.response.send_message(content='Your skill is insufficient')
+        if type(error) is app_commands.MissingPermissions:
+            missing = error.missing_permissions
+            missing_str = tools.format_iterable(missing, formatter='`{}`')
+
+            await interaction.response.send_message(content=f'To use this command, you need these permissions: {missing_str}.')
+        elif type(error) is app_commands.CheckFailure:
+            await interaction.response.send_message(content='I cringe at your lack of skill, peasant.')
         else:
             raise error
     
     def owner_check(interaction: discord.Interaction):
         return interaction.user.id == interaction.client.OWNER_ID
 
-    async def check_stats(interaction: discord.Interaction, user: discord.Member, acc_num: int): 
+    async def check_stats(interaction: discord.Interaction, user: discord.User, acc_num: int): 
         bot = interaction.client
         user_id = user.id
         
@@ -33,26 +38,30 @@ async def gen_commands(client: dep_io_stats.DS):
         link = None
 
         if not bot.blacklisted(interaction.guild.id, 'user', user_id): 
-            links = bot.links_table.find(user_id=user_id) 
-            links = tuple(links)
+            links = bot.links_table.find(user_id=user_id)
+            main = bot.mains_table.find_one(user_id=user_id)
 
-            if links:
+            sorted_links = sorted(links, key=lambda link: -1 if main and main['acc_id'] == link['acc_id'] else \
+                int(link['acc_id']))
+
+            if sorted_links:
                 acc_index = acc_num - 1
 
-                if acc_index < len(links):
-                    link = links[acc_index] 
+                if acc_index < len(sorted_links):
+                    link = sorted_links[acc_index] 
                     acc_id = link['acc_id'] 
 
-                    await bot.display_account(interaction, user, acc_id)
+                    await bot.display_account(interaction, user, acc_id, acc_index, len(sorted_links))
                 elif user_id == interaction.user.id:
                     await interaction.response.send_message(content=f"You asked for your account #{acc_num}, \
-but you only have {len(links)} accounts.")
+but you only have {len(sorted_links)} accounts.")
                 else:
                     await interaction.response.send_message(content=f"You asked for {user.mention}'s account #{acc_num}, \
-but they only have {len(links)} accounts.", allowed_mentions=discord.AllowedMentions.none())
+but they only have {len(sorted_links)} accounts.", allowed_mentions=discord.AllowedMentions.none())
                     
             elif user_id == interaction.user.id: 
-                await interaction.response.send_message(content=f"You're not linked to an account.") 
+                await interaction.response.send_message(content=f"You're not linked to an account. Use the `connecthelp` \
+command to learn how to connect an account.") 
             else: 
                 await interaction.response.send_message(content=f"This user isn't linked.") 
         elif user_id == interaction.user.id: 
@@ -62,7 +71,7 @@ but they only have {len(links)} accounts.", allowed_mentions=discord.AllowedMent
 
     @ds_slash(tree, 'profile', "Displays the Deeeep.io profile of the specified user, or yourself")
     @app_commands.describe(user='The member whose stats to check. Defaults to yourself if unspecified')
-    async def other_profile(interaction: discord.Interaction, user: discord.Member=None, 
+    async def other_profile(interaction: discord.Interaction, user: discord.User=None, 
     acc_num: discord.app_commands.Range[int, 1]=1):
         return await check_stats(interaction, user or interaction.user, acc_num)
 
@@ -279,6 +288,55 @@ or its link')
 
         await self.change_presence(status=discord.Status.dnd, activity=discord.Game(name='shutting down'))
         '''
+    
+    @ds_slash(tree, 'blacklist', 'Manage the server-level blacklist')
+    @app_commands.checks.has_permissions(manage_messages=True)
+    @app_commands.describe(action='Whether to add or remove from the blacklist', target_type='The type of thing to blacklist',
+    deeeepio_id='The ID of the Deeeep.io account or map to blacklist. Not for blacklisting Discord users.', 
+    discord_user='The Discord user to blacklist. Not for blacklisting in-game things.')
+    async def edit_blacklist(interaction: discord.Interaction, action: typing.Literal['add', 'remove'], 
+    target_type: typing.Literal['user', 'account', 'map'], deeeepio_id: app_commands.Range[int, 1]=0, 
+    discord_user: discord.User=None):
+        bot = interaction.client
+        guild_id = interaction.guild.id
+
+        error = ''
+
+        if action == 'add':
+            action_str = 'blacklist'
+        else:
+            action_str = 'unblacklist'
+
+        if deeeepio_id and discord_user:
+            error = "You can't specify both `deeeepio_id` and `discord_user`."
+        elif target_type == 'user':
+            if not discord_user:
+                error = f"You need to provide a Discord user to {action_str}."
+        elif not deeeepio_id:
+            error = f'You need to provide a Deeeep.io {target_type} ID to {action_str}.'
+        
+        if not error:
+            if discord_user:
+                deeeepio_id = discord_user.id
+            
+            if action == 'add':
+                data = {
+                    'type': target_type, 
+                    'guild_id': guild_id, 
+                    'target': deeeepio_id, 
+                }
+
+                bot.blacklists_table.upsert(data, ['type', 'guild_id', 'target'], ensure=True) 
+
+                await interaction.response.send_message(content=f'{action_str.capitalize()}ed {target_type} with ID `{deeeepio_id}` on this \
+server.')
+            else:
+                bot.blacklists_table.delete(type=target_type, guild_id=guild_id, target=deeeepio_id)
+
+                await interaction.response.send_message(content=f'{action_str.capitalize()}ed {target_type} with ID \
+`{deeeepio_id}` on this server.')
+        else:
+            await interaction.response.send_message(content=error)
 
     result = await tree.sync(guild=discord.Object(273213133731135500))
     

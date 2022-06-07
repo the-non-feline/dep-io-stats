@@ -1,3 +1,4 @@
+from email import message
 import grequests
 import discord
 import dataset
@@ -39,6 +40,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         self.rev_data_table = self.db.get_table('rev_data') 
         self.blacklists_table = self.db.get_table('blacklists') 
         self.sb_channels_table = self.db.get_table('sb_channels') 
+        self.mains_table = self.db.get_table('main_accounts')
 
         self.logs_file = open(logs_file_name, mode='w+', encoding='utf-8') 
         self.animals_file_name = animals_file_name
@@ -137,15 +139,23 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             debug('that was illegal') 
     
     async def logout(self): 
-        if self.auto_rev_process: 
-            self.auto_rev_process.cancel() 
-        
-        await self.change_presence(status=discord.Status.offline)
-        
-        self.logs_file.close() 
-        #self.levels_file.close() 
+        try:
+            if self.auto_rev_process: 
+                self.auto_rev_process.cancel() 
+            
+            '''
+            self.tree.clear_commands(guild=discord.Object(273213133731135500))
+            await self.tree.sync(guild=discord.Object(273213133731135500))
+            '''
 
-        await super().close() 
+            await ui.TrackedView.close_all()
+            
+            await self.change_presence(status=discord.Status.offline)
+            
+            self.logs_file.close() 
+            #self.levels_file.close()
+        finally:
+            await super().close() 
     
     def get_token(self, index): 
         return self.credman.tokens[index] 
@@ -504,18 +514,26 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         return acc_json, contribs, roles
     
     def get_profile_by_username(self, username): 
+        username = self.get_true_username(username)
+
+        debug(username)
+
         acc_url = self.PROFILE_TEMPLATE.format(username)
 
         acc_json = self.async_get(acc_url)[0]
 
-        return acc_json
+        if acc_json:
+            socials = self.get_socials(acc_json['id'])
+        else:
+            socials = ()
+
+        return acc_json, socials
     
     def get_profile_by_id(self, id):
         acc_url = self.DATA_URL_TEMPLATE.format(id)
+        social_url = self.SOCIALS_URL_TEMPLATE.format(id)
 
-        acc_json = self.async_get(acc_url)[0]
-
-        return acc_json
+        return self.async_get(acc_url, social_url)
     
     @staticmethod
     def compile_ids_from_motions(motions_list, motion_filter=lambda motion: True): 
@@ -1359,7 +1377,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
         embed.add_field(name=f"Version {chars.wrench}", value=version_str, inline=version_inline) 
 
         if reddit_link: 
-            embed.add_field(name=f"Reddit link {chars.reddit_logo}", value=reddit_link)
+            embed.add_field(name=f"Reddit link {chars.reddit}", value=reddit_link)
         
         status_strs = [] 
 
@@ -1490,9 +1508,33 @@ game is down, nothing you can do but wait.")
 
         return embed
     
-    def profile_embed(self, acc: dict): 
-        color = discord.Color.random() 
+    def generate_socials(self, socials: list[dict]):
+        mapped = []
 
+        for social in socials:
+            platform = social['platform_id']
+            display = social['platform_user_id']
+            verified = social['verified']
+            given_url = social['platform_user_url']
+
+            verified_text = ' '+ chars.verified if verified else ''
+
+            icon, template = self.IconsEnum[platform].value
+
+            if given_url:
+                text = f'[{display}]({given_url})'
+            elif template:
+                text = f'[{display}]({template.format(display)})'
+            else:
+                text = display
+            
+            full_text = f'{icon} {text}{verified_text}'
+
+            mapped.append(full_text)
+        
+        return '\n'.join(mapped)
+    
+    def profile_embed(self, acc: dict, socials: list[dict]): 
         if acc: 
             acc_id = acc['id']
             real_username = acc['username']
@@ -1500,7 +1542,7 @@ game is down, nothing you can do but wait.")
 
             public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
 
-            title = real_username + (f"  {chars.verified}" if verified else '')
+            title = real_username + (f" {chars.verified}" if verified else '')
 
             desc = acc['about'] 
 
@@ -1516,6 +1558,8 @@ game is down, nothing you can do but wait.")
 
             xp = acc['xp']
             tier = acc['tier']
+
+            color = self.TIER_COLORS[tier - 1]
 
             death_message = acc['description']
 
@@ -1540,7 +1584,9 @@ game is down, nothing you can do but wait.")
 
             embed.add_field(name=f"Play count {chars.video_game}", value=f'{plays:,}')
 
-            embed.add_field(name=f"XP {chars.beginner}", value=f'{xp:,} XP (Tier {tier})', inline=False)
+            tier_emoji = self.TIER_EMOJIS[tier - 1]
+
+            embed.add_field(name=f"XP {tier_emoji}", value=f'{xp:,} XP (Tier {tier})', inline=False)
 
             when_created = acc['date_created'] 
             when_last_played = acc['date_last_played'] 
@@ -1548,7 +1594,7 @@ game is down, nothing you can do but wait.")
             if when_created: 
                 date_created = parser.isoparse(when_created) 
 
-                embed.add_field(name=f"Date created {chars.baby}", value=f'{tools.timestamp(date_created)}') 
+                embed.add_field(name=f"Date created {chars.birthday_cake}", value=f'{tools.timestamp(date_created)}') 
 
             if when_last_played: 
                 date_last_played = parser.isoparse(when_last_played) 
@@ -1557,10 +1603,15 @@ game is down, nothing you can do but wait.")
             
             embed.add_field(name=f"Death message {chars.iseedeadfish}", value=f'*"{death_message}"*' or "None", inline=False)
 
+            if socials:
+                embed.add_field(name=f"Social links {chars.speech_bubble}", value=self.generate_socials(socials), inline=False)
+
             embed.add_field(name=f"Profile views {chars.eyes}", value=f'{views:,}')
             
             embed.set_footer(text=f'ID: {acc_id}') 
         else: 
+            color = discord.Color.random() 
+
             embed = trimmed_embed.TrimmedEmbed(title='Invalid account', type='rich', description="You have been trolled", color=color) 
 
             embed.add_field(name="Why?", value="""This usually happens when you have skill issue and entered an invalid user on \
@@ -1573,10 +1624,10 @@ game is down, nothing you can do but wait.", inline=False)
         return embed
     
     def profile_embed_by_username(self, username: str):
-        return self.profile_embed(self.get_profile_by_username(username))
+        return self.profile_embed(*self.get_profile_by_username(username))
     
     def profile_embed_by_id(self, id):
-        return self.profile_embed(self.get_profile_by_id(id))
+        return self.profile_embed(*self.get_profile_by_id(id))
     
     def count_objects(self, objs): 
         class Counter: 
@@ -1650,7 +1701,6 @@ game is down, nothing you can do but wait.", inline=False)
         creator = map_json['user'] 
 
         tags_list = [tag['id'] for tag in tags] 
-        creator_name = creator['name'] 
         creator_username = creator['username'] 
         creator_pfp = creator['picture'] 
 
@@ -1680,7 +1730,7 @@ game is down, nothing you can do but wait.", inline=False)
 
         embed.add_field(name=f"Object count {chars.scroll}", value=obj_count_str, inline=False) 
 
-        creator_str = f'{creator_name} (@{creator_username})'
+        creator_str = creator_username
 
         if not creator_pfp: 
             creator_pfp = self.DEFAULT_PFP
@@ -1872,7 +1922,7 @@ String ID: {string_id}''')
         
         debug('ready') 
     
-    def decode_mention(self, c, mention): 
+    def decode_mention(self, mention): 
         member_id = None
 
         if not mention.isnumeric(): 
@@ -1930,18 +1980,6 @@ String ID: {string_id}''')
             to_return = message.content
         
         return to_return
-    
-    def convert_target(self, lower_type, target_str): 
-        if lower_type == 'user': 
-            target = self.decode_mention(c, target_str) 
-        elif lower_type == 'account': 
-            target = int(target_str) if target_str.isnumeric() else None
-        elif lower_type == 'map': 
-            target = int(target_str) if target_str.isnumeric() else None
-        else: 
-            target = None
-        
-        return target
     
     def get_map_string_id(self, query): 
         m = re.compile(self.MAP_REGEX).match(query)
@@ -2005,7 +2043,7 @@ String ID: {string_id}''')
         return acc_data
     
     def get_socials(self, account_id):
-        socials_url = self.SOCIALS_TEMPLATE.format(account_id)
+        socials_url = self.SOCIALS_URL_TEMPLATE.format(account_id)
 
         return self.async_get(socials_url)[0]
     
@@ -2062,7 +2100,8 @@ String ID: {string_id}''')
 
                         data = {
                             'user_id': interaction.user.id, 
-                            'acc_id': acc_id, 
+                            'acc_id': acc_id,
+                            'main': False,
                         } 
 
                         self.links_table.upsert(data, ['user_id', 'acc_id'], ensure=True) 
@@ -2080,7 +2119,7 @@ to connect it.")
             await interaction.followup.send(content="That doesn't seem like a valid profile.")
     
     async def unlink_account(self, button: ui.CallbackButton, button_interaction: discord.Interaction, 
-    message_interaction: discord.Interaction, view: discord.ui.View, acc_id: int):
+    message_interaction: discord.Interaction, view: ui.RestrictedView, acc_id: int, *affected_buttons: ui.CallbackButton):
         user = button_interaction.user
 
         self.links_table.delete(user_id=user.id, acc_id=acc_id)
@@ -2088,28 +2127,80 @@ to connect it.")
         button.label = 'Account unlinked'
         button.disabled = True
 
+        for button in affected_buttons:
+            button.disabled = True
+
         await button_interaction.response.send_message(content=f'Unlinked account with ID {acc_id}.')
         await message_interaction.edit_original_message(view=view)
-
-        view.stop()
     
-    def generate_profile_view(self, interaction: discord.Interaction, acc_id: int):
-        view = ui.RestrictedView(interaction.user, interaction, timeout=20)
-        unlink_button = ui.CallbackButton(self.unlink_account, interaction, view, acc_id, style=discord.ButtonStyle.danger,
-        label='Unlink account')
+    def determine_main(self, user_id: int, acc_id: int) -> bool:
+        return self.mains_table.find_one(acc_id=acc_id, user_id=user_id)
+    
+    def update_mark_button(self, button: ui.CallbackButton, is_main: bool):
+        if is_main:
+            label = 'Unmark account as main'
+            callback = self.unmark_main
+        else:
+            label = 'Mark account as main'
+            callback = self.mark_main
+        
+        button.label = label
+        button.stored_callback = callback
+    
+    async def update_mark_view(self, button: ui.CallbackButton, message_interaction: discord.Interaction, view: ui.RestrictedView,
+    is_main: bool):
+        self.update_mark_button(button, is_main)
 
+        await message_interaction.edit_original_message(view=view)
+    
+    async def mark_main(self, button: ui.CallbackButton, button_interaction: discord.Interaction,
+    message_interaction: discord.Interaction, view: ui.RestrictedView, acc_id: int):
+        row = dict(user_id=button_interaction.user.id, acc_id=acc_id)
+
+        self.mains_table.upsert(row, ['user_id'], ensure=True)
+
+        await button_interaction.response.send_message(content=f'This account (ID {acc_id}) will now be your first account.')
+
+        await self.update_mark_view(button, message_interaction, view, True)
+    
+    async def unmark_main(self, button: ui.CallbackButton, button_interaction: discord.Interaction,
+    message_interaction: discord.Interaction, view: ui.RestrictedView, acc_id: int):
+        self.mains_table.delete(user_id=button_interaction.user.id, acc_id=acc_id)
+
+        await button_interaction.response.send_message(content=f'This account (ID {acc_id}) will no longer be your first \
+account. Well, it might still be, but that would just be due to random chance.')
+
+        await self.update_mark_view(button, message_interaction, view, False)
+    
+    def generate_profile_view(self, interaction: discord.Interaction, acc_id: int, acc_index: int, num_accs: int):
+        view = ui.RestrictedView(interaction.user, interaction, timeout=60)
+        
+        is_main = self.determine_main(interaction.user.id, acc_id)
+
+        toggle_main_button = ui.CallbackButton(None, interaction, view, acc_id, style=discord.ButtonStyle.primary)
+
+        self.update_mark_button(toggle_main_button, is_main)
+
+        unlink_button = ui.CallbackButton(self.unlink_account, interaction, view, acc_id, 
+        style=discord.ButtonStyle.danger, label='Unlink account')
+
+        acc_number_indicator = discord.ui.Button(label=f'Account {acc_index + 1} / {num_accs}', disabled=True)
+
+        view.add_item(acc_number_indicator)
+        view.add_item(toggle_main_button)
         view.add_item(unlink_button)
 
         return view
 
-    async def display_account(self, interaction: discord.Interaction, user: discord.Member, acc_id): 
+    async def display_account(self, interaction: discord.Interaction, user: discord.Member, acc_id: int, acc_index: int,
+    num_accs: int): 
         if not self.blacklisted(interaction.guild.id, 'account', acc_id): 
             await interaction.response.defer()
 
             embed = self.profile_embed_by_id(acc_id)
 
             if interaction.user.id == user.id:
-                view = self.generate_profile_view(interaction, acc_id)
+                view = self.generate_profile_view(interaction, acc_id, acc_index, num_accs)
 
                 await interaction.followup.send(embed=embed, view=view) 
             else:

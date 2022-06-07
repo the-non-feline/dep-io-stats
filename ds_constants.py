@@ -1,6 +1,7 @@
 import habitat
 import tools
 import enum
+import chars
 
 class DS_Constants: 
     REV_CHANNEL_SENTINEL = 'none' 
@@ -57,8 +58,7 @@ class DS_Constants:
     PROFILE_TEMPLATE = 'https://apibeta.deeeep.io/users/u/{}?ref=profile'
     BETA_PFP_TEMPLATE = 'https://cdn.deeeep.io/uploads/avatars/{}'
     PROFILE_PAGE_TEMPLATE = 'https://beta.deeeep.io/u/{}'
-    PROFILE_PAGE_REGEX = '\A(?:(?:https?:\/\/)beta.deeeep.io\/u\/)?(?P<username>[A-Za-z0-9-_]+)\Z'
-    SOCIALS_TEMPLATE = 'https://apibeta.deeeep.io/socialNetworks/u/{}'
+    PROFILE_PAGE_REGEX = '\A(?:(?:https?:\/\/)beta\.deeeep\.io\/u\/)?(?P<username>[^\/.?]+)\Z'
 
     DEFAULT_PFP = 'https://deeeep.io/new/assets/placeholder.png' 
     DEFAULT_BETA_PFP = 'https://beta.deeeep.io/img/avatar.png'
@@ -182,3 +182,22 @@ class DS_Constants:
     SEARCH_LIMIT = 30
 
     SKIN_STATUS_ATTRS = 'approved', 'reviewed', 'rejected'
+
+    class IconsEnum(enum.Enum):
+        dc = chars.discord, None
+        fb = chars.facebook, None
+        ig = chars.instagram, 'https://instagram.com/{}'
+        qq = chars.qq, None
+        rd = chars.reddit, 'https://reddit.com/u/{}'
+        tc = chars.twitch, 'https://twitch.tv/{}'
+        tw = chars.twitter, 'https://twitter.com/{}'
+        vk = chars.vk, None
+        wb = chars.weibo, 'https://weibo.com/{}'
+        wx = chars.wechat, None
+        yt = chars.youtube, None
+    
+    TIER_EMOJIS = chars.smirk_clownfish, chars.crab_rave, chars.shrug_jellyfish, chars.triggered_squid, chars.shut_seagull, \
+        chars.cry_ray, chars.dance_penguin, chars.cooloctopus, chars.chain_breaker_hammerhead, chars.thonk_gsquid
+    TIER_COLORS = 0xffcb66, 0xff6565, 0xfa90b8, 0xffb8b8, 0xffffff, 0xffbdff, 0xffffff, 0xe87f21, 0xdedede, 0x932e2e
+    
+    print(IconsEnum['dc'])

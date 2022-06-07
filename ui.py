@@ -2,6 +2,8 @@ from faulthandler import disable
 from turtle import left
 import discord.ui
 import discord
+import logs
+from logs import debug
 
 class CallbackButton(discord.ui.Button):
     def __init__(self, callback, message_interaction, *args, style=discord.ButtonStyle.secondary, label=None, disabled=False, 
@@ -16,7 +18,20 @@ class CallbackButton(discord.ui.Button):
     async def callback(self, button_interaction: discord.Interaction):
         return await self.stored_callback(self, button_interaction, self.message_interaction, *self.args, **self.kwargs)
 
-class RestrictedView(discord.ui.View):
+class TrackedView(discord.ui.View):
+    active_views = set()
+
+    def __init__(self, *, timeout=180.0):
+        super().__init__(timeout=timeout)
+
+        self.active_views.add(self)
+    
+    @classmethod
+    async def close_all(cls):
+        for view in cls.active_views.copy():
+            await view.close()
+
+class RestrictedView(TrackedView):
     def __init__(self, original_user: discord.User | discord.Member, original_interaction: discord.Interaction, *, timeout=180.0):
         super().__init__(timeout=timeout)
         
@@ -33,11 +48,18 @@ class RestrictedView(discord.ui.View):
     async def close(self):
         self.clear_items()
 
-        closed_button = discord.ui.Button(disabled=True, label=f'Time limit for using buttons already elapsed', row=0)
+        closed_button = discord.ui.Button(disabled=True, label=f'No longer accepting button presses', row=0)
         
         self.add_item(closed_button)
 
-        await self.original_interaction.edit_original_message(view=self)
+        try:
+            await self.original_interaction.edit_original_message(view=self)
+        except discord.errors.NotFound:
+            debug(f"View {self}'s original message couldn't be found")
+
+        self.stop()
+
+        self.active_views.remove(self)
     
     async def on_timeout(self) -> None:
         await self.close()
