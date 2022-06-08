@@ -1,4 +1,3 @@
-import slash_util
 import typing
 import discord
 from discord import app_commands
@@ -7,9 +6,11 @@ import dep_io_stats
 import ds_constants
 import reports
 import tools
+import chars
+import habitat
 
 def ds_slash(tree: app_commands.CommandTree, name: str, desc: str):
-    return tree.command(name=name, guild=discord.Object(273213133731135500), description=desc)
+    return tree.command(name=name, description=desc)
 
 async def gen_commands(client: dep_io_stats.DS):
     tree = client.tree
@@ -37,7 +38,7 @@ async def gen_commands(client: dep_io_stats.DS):
 
         link = None
 
-        if not bot.blacklisted(interaction.guild.id, 'user', user_id): 
+        if not bot.blacklisted(interaction.guild_id, 'user', user_id): 
             links = bot.links_table.find(user_id=user_id)
             main = bot.mains_table.find_one(user_id=user_id)
 
@@ -74,12 +75,6 @@ command to learn how to connect an account.")
     async def other_profile(interaction: discord.Interaction, user: discord.User=None, 
     acc_num: discord.app_commands.Range[int, 1]=1):
         return await check_stats(interaction, user or interaction.user, acc_num)
-
-    '''
-    @slash_util.slash_command()
-    async def shop(self, ctx, buy_sell: Literal['buy', 'sell'], amount: Literal[1, 2], item: str):
-        await ctx.send(f'{buy_sell.capitalize()}ing {amount} {item}(s)!')
-    '''
     
     @ds_slash(tree, 'skin', 'Displays the stats of a skin')
     @app_commands.describe(skin_query='The name of the skin if looking up by name, or ID if by ID', search_type='How I should \
@@ -294,11 +289,12 @@ or its link')
     @app_commands.describe(action='Whether to add or remove from the blacklist', target_type='The type of thing to blacklist',
     deeeepio_id='The ID of the Deeeep.io account or map to blacklist. Not for blacklisting Discord users.', 
     discord_user='The Discord user to blacklist. Not for blacklisting in-game things.')
+    @app_commands.guild_only
     async def edit_blacklist(interaction: discord.Interaction, action: typing.Literal['add', 'remove'], 
     target_type: typing.Literal['user', 'account', 'map'], deeeepio_id: app_commands.Range[int, 1]=0, 
     discord_user: discord.User=None):
         bot = interaction.client
-        guild_id = interaction.guild.id
+        guild_id = interaction.guild_id
 
         error = ''
 
@@ -337,7 +333,23 @@ server.')
 `{deeeepio_id}` on this server.')
         else:
             await interaction.response.send_message(content=error)
+    
+    @ds_slash(tree, 'tree', 'Displays the evolution tree (as of the Snow and Below Beta version)')
+    async def evo_tree(interaction: discord.Interaction):
+        with open(interaction.client.TREE, mode='rb') as tree_file:
+            discord_file = discord.File(tree_file)
 
-    result = await tree.sync(guild=discord.Object(273213133731135500))
+            await interaction.response.send_message(content=f"""The current evolution tree as of Snow and Below beta:
+    {chars.void}""", file=discord_file)
+
+    @ds_slash(tree, 'habitat', 'Translates a habitat number into a set of habitat flags')
+    @app_commands.describe(habitat_num=f'A number that represents a set of habitat requirements')
+    async def convert_habitat(interaction: discord.Interaction, 
+    habitat_num: app_commands.Range[int, 0, habitat.Habitat.MAX]): 
+        hab = habitat.Habitat(habitat_num) 
+
+        await interaction.response.send_message(content=f'`{habitat_num}` translates to `{hab}`.')
+
+    result = await tree.sync()
     
     print(f'synced: {result}')

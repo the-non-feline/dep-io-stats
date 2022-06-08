@@ -1,5 +1,3 @@
-from faulthandler import disable
-from turtle import left
 import discord.ui
 import discord
 import logs

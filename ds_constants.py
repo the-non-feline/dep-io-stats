@@ -102,13 +102,14 @@ class DS_Constants:
         'damageBlock': ('armor', '{}%', 100),
         'damageReflection': ('damage reflection', '{}%', 100), 
         'bleedReduction': ('bleed reduction', '{}%', 100), 
+        'poisonResistance': ('poison resistance', '{}%', 100),
         'armorPenetration': ('armor penetration', '{}%', 100), 
         'habitat': ('habitat', '{}', lambda num: habitat.Habitat(num)), 
         'secondaryAbilityLoadTime': ('charged boost load time', '{} ms'), 
     }
     
-    NORMAL_STATS = 'level', 'healthMultiplier', 'damageMultiplier', 'speedMultiplier', 'sizeMultiplier', 'sizeScale', 'damageBlock', 'damageReflection', 'bleedReduction', \
-'armorPenetration' 
+    NORMAL_STATS = 'level', 'healthMultiplier', 'damageMultiplier', 'speedMultiplier', 'sizeMultiplier', 'sizeScale', \
+        'damageBlock', 'damageReflection', 'bleedReduction', 'poisonResistance', 'armorPenetration' 
     BIOME_STATS = 'oxygenTime', 'temperatureTime', 'pressureTime', 'salinityTime' 
 
     BOOLEANS = 'canFly', 'canSwim', 'needsAir', 'canClimb', 'poisonResistant', 'ungrabbable', 'canDig', 'canWalkUnderwater' 
@@ -139,7 +140,7 @@ class DS_Constants:
     PENDING_MOTIONS_URL = 'https://api.deeeep.io/motions/pending?targetType=skin' 
     RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/recent?targetType=skin' 
 
-    CHARACTER_TEMPLATE = 'https://deeeep.io/assets/characters/{}.png' 
+    CHARACTER_TEMPLATE = 'https://beta.deeeep.io/assets/characters/{}.png' 
 
     CHARACTER_EXCEPTIONS = {
         'lanternfish': 'https://deeeep.io/new/assets/characters/lanternfish.png', 

@@ -3,6 +3,7 @@ import tools
 
 class Habitat(int): 
     NAMES = ['Cold', 'Warm', 'Shallow', 'Deep', 'Fresh', 'Salt', 'Reef'] 
+    MAX = 2**len(NAMES) - 1
 
     @staticmethod
     def convert_to_base(num, base): 

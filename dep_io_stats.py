@@ -24,11 +24,12 @@ import reports
 import habitat
 import ds_constants
 import credman
-import slash_util
 import discord.ui
 import ui
+import slash_util
+from discord.ext import commands
 
-class DS(ds_constants.DS_Constants, slash_util.Bot): 
+class DS(ds_constants.DS_Constants, commands.Bot): 
     def __init__(self, logs_file_name, storage_file_name, animals_file_name, *credentials): 
         self.credentials = credentials
 
@@ -113,9 +114,12 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             return self.DEFAULT_PREFIX
     
     def blacklisted(self, guild_id, blacklist_type, target): 
-        b_entry = self.blacklists_table.find_one(guild_id=guild_id, type=blacklist_type, target=target) 
+        if guild_id:
+            b_entry = self.blacklists_table.find_one(guild_id=guild_id, type=blacklist_type, target=target) 
 
-        return b_entry
+            return b_entry
+        else:
+            return False
     
     def rev_channel(self): 
         c_entry = self.rev_data_table.find_one(key=self.REV_CHANNEL_KEY) 
@@ -1082,7 +1086,7 @@ class DS(ds_constants.DS_Constants, slash_util.Bot):
             avatar_url = None
             discord_tag = "Couldn't fetch Discord tag" 
         
-        invite_hyperlink = f'[Invite link]({self.INVITE_LINK})' 
+        invite_hyperlink = f'Check my Discord profile for invite link' 
         
         embed = trimmed_embed.TrimmedEmbed(title=discord_tag, description=invite_hyperlink, color=color) 
 
@@ -2194,7 +2198,7 @@ account. Well, it might still be, but that would just be due to random chance.')
 
     async def display_account(self, interaction: discord.Interaction, user: discord.Member, acc_id: int, acc_index: int,
     num_accs: int): 
-        if not self.blacklisted(interaction.guild.id, 'account', acc_id): 
+        if not self.blacklisted(interaction.guild_id, 'account', acc_id): 
             await interaction.response.defer()
 
             embed = self.profile_embed_by_id(acc_id)

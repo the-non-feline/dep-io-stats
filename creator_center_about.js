@@ -1,5 +1,4 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([["about"], {
-    "04bc": function(e, t, i) {},
     "074b": function(e, t, i) {},
     "078b": function(e, t, i) {
         var n, r, s;
@@ -313,35 +312,35 @@
                 this.slashes = !0)
             }
             if (!y[T] && (S || T && !b[T])) {
-                for (var M, E, I = -1, k = 0; k < p.length; k++) {
-                    var C = w.indexOf(p[k]);
-                    -1 !== C && (-1 === I || C < I) && (I = C)
+                for (var M, k, E = -1, C = 0; C < p.length; C++) {
+                    var I = w.indexOf(p[C]);
+                    -1 !== I && (-1 === E || I < E) && (E = I)
                 }
-                E = -1 === I ? w.lastIndexOf("@") : w.lastIndexOf("@", I),
-                -1 !== E && (M = w.slice(0, E),
-                w = w.slice(E + 1),
+                k = -1 === E ? w.lastIndexOf("@") : w.lastIndexOf("@", E),
+                -1 !== k && (M = w.slice(0, k),
+                w = w.slice(k + 1),
                 this.auth = decodeURIComponent(M)),
-                I = -1;
-                for (k = 0; k < d.length; k++) {
-                    C = w.indexOf(d[k]);
-                    -1 !== C && (-1 === I || C < I) && (I = C)
+                E = -1;
+                for (C = 0; C < d.length; C++) {
+                    I = w.indexOf(d[C]);
+                    -1 !== I && (-1 === E || I < E) && (E = I)
                 }
-                -1 === I && (I = w.length),
-                this.host = w.slice(0, I),
-                w = w.slice(I),
+                -1 === E && (E = w.length),
+                this.host = w.slice(0, E),
+                w = w.slice(E),
                 this.parseHost(),
                 this.hostname = this.hostname || "";
                 var O = "[" === this.hostname[0] && "]" === this.hostname[this.hostname.length - 1];
                 if (!O)
-                    for (var P = this.hostname.split(/\./), R = (k = 0,
-                    P.length); k < R; k++) {
-                        var D = P[k];
+                    for (var P = this.hostname.split(/\./), R = (C = 0,
+                    P.length); C < R; C++) {
+                        var D = P[C];
                         if (D && !D.match(m)) {
-                            for (var B = "", L = 0, F = D.length; L < F; L++)
-                                D.charCodeAt(L) > 127 ? B += "x" : B += D[L];
-                            if (!B.match(m)) {
-                                var j = P.slice(0, k)
-                                  , N = P.slice(k + 1)
+                            for (var L = "", B = 0, F = D.length; B < F; B++)
+                                D.charCodeAt(B) > 127 ? L += "x" : L += D[B];
+                            if (!L.match(m)) {
+                                var j = P.slice(0, C)
+                                  , N = P.slice(C + 1)
                                   , U = D.match(g);
                                 U && (j.push(U[1]),
                                 N.unshift(U[2])),
@@ -361,9 +360,9 @@
                 "/" !== w[0] && (w = "/" + w))
             }
             if (!v[A])
-                for (k = 0,
-                R = c.length; k < R; k++) {
-                    var H = c[k];
+                for (C = 0,
+                R = c.length; C < R; C++) {
+                    var H = c[C];
                     if (-1 !== w.indexOf(H)) {
                         var V = encodeURIComponent(H);
                         V === H && (V = escape(H)),
@@ -527,25 +526,25 @@
                 i.search ? i.path = "/" + i.search : i.path = null,
                 i.href = i.format(),
                 i;
-            for (var M = T.slice(-1)[0], E = (i.host || e.host || T.length > 1) && ("." === M || ".." === M) || "" === M, I = 0, k = T.length; k >= 0; k--)
-                M = T[k],
-                "." === M ? T.splice(k, 1) : ".." === M ? (T.splice(k, 1),
-                I++) : I && (T.splice(k, 1),
-                I--);
+            for (var M = T.slice(-1)[0], k = (i.host || e.host || T.length > 1) && ("." === M || ".." === M) || "" === M, E = 0, C = T.length; C >= 0; C--)
+                M = T[C],
+                "." === M ? T.splice(C, 1) : ".." === M ? (T.splice(C, 1),
+                E++) : E && (T.splice(C, 1),
+                E--);
             if (!w && !_)
-                for (; I--; I)
+                for (; E--; E)
                     T.unshift("..");
             !w || "" === T[0] || T[0] && "/" === T[0].charAt(0) || T.unshift(""),
-            E && "/" !== T.join("/").substr(-1) && T.push("");
-            var C = "" === T[0] || T[0] && "/" === T[0].charAt(0);
+            k && "/" !== T.join("/").substr(-1) && T.push("");
+            var I = "" === T[0] || T[0] && "/" === T[0].charAt(0);
             if (A) {
-                i.hostname = i.host = C ? "" : T.length ? T.shift() : "";
+                i.hostname = i.host = I ? "" : T.length ? T.shift() : "";
                 S = !!(i.host && i.host.indexOf("@") > 0) && i.host.split("@");
                 S && (i.auth = S.shift(),
                 i.host = i.hostname = S.shift())
             }
             return w = w || i.host && T.length,
-            w && !C && T.unshift(""),
+            w && !I && T.unshift(""),
             T.length ? i.pathname = T.join("/") : (i.pathname = null,
             i.path = null),
             r.isNull(i.pathname) && r.isNull(i.search) || (i.path = (i.pathname ? i.pathname : "") + (i.search ? i.search : "")),
@@ -740,7 +739,7 @@
                 staticClass: "d-inline-block"
             }, [e._v(e._s(e.skin.name))]), e.skin.user_id ? i("span", {
                 staticClass: "ml-1 font-size-9em"
-            }, [e._v("by " + e._s(e.skin.user ? e.skin.user.name : e.skin.user_name) + " (@" + e._s(e.skin.user ? e.skin.user.username : e.skin.user_username) + ")")]) : e._e()]), i("div", {
+            }, [e._v("by " + e._s(e.skin.user ? e.skin.user.username : e.skin.user_name) + " (@" + e._s(e.skin.user ? e.skin.user.username : e.skin.user_username) + ")")]) : e._e()]), i("div", {
                 staticClass: "price mb-2 d-flex flex-row align-center"
             }, [i("span", {
                 staticClass: "pr-1 price--amount"
@@ -1036,15 +1035,15 @@
           , A = i("8983")
           , S = i("ac26")
           , M = i("cb34")
-          , E = i("2fb6")
-          , I = i("63d4")
-          , k = i("1cf7")
-          , C = i("3306")
+          , k = i("2fb6")
+          , E = i("63d4")
+          , C = i("1cf7")
+          , I = i("3306")
           , O = i("67e5")
           , P = i("2f29")
           , R = i("e77f")
           , D = i("96a0")
-          , B = function(e) {
+          , L = function(e) {
             Object(c["a"])(i, e);
             var t = Object(d["a"])(i);
             function i() {
@@ -1052,8 +1051,8 @@
                 return Object(h["a"])(this, i),
                 r = t.apply(this, arguments),
                 r.motionsService = new b["a"],
-                r.usersService = new k["a"],
-                r.animalsService = new C["a"],
+                r.usersService = new C["a"],
+                r.animalsService = new I["a"],
                 r.skinsService = new O["a"],
                 r.skin = null,
                 r.attributesTypes = [],
@@ -1102,6 +1101,7 @@
                 Object(l["a"])(n, M["a"].Halloween, "Halloween"),
                 Object(l["a"])(n, M["a"].Easter, "Easter"),
                 Object(l["a"])(n, M["a"].Valentines, "Valentine's day"),
+                Object(l["a"])(n, M["a"].LunarNewYear, "Lunar New Year"),
                 n),
                 r.initialized = !1,
                 r.skinEditor = null,
@@ -1237,9 +1237,12 @@
             }, {
                 key: "onPixiEditorLoad",
                 value: function(e) {
+                    var t = this;
                     this.skinEditor = e,
-                    this.loadSkin(),
-                    this.loadAnimal(),
+                    this.loadAnimal().then((function() {
+                        t.loadSkin()
+                    }
+                    )),
                     this.init()
                 }
             }, {
@@ -1319,17 +1322,17 @@
                 key: "loadSkinAssets",
                 value: function() {
                     var e = Object(o["a"])(regeneratorRuntime.mark((function e(t) {
-                        var i, n, r, s, a, l = this, h = arguments;
+                        var i, n, r, a, l, h, u = this, c = arguments;
                         return regeneratorRuntime.wrap((function(e) {
                             while (1)
                                 switch (e.prev = e.next) {
                                 case 0:
-                                    if (i = h.length > 1 && void 0 !== h[1] && h[1],
+                                    if (i = c.length > 1 && void 0 !== c[1] && c[1],
                                     n = v["a"].getSkinPath(t),
                                     r = [],
                                     r.push(new Promise(function() {
                                         var e = Object(o["a"])(regeneratorRuntime.mark((function e(r) {
-                                            var s, a, o, h, u;
+                                            var s, a, o, l, h;
                                             return regeneratorRuntime.wrap((function(e) {
                                                 while (1)
                                                     switch (e.prev = e.next) {
@@ -1339,11 +1342,11 @@
                                                     case 2:
                                                         s = e.sent,
                                                         a = new R["a"](s),
-                                                        i ? l.parentSpriteData = a : l.skinSpriteData = a,
+                                                        i ? u.parentSpriteData = a : u.skinSpriteData = a,
                                                         t.data && (o = t.data.offset,
-                                                        h = o.x,
-                                                        u = o.y,
-                                                        a.setPosition(l.skinEditor.worldCenter.x + h, l.skinEditor.worldCenter.y + u)),
+                                                        l = o.x,
+                                                        h = o.y,
+                                                        a.setPosition(u.skinEditor.worldCenter.x + l, u.skinEditor.worldCenter.y + h)),
                                                         r();
                                                     case 7:
                                                     case "end":
@@ -1357,42 +1360,52 @@
                                             return e.apply(this, arguments)
                                         }
                                     }())),
-                                    t.assets_data)
-                                        for (a in s = function(e) {
-                                            r.push(new Promise(function() {
-                                                var n = Object(o["a"])(regeneratorRuntime.mark((function n(r) {
-                                                    var s, a, o, h, u;
-                                                    return regeneratorRuntime.wrap((function(n) {
-                                                        while (1)
-                                                            switch (n.prev = n.next) {
-                                                            case 0:
-                                                                return n.next = 2,
-                                                                T["a"].getRemoteTexture(t.assets_data[e].asset, v["a"].getSkinPath(t, e));
-                                                            case 2:
-                                                                s = n.sent,
-                                                                a = new R["a"](s),
-                                                                o = t.assets_data[e].offset,
-                                                                o && (h = o.x,
-                                                                u = o.y,
-                                                                a.setPosition(l.skinEditor.worldCenter.x + h, l.skinEditor.worldCenter.y + u)),
-                                                                i ? l.parentAssetsData.push(a) : l.skinAssetsData.push(a),
-                                                                r();
-                                                            case 8:
-                                                            case "end":
-                                                                return n.stop()
-                                                            }
+                                    t.assets_data) {
+                                        a = Object(s["a"])(this.animalData.assets_data);
+                                        try {
+                                            for (h = function() {
+                                                var e = l.value
+                                                  , n = e.asset;
+                                                r.push(new Promise(function() {
+                                                    var e = Object(o["a"])(regeneratorRuntime.mark((function e(r) {
+                                                        var s, a, o, l, h;
+                                                        return regeneratorRuntime.wrap((function(e) {
+                                                            while (1)
+                                                                switch (e.prev = e.next) {
+                                                                case 0:
+                                                                    return e.next = 2,
+                                                                    T["a"].getRemoteTexture(t.assets_data[n].asset, v["a"].getSkinPath(t, n));
+                                                                case 2:
+                                                                    s = e.sent,
+                                                                    a = new R["a"](s),
+                                                                    o = t.assets_data[n].offset,
+                                                                    o && (l = o.x,
+                                                                    h = o.y,
+                                                                    a.setPosition(u.skinEditor.worldCenter.x + l, u.skinEditor.worldCenter.y + h)),
+                                                                    i ? u.parentAssetsData.push(a) : u.skinAssetsData.push(a),
+                                                                    r();
+                                                                case 8:
+                                                                case "end":
+                                                                    return e.stop()
+                                                                }
+                                                        }
+                                                        ), e)
                                                     }
-                                                    ), n)
-                                                }
-                                                )));
-                                                return function(e) {
-                                                    return n.apply(this, arguments)
-                                                }
-                                            }()))
+                                                    )));
+                                                    return function(t) {
+                                                        return e.apply(this, arguments)
+                                                    }
+                                                }()))
+                                            }
+                                            ,
+                                            a.s(); !(l = a.n()).done; )
+                                                h()
+                                        } catch (d) {
+                                            a.e(d)
+                                        } finally {
+                                            a.f()
                                         }
-                                        ,
-                                        t.assets_data)
-                                            s(a);
+                                    }
                                     return e.next = 7,
                                     Promise.all(r);
                                 case 7:
@@ -1400,7 +1413,7 @@
                                     return e.stop()
                                 }
                         }
-                        ), e)
+                        ), e, this)
                     }
                     )));
                     function t(t) {
@@ -1584,12 +1597,12 @@
             }, {
                 key: "isSkinBoard",
                 get: function() {
-                    return this.user && (this.user.roles & E["a"].SkinBoard) === E["a"].SkinBoard
+                    return this.user && (this.user.roles & k["a"].SkinBoard) === k["a"].SkinBoard
                 }
             }, {
                 key: "isSkinBoardManager",
                 get: function() {
-                    return this.user && (this.user.roles & E["a"].SkinBoardManager) === E["a"].SkinBoardManager
+                    return this.user && (this.user.roles & k["a"].SkinBoardManager) === k["a"].SkinBoardManager
                 }
             }, {
                 key: "hasMultipleSprites",
@@ -1700,20 +1713,20 @@
             }]),
             i
         }(m["c"]);
-        Object(p["a"])([Object(m["b"])()], B.prototype, "animalId", void 0),
-        Object(p["a"])([Object(m["b"])()], B.prototype, "skinId", void 0),
-        Object(p["a"])([Object(m["b"])()], B.prototype, "skinVersion", void 0),
-        Object(p["a"])([Object(m["b"])()], B.prototype, "user", void 0),
-        Object(p["a"])([Object(m["d"])("assetIndex")], B.prototype, "onIndexChanged", null),
-        B = Object(p["a"])([Object(m["a"])({
+        Object(p["a"])([Object(m["b"])()], L.prototype, "animalId", void 0),
+        Object(p["a"])([Object(m["b"])()], L.prototype, "skinId", void 0),
+        Object(p["a"])([Object(m["b"])()], L.prototype, "skinVersion", void 0),
+        Object(p["a"])([Object(m["b"])()], L.prototype, "user", void 0),
+        Object(p["a"])([Object(m["d"])("assetIndex")], L.prototype, "onIndexChanged", null),
+        L = Object(p["a"])([Object(m["a"])({
             components: {
                 PixiEditor: P["a"],
-                VoteMeter: I["a"]
+                VoteMeter: E["a"]
             }
-        })], B);
-        var L = B
-          , F = L
-          , j = (i("ac79"),
+        })], L);
+        var B = L
+          , F = B
+          , j = (i("7a47"),
         i("2877"))
           , N = i("6544")
           , U = i.n(N)
@@ -1729,7 +1742,7 @@
           , Q = i("3129")
           , K = i("71a3")
           , Z = i("fe57")
-          , J = Object(j["a"])(F, n, r, !1, null, "66796d60", null);
+          , J = Object(j["a"])(F, n, r, !1, null, "0cc3ccef", null);
         t["a"] = J.exports;
         U()(J, {
             VBtn: z["a"],
@@ -2081,7 +2094,7 @@
                     }
                 }), i("span", {
                     staticClass: "name"
-                }, [e._v(e._s(t.name))]), i("span", {
+                }, [e._v(e._s(t.username))]), i("span", {
                     staticClass: "username"
                 }, [e._v("@" + e._s(t.username))])], 1)
             }
@@ -2162,8 +2175,9 @@
             }, {
                 key: "getAvatarPath",
                 value: function(e) {
-                    var t, i = new Date;
-                    return t = e ? p["a"].fileHost + "/" + e + "?" + i.getTime() : "https://deeeep.io/new/assets/placeholder.png",
+                    var t;
+                    new Date;
+                    return t = e ? p["a"].CDN_PATH + "/uploads/avatars/" + e : "https://deeeep.io/new/assets/placeholder.png",
                     t
                 }
             }]),
@@ -2172,7 +2186,7 @@
         f = Object(u["a"])([c["a"]], f);
         var m = f
           , g = m
-          , v = (i("8ae5"),
+          , v = (i("d13a"),
         i("2877"))
           , y = i("6544")
           , b = i.n(y)
@@ -2182,7 +2196,7 @@
           , T = i("adda")
           , A = i("a722")
           , S = i("3129")
-          , M = Object(v["a"])(g, n, r, !1, null, "8aa15cba", null);
+          , M = Object(v["a"])(g, n, r, !1, null, "05f1d2ab", null);
         t["default"] = M.exports;
         b()(M, {
             VCard: x["a"],
@@ -2228,7 +2242,7 @@
                       , s = S(r, t).join(".");
                     return n + s
                 }
-                function E(e) {
+                function k(e) {
                     var t, i, n = [], r = 0, s = e.length;
                     while (r < s)
                         t = e.charCodeAt(r++),
@@ -2237,7 +2251,7 @@
                         r--)) : n.push(t);
                     return n
                 }
-                function I(e) {
+                function E(e) {
                     return S(e, (function(e) {
                         var t = "";
                         return e > 65535 && (e -= 65536,
@@ -2248,10 +2262,10 @@
                     }
                     )).join("")
                 }
-                function k(e) {
+                function C(e) {
                     return e - 48 < 10 ? e - 22 : e - 65 < 26 ? e - 65 : e - 97 < 26 ? e - 97 : h
                 }
-                function C(e, t) {
+                function I(e, t) {
                     return e + 22 + 75 * (e < 26) - ((0 != t) << 5)
                 }
                 function O(e, t, i) {
@@ -2273,7 +2287,7 @@
                         a = 1,
                         o = h; ; o += h) {
                             if (r >= b && A("invalid-input"),
-                            d = k(e.charCodeAt(r++)),
+                            d = C(e.charCodeAt(r++)),
                             (d >= h || d > _((l - x) / a)) && A("overflow"),
                             x += d * a,
                             p = o <= T ? u : o >= T + c ? c : o - T,
@@ -2290,11 +2304,11 @@
                         x %= t,
                         y.splice(x++, 0, w)
                     }
-                    return I(y)
+                    return E(y)
                 }
                 function R(e) {
                     var t, i, n, r, s, a, o, d, p, v, y, b, x, w, S, M = [];
-                    for (e = E(e),
+                    for (e = k(e),
                     b = e.length,
                     t = m,
                     i = 0,
@@ -2324,10 +2338,10 @@
                                         break;
                                     S = d - v,
                                     w = h - v,
-                                    M.push(T(C(v + S % w, 0))),
+                                    M.push(T(I(v + S % w, 0))),
                                     d = _(S / w)
                                 }
-                                M.push(T(C(d, 0))),
+                                M.push(T(I(d, 0))),
                                 s = O(i, x, n == r),
                                 i = 0,
                                 ++n
@@ -2343,7 +2357,7 @@
                     }
                     ))
                 }
-                function B(e) {
+                function L(e) {
                     return M(e, (function(e) {
                         return y.test(e) ? "xn--" + R(e) : e
                     }
@@ -2352,12 +2366,12 @@
                 o = {
                     version: "1.4.1",
                     ucs2: {
-                        decode: E,
-                        encode: I
+                        decode: k,
+                        encode: E
                     },
                     decode: P,
                     encode: R,
-                    toASCII: B,
+                    toASCII: L,
                     toUnicode: D
                 },
                 r = function() {
@@ -2519,7 +2533,7 @@
         }
         )),
         i.d(t, "InteractionData", (function() {
-            return Bt
+            return Lt
         }
         )),
         i.d(t, "InteractionEvent", (function() {
@@ -2595,7 +2609,7 @@
         }
         )),
         i.d(t, "FilterState", (function() {
-            return Bi
+            return Li
         }
         )),
         i.d(t, "Framebuffer", (function() {
@@ -2615,7 +2629,7 @@
         }
         )),
         i.d(t, "Geometry", (function() {
-            return Ci
+            return Ii
         }
         )),
         i.d(t, "IGLUniformData", (function() {
@@ -2663,7 +2677,7 @@
         }
         )),
         i.d(t, "State", (function() {
-            return Cn
+            return In
         }
         )),
         i.d(t, "System", (function() {
@@ -2719,7 +2733,7 @@
         }
         )),
         i.d(t, "Extract", (function() {
-            return Cr
+            return Ir
         }
         )),
         i.d(t, "AppLoaderPlugin", (function() {
@@ -2755,11 +2769,11 @@
         }
         )),
         i.d(t, "Prepare", (function() {
-            return Ba
+            return La
         }
         )),
         i.d(t, "TimeLimiter", (function() {
-            return La
+            return Ba
         }
         )),
         i.d(t, "Spritesheet", (function() {
@@ -2815,7 +2829,7 @@
         }
         )),
         i.d(t, "BUFFER_BITS", (function() {
-            return L
+            return B
         }
         )),
         i.d(t, "CLEAR_MODES", (function() {
@@ -2855,7 +2869,7 @@
         }
         )),
         i.d(t, "RENDERER_TYPE", (function() {
-            return B
+            return L
         }
         )),
         i.d(t, "SCALE_MODES", (function() {
@@ -3031,7 +3045,7 @@
         }
         )),
         i.d(t, "AnimatedSprite", (function() {
-            return El
+            return kl
         }
         )),
         i.d(t, "TEXT_GRADIENT", (function() {
@@ -3089,7 +3103,7 @@
         }
         )),
         i.d(n, "BaseTextureCache", (function() {
-            return Be
+            return Le
         }
         )),
         i.d(n, "CanvasRenderTarget", (function() {
@@ -3129,7 +3143,7 @@
         }
         )),
         i.d(n, "destroyTextureCache", (function() {
-            return Le
+            return Be
         }
         )),
         i.d(n, "determineCrossOrigin", (function() {
@@ -3189,7 +3203,7 @@
         }
         )),
         i.d(n, "removeItems", (function() {
-            return Ee
+            return ke
         }
         )),
         i.d(n, "rgb2hex", (function() {
@@ -3201,7 +3215,7 @@
         }
         )),
         i.d(n, "sign", (function() {
-            return Ie
+            return Ee
         }
         )),
         i.d(n, "skipHello", (function() {
@@ -3217,7 +3231,7 @@
         }
         )),
         i.d(n, "uid", (function() {
-            return Ce
+            return Ie
         }
         ));
         var r = i("3907")
@@ -3296,16 +3310,16 @@
           , A = /BB10/i
           , S = /Opera Mini/i
           , M = /\b(CriOS|Chrome)(?:.+)Mobile/i
-          , E = /Mobile(?:.+)Firefox\b/i
-          , I = function(e) {
+          , k = /Mobile(?:.+)Firefox\b/i
+          , E = function(e) {
             return "undefined" !== typeof e && "MacIntel" === e.platform && "number" === typeof e.maxTouchPoints && e.maxTouchPoints > 1 && "undefined" === typeof MSStream
         };
-        function k(e) {
+        function C(e) {
             return function(t) {
                 return t.test(e)
             }
         }
-        function C(e) {
+        function I(e) {
             var t = {
                 userAgent: "",
                 platform: "",
@@ -3325,14 +3339,14 @@
             "undefined" !== typeof n[1] && (i = n[0]),
             n = i.split("Twitter"),
             "undefined" !== typeof n[1] && (i = n[0]);
-            var r = k(i)
+            var r = C(i)
               , s = {
                 apple: {
                     phone: r(p) && !r(w),
                     ipod: r(f),
-                    tablet: !r(p) && (r(m) || I(t)) && !r(w),
+                    tablet: !r(p) && (r(m) || E(t)) && !r(w),
                     universal: r(g),
-                    device: (r(p) || r(f) || r(m) || r(g) || I(t)) && !r(w)
+                    device: (r(p) || r(f) || r(m) || r(g) || E(t)) && !r(w)
                 },
                 amazon: {
                     phone: r(b),
@@ -3353,9 +3367,9 @@
                     blackberry: r(T),
                     blackberry10: r(A),
                     opera: r(S),
-                    firefox: r(E),
+                    firefox: r(k),
                     chrome: r(M),
-                    device: r(T) || r(A) || r(S) || r(E) || r(M)
+                    device: r(T) || r(A) || r(S) || r(k) || r(M)
                 },
                 any: !1,
                 phone: !1,
@@ -3373,7 +3387,7 @@
  * @pixi/settings is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license
  */
-        var O = C(window.navigator);
+        var O = I(window.navigator);
         function P(e) {
             var t = !0;
             if (O.tablet || O.phone) {
@@ -3397,7 +3411,7 @@
         function R() {
             return !O.apple.device
         }
-        var D, B, L, F, j, N, U, z, W, H, V, X, G, Y, $, q, Q, K = {
+        var D, L, B, F, j, N, U, z, W, H, V, X, G, Y, $, q, Q, K = {
             MIPMAP_TEXTURES: 1,
             ANISOTROPIC_LEVEL: 0,
             RESOLUTION: 1,
@@ -3437,12 +3451,12 @@
             e[e["UNKNOWN"] = 0] = "UNKNOWN",
             e[e["WEBGL"] = 1] = "WEBGL",
             e[e["CANVAS"] = 2] = "CANVAS"
-        }(B || (B = {})),
+        }(L || (L = {})),
         function(e) {
             e[e["COLOR"] = 16384] = "COLOR",
             e[e["DEPTH"] = 256] = "DEPTH",
             e[e["STENCIL"] = 1024] = "STENCIL"
-        }(L || (L = {})),
+        }(B || (B = {})),
         function(e) {
             e[e["NORMAL"] = 0] = "NORMAL",
             e[e["ADD"] = 1] = "ADD",
@@ -3767,7 +3781,7 @@
             t |= i,
             t | e >> 1
         }
-        function Ee(e, t, i) {
+        function ke(e, t, i) {
             var n, r = e.length;
             if (!(t >= r || 0 === i)) {
                 i = t + i > r ? r - t : i;
@@ -3777,12 +3791,12 @@
                 e.length = s
             }
         }
-        function Ie(e) {
+        function Ee(e) {
             return 0 === e ? 0 : e < 0 ? -1 : 1
         }
-        var ke = 0;
-        function Ce() {
-            return ++ke
+        var Ce = 0;
+        function Ie() {
+            return ++Ce
         }
         var Oe = {};
         function Pe(e, t, i) {
@@ -3799,20 +3813,20 @@
         }
         var Re = {}
           , De = Object.create(null)
-          , Be = Object.create(null);
-        function Le() {
+          , Le = Object.create(null);
+        function Be() {
             var e;
             for (e in De)
                 De[e].destroy();
-            for (e in Be)
-                Be[e].destroy()
+            for (e in Le)
+                Le[e].destroy()
         }
         function Fe() {
             var e;
             for (e in De)
                 delete De[e];
-            for (e in Be)
-                delete Be[e]
+            for (e in Le)
+                delete Le[e]
         }
         var je = function() {
             function e(e, t, i) {
@@ -5330,7 +5344,7 @@ and limitations under the License.
                 if (t < 0 || t >= this.children.length)
                     throw new Error("The index " + t + " supplied is out of bounds " + this.children.length);
                 var i = this.getChildIndex(e);
-                Ee(this.children, i, 1),
+                ke(this.children, i, 1),
                 this.children.splice(t, 0, e),
                 this.onChildrenChange(t)
             }
@@ -5354,7 +5368,7 @@ and limitations under the License.
                         return null;
                     r.parent = null,
                     r.transform._parentID = -1,
-                    Ee(this.children, s, 1),
+                    ke(this.children, s, 1),
                     this._boundsID++,
                     this.onChildrenChange(s),
                     r.emit("removed", this),
@@ -5367,7 +5381,7 @@ and limitations under the License.
                 var t = this.getChildAt(e);
                 return t.parent = null,
                 t.transform._parentID = -1,
-                Ee(this.children, e, 1),
+                ke(this.children, e, 1),
                 this._boundsID++,
                 this.onChildrenChange(e),
                 t.emit("removed", this),
@@ -5538,7 +5552,7 @@ and limitations under the License.
             renderId: -1
         };
         gt.mixin(xt);
-        var wt, _t = 9, Tt = 100, At = 0, St = 0, Mt = 2, Et = 1, It = -1e3, kt = -1e3, Ct = 2, Ot = function() {
+        var wt, _t = 9, Tt = 100, At = 0, St = 0, Mt = 2, kt = 1, Et = -1e3, Ct = -1e3, It = 2, Ot = function() {
             function e(e) {
                 this._hookDiv = null,
                 (O.tablet || O.phone) && this.createTouchHook();
@@ -5580,12 +5594,12 @@ and limitations under the License.
             e.prototype.createTouchHook = function() {
                 var e = this
                   , t = document.createElement("button");
-                t.style.width = Et + "px",
-                t.style.height = Et + "px",
+                t.style.width = kt + "px",
+                t.style.height = kt + "px",
                 t.style.position = "absolute",
-                t.style.top = It + "px",
-                t.style.left = kt + "px",
-                t.style.zIndex = Ct.toString(),
+                t.style.top = Et + "px",
+                t.style.left = Ct + "px",
+                t.style.zIndex = It.toString(),
                 t.style.backgroundColor = "#FF0000",
                 t.title = "select to enable accessability for this content",
                 t.addEventListener("focus", (function() {
@@ -5646,7 +5660,7 @@ and limitations under the License.
                         var o = this.children[a];
                         if (o.renderId !== this.renderId)
                             o._accessibleActive = !1,
-                            Ee(this.children, a, 1),
+                            ke(this.children, a, 1),
                             this.div.removeChild(o._accessibleDiv),
                             this.pool.push(o._accessibleDiv),
                             o._accessibleDiv = null,
@@ -6051,7 +6065,7 @@ and limitations under the License.
             ,
             e
         }()
-          , Bt = function() {
+          , Lt = function() {
             function e() {
                 this.pressure = 0,
                 this.rotationAngle = 0,
@@ -6107,8 +6121,8 @@ and limitations under the License.
             ,
             e
         }()
-          , Lt = function(e, t) {
-            return Lt = Object.setPrototypeOf || {
+          , Bt = function(e, t) {
+            return Bt = Object.setPrototypeOf || {
                 __proto__: []
             }instanceof Array && function(e, t) {
                 e.__proto__ = t
@@ -6118,13 +6132,13 @@ and limitations under the License.
                     t.hasOwnProperty(i) && (e[i] = t[i])
             }
             ,
-            Lt(e, t)
+            Bt(e, t)
         };
         function Ft(e, t) {
             function i() {
                 this.constructor = e
             }
-            Lt(e, t),
+            Bt(e, t),
             e.prototype = null === t ? Object.create(t) : (i.prototype = t.prototype,
             new i)
         }
@@ -6297,7 +6311,7 @@ and limitations under the License.
                 n.renderer = t,
                 n.autoPreventDefault = void 0 === i.autoPreventDefault || i.autoPreventDefault,
                 n.interactionFrequency = i.interactionFrequency || 10,
-                n.mouse = new Bt,
+                n.mouse = new Lt,
                 n.mouse.identifier = Wt,
                 n.mouse.global.set(-999999),
                 n.activeInteractionData = {},
@@ -6693,7 +6707,7 @@ and limitations under the License.
             ,
             t.prototype.getInteractionDataForPointerId = function(e) {
                 var t, i = e.pointerId;
-                return i === Wt || "mouse" === e.pointerType ? t = this.mouse : this.activeInteractionData[i] ? t = this.activeInteractionData[i] : (t = this.interactionDataPool.pop() || new Bt,
+                return i === Wt || "mouse" === e.pointerType ? t = this.mouse : this.activeInteractionData[i] ? t = this.activeInteractionData[i] : (t = this.interactionDataPool.pop() || new Lt,
                 t.identifier = i,
                 this.activeInteractionData[i] = t),
                 t.copyEvent(e),
@@ -7073,7 +7087,7 @@ and limitations under the License.
                 n.target = p || U.TEXTURE_2D,
                 n.alphaMode = void 0 !== r ? r : X.UNPACK,
                 void 0 !== i.premultiplyAlpha && (n.premultiplyAlpha = i.premultiplyAlpha),
-                n.uid = Ce(),
+                n.uid = Ie(),
                 n.touched = 0,
                 n.isPowerOfTwo = !1,
                 n._refreshPOT(),
@@ -7174,7 +7188,7 @@ and limitations under the License.
                 this.resource && (this.resource.unbind(this),
                 this.resource.internal && this.resource.destroy(),
                 this.resource = null),
-                this.cacheId && (delete Be[this.cacheId],
+                this.cacheId && (delete Le[this.cacheId],
                 delete De[this.cacheId],
                 this.cacheId = null),
                 this.dispose(),
@@ -7195,9 +7209,9 @@ and limitations under the License.
                 void 0 === n && (n = K.STRICT_TEXTURE_CACHE);
                 var r = "string" === typeof e
                   , s = null;
-                r ? s = e : (e._pixiId || (e._pixiId = "pixiid_" + Ce()),
+                r ? s = e : (e._pixiId || (e._pixiId = "pixiid_" + Ie()),
                 s = e._pixiId);
-                var a = Be[s];
+                var a = Le[s];
                 if (r && n && !a)
                     throw new Error('The cacheId "' + s + '" does not exist in BaseTextureCache.');
                 return a || (a = new t(e,i),
@@ -7222,22 +7236,22 @@ and limitations under the License.
             ,
             t.addToCache = function(e, t) {
                 t && (-1 === e.textureCacheIds.indexOf(t) && e.textureCacheIds.push(t),
-                Be[t] && console.warn("BaseTexture added to the cache with an id [" + t + "] that already had an entry"),
-                Be[t] = e)
+                Le[t] && console.warn("BaseTexture added to the cache with an id [" + t + "] that already had an entry"),
+                Le[t] = e)
             }
             ,
             t.removeFromCache = function(e) {
                 if ("string" === typeof e) {
-                    var t = Be[e];
+                    var t = Le[e];
                     if (t) {
                         var i = t.textureCacheIds.indexOf(e);
                         return i > -1 && t.textureCacheIds.splice(i, 1),
-                        delete Be[e],
+                        delete Le[e],
                         t
                     }
                 } else if (e && e.textureCacheIds) {
                     for (var n = 0; n < e.textureCacheIds.length; ++n)
-                        delete Be[e.textureCacheIds[n]];
+                        delete Le[e.textureCacheIds[n]];
                     return e.textureCacheIds.length = 0,
                     e
                 }
@@ -7657,7 +7671,7 @@ and limitations under the License.
                         var a = e.source;
                         a.width = r,
                         a.height = s,
-                        a._pixiId = "canvas_" + Ce(),
+                        a._pixiId = "canvas_" + Ie(),
                         a.getContext("2d").drawImage(t, 0, 0, i, n, 0, 0, r, s),
                         e._resolve(),
                         e._resolve = null
@@ -8175,7 +8189,7 @@ and limitations under the License.
                 void 0 === n && (n = K.STRICT_TEXTURE_CACHE);
                 var r = "string" === typeof e
                   , s = null;
-                r ? s = e : (e._pixiId || (e._pixiId = "pixiid_" + Ce()),
+                r ? s = e : (e._pixiId || (e._pixiId = "pixiid_" + Ie()),
                 s = e._pixiId);
                 var a = De[s];
                 if (r && n && !a)
@@ -8571,20 +8585,20 @@ and limitations under the License.
             }
             return new Float32Array(a)
         }
-        var Ei = {
+        var ki = {
             5126: 4,
             5123: 2,
             5121: 1
         }
-          , Ii = 0
-          , ki = {
+          , Ei = 0
+          , Ci = {
             Float32Array: Float32Array,
             Uint32Array: Uint32Array,
             Int32Array: Int32Array,
             Uint8Array: Uint8Array,
             Uint16Array: Uint16Array
         }
-          , Ci = function() {
+          , Ii = function() {
             function e(e, t) {
                 void 0 === e && (e = []),
                 void 0 === t && (t = {}),
@@ -8592,7 +8606,7 @@ and limitations under the License.
                 this.indexBuffer = null,
                 this.attributes = t,
                 this.glVertexArrayObjects = {},
-                this.id = Ii++,
+                this.id = Ei++,
                 this.instanced = !1,
                 this.instanceCount = 1,
                 this.disposeRunner = new Xt("disposeGeometry"),
@@ -8649,7 +8663,7 @@ and limitations under the License.
                     var r = this.attributes[e]
                       , s = this.buffers[r.buffer];
                     t.push(s.data),
-                    i.push(r.size * Ei[r.type] / 4),
+                    i.push(r.size * ki[r.type] / 4),
                     r.buffer = 0
                 }
                 for (n.data = Mi(t, i),
@@ -8701,7 +8715,7 @@ and limitations under the License.
                         a[l] = 0
                 }
                 for (o = 0; o < i.buffers.length; o++)
-                    r[o] = new (ki[Ai(i.buffers[o].data)])(s[o]),
+                    r[o] = new (Ci[Ai(i.buffers[o].data)])(s[o]),
                     n.buffers[o] = new Ti(r[o]);
                 for (o = 0; o < t.length; o++) {
                     i = t[o];
@@ -8724,7 +8738,7 @@ and limitations under the License.
                         }
                     for (var o in i.attributes) {
                         var p = i.attributes[o];
-                        (0 | p.buffer) === d && (u += p.size * Ei[p.type] / 4)
+                        (0 | p.buffer) === d && (u += p.size * ki[p.type] / 4)
                     }
                     for (o = 0; o < t.length; o++) {
                         var f = t[o].indexBuffer.data;
@@ -8747,7 +8761,7 @@ and limitations under the License.
             }
             return qt(t, e),
             t
-        }(Ci)
+        }(Ii)
           , Pi = function(e) {
             function t() {
                 var t = e.call(this) || this;
@@ -8791,7 +8805,7 @@ and limitations under the License.
             }
             ,
             t
-        }(Ci)
+        }(Ii)
           , Ri = 0
           , Di = function() {
             function e(e, t) {
@@ -8816,7 +8830,7 @@ and limitations under the License.
             ,
             e
         }()
-          , Bi = function() {
+          , Li = function() {
             function e() {
                 this.renderTexture = null,
                 this.target = null,
@@ -8834,7 +8848,7 @@ and limitations under the License.
             ,
             e
         }()
-          , Li = function(e) {
+          , Bi = function(e) {
             function t(t) {
                 var i = e.call(this, t) || this;
                 return i.defaultFilterStack = [{}],
@@ -8860,7 +8874,7 @@ and limitations under the License.
             }
             return qt(t, e),
             t.prototype.push = function(e, t) {
-                for (var i = this.renderer, n = this.defaultFilterStack, r = this.statePool.pop() || new Bi, s = t[0].resolution, a = t[0].padding, o = t[0].autoFit, l = t[0].legacy, h = 1; h < t.length; h++) {
+                for (var i = this.renderer, n = this.defaultFilterStack, r = this.statePool.pop() || new Li, s = t[0].resolution, a = t[0].padding, o = t[0].autoFit, l = t[0].legacy, h = 1; h < t.length; h++) {
                     var u = t[h];
                     s = Math.min(s, u.resolution),
                     a = this.useMaxPadding ? Math.max(a, u.padding) : a + u.padding,
@@ -9293,7 +9307,7 @@ and limitations under the License.
                 configurable: !0
             }),
             t.prototype.clear = function(e, t, i, n, r) {
-                void 0 === r && (r = L.COLOR | L.DEPTH);
+                void 0 === r && (r = B.COLOR | B.DEPTH);
                 var s = this.gl;
                 s.clearColor(e, t, i, n),
                 s.clear(r)
@@ -10178,10 +10192,10 @@ and limitations under the License.
         }()
           , Sn = 0
           , Mn = 1
-          , En = 2
-          , In = 3
-          , kn = 4
-          , Cn = function() {
+          , kn = 2
+          , En = 3
+          , Cn = 4
+          , In = function() {
             function e() {
                 this.data = 0,
                 this.blendMode = F.NORMAL,
@@ -10210,6 +10224,16 @@ and limitations under the License.
             }),
             Object.defineProperty(e.prototype, "culling", {
                 get: function() {
+                    return !!(this.data & 1 << kn)
+                },
+                set: function(e) {
+                    !!(this.data & 1 << kn) !== e && (this.data ^= 1 << kn)
+                },
+                enumerable: !1,
+                configurable: !0
+            }),
+            Object.defineProperty(e.prototype, "depthTest", {
+                get: function() {
                     return !!(this.data & 1 << En)
                 },
                 set: function(e) {
@@ -10218,22 +10242,12 @@ and limitations under the License.
                 enumerable: !1,
                 configurable: !0
             }),
-            Object.defineProperty(e.prototype, "depthTest", {
-                get: function() {
-                    return !!(this.data & 1 << In)
-                },
-                set: function(e) {
-                    !!(this.data & 1 << In) !== e && (this.data ^= 1 << In)
-                },
-                enumerable: !1,
-                configurable: !0
-            }),
             Object.defineProperty(e.prototype, "clockwiseFrontFace", {
                 get: function() {
-                    return !!(this.data & 1 << kn)
+                    return !!(this.data & 1 << Cn)
                 },
                 set: function(e) {
-                    !!(this.data & 1 << kn) !== e && (this.data ^= 1 << kn)
+                    !!(this.data & 1 << Cn) !== e && (this.data ^= 1 << Cn)
                 },
                 enumerable: !1,
                 configurable: !0
@@ -10281,7 +10295,7 @@ and limitations under the License.
                 s.enabled = !0,
                 s.autoFit = !0,
                 s.legacy = !!s.program.attributeData.aTextureCoord,
-                s.state = new Cn,
+                s.state = new In,
                 s
             }
             return qt(t, e),
@@ -10316,8 +10330,8 @@ and limitations under the License.
             t
         }(An)
           , Dn = "attribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\n\nuniform mat3 projectionMatrix;\nuniform mat3 otherMatrix;\n\nvarying vec2 vMaskCoord;\nvarying vec2 vTextureCoord;\n\nvoid main(void)\n{\n    gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n\n    vTextureCoord = aTextureCoord;\n    vMaskCoord = ( otherMatrix * vec3( aTextureCoord, 1.0)  ).xy;\n}\n"
-          , Bn = "varying vec2 vMaskCoord;\nvarying vec2 vTextureCoord;\n\nuniform sampler2D uSampler;\nuniform sampler2D mask;\nuniform float alpha;\nuniform float npmAlpha;\nuniform vec4 maskClamp;\n\nvoid main(void)\n{\n    float clip = step(3.5,\n        step(maskClamp.x, vMaskCoord.x) +\n        step(maskClamp.y, vMaskCoord.y) +\n        step(vMaskCoord.x, maskClamp.z) +\n        step(vMaskCoord.y, maskClamp.w));\n\n    vec4 original = texture2D(uSampler, vTextureCoord);\n    vec4 masky = texture2D(mask, vMaskCoord);\n    float alphaMul = 1.0 - npmAlpha * (1.0 - masky.a);\n\n    original *= (alphaMul * masky.r * alpha * clip);\n\n    gl_FragColor = original;\n}\n"
-          , Ln = new it
+          , Ln = "varying vec2 vMaskCoord;\nvarying vec2 vTextureCoord;\n\nuniform sampler2D uSampler;\nuniform sampler2D mask;\nuniform float alpha;\nuniform float npmAlpha;\nuniform vec4 maskClamp;\n\nvoid main(void)\n{\n    float clip = step(3.5,\n        step(maskClamp.x, vMaskCoord.x) +\n        step(maskClamp.y, vMaskCoord.y) +\n        step(vMaskCoord.x, maskClamp.z) +\n        step(vMaskCoord.y, maskClamp.w));\n\n    vec4 original = texture2D(uSampler, vTextureCoord);\n    vec4 masky = texture2D(mask, vMaskCoord);\n    float alphaMul = 1.0 - npmAlpha * (1.0 - masky.a);\n\n    original *= (alphaMul * masky.r * alpha * clip);\n\n    gl_FragColor = original;\n}\n"
+          , Bn = new it
           , Fn = function() {
             function e(e, t) {
                 this._texture = e,
@@ -10364,8 +10378,8 @@ and limitations under the License.
                 this.mapCoord.set(i.x1 - i.x0, i.y1 - i.y0, i.x3 - i.x0, i.y3 - i.y0, i.x0, i.y0);
                 var n = t.orig
                   , r = t.trim;
-                r && (Ln.set(n.width / r.width, 0, 0, n.height / r.height, -r.x / r.width, -r.y / r.height),
-                this.mapCoord.append(Ln));
+                r && (Bn.set(n.width / r.width, 0, 0, n.height / r.height, -r.x / r.width, -r.y / r.height),
+                this.mapCoord.append(Bn));
                 var s = t.baseTexture
                   , a = this.uClampFrame
                   , o = this.clampMargin / s.resolution
@@ -10386,7 +10400,7 @@ and limitations under the License.
             function t(t) {
                 var i = this
                   , n = new it;
-                return i = e.call(this, Dn, Bn) || this,
+                return i = e.call(this, Dn, Ln) || this,
                 t.renderable = !1,
                 i.maskSprite = t,
                 i.maskMatrix = n,
@@ -10925,7 +10939,7 @@ and limitations under the License.
                 i.map[nr] = i.setDepthTest,
                 i.map[rr] = i.setFrontFace,
                 i.checks = [],
-                i.defaultState = new Cn,
+                i.defaultState = new In,
                 i.defaultState.blend = !0,
                 i
             }
@@ -11209,7 +11223,7 @@ and limitations under the License.
                 delete e._glTextures[this.CONTEXT_UID],
                 !t)) {
                     var n = this.managedTextures.indexOf(e);
-                    -1 !== n && Ee(this.managedTextures, n, 1)
+                    -1 !== n && ke(this.managedTextures, n, 1)
                 }
             }
             ,
@@ -11241,7 +11255,7 @@ and limitations under the License.
             t
         }(ui)
           , hr = {
-            FilterSystem: Li,
+            FilterSystem: Bi,
             BatchSystem: ji,
             ContextSystem: Ui,
             FramebufferSystem: Hi,
@@ -11259,7 +11273,7 @@ and limitations under the License.
           , ur = new it
           , cr = function(e) {
             function t(t, i) {
-                void 0 === t && (t = B.UNKNOWN);
+                void 0 === t && (t = L.UNKNOWN);
                 var n = e.call(this) || this;
                 return i = Object.assign({}, K.RENDER_OPTIONS, i),
                 i.roundPixels && (K.ROUND_PIXELS = i.roundPixels,
@@ -11334,7 +11348,7 @@ and limitations under the License.
                 e && this.view.parentNode && this.view.parentNode.removeChild(this.view);
                 var i = this;
                 i.plugins = null,
-                i.type = B.UNKNOWN,
+                i.type = L.UNKNOWN,
                 i.view = null,
                 i.screen = null,
                 i._tempDisplayObjectParent = null,
@@ -11360,7 +11374,7 @@ and limitations under the License.
         }(J.a)
           , dr = function(e) {
             function t(i) {
-                var n = e.call(this, B.WEBGL, i) || this;
+                var n = e.call(this, L.WEBGL, i) || this;
                 return i = n.options,
                 n.gl = null,
                 n.CONTEXT_UID = 0,
@@ -11376,7 +11390,7 @@ and limitations under the License.
                 n.globalUniforms = new Di({
                     projectionMatrix: new it
                 },!0),
-                n.addSystem(Nn, "mask").addSystem(Ui, "context").addSystem(sr, "state").addSystem(Zn, "shader").addSystem(lr, "texture").addSystem(Gi, "geometry").addSystem(Hi, "framebuffer").addSystem(zn, "scissor").addSystem(Wn, "stencil").addSystem(Hn, "projection").addSystem(ar, "textureGC").addSystem(Li, "filter").addSystem(Yn, "renderTexture").addSystem(ji, "batch"),
+                n.addSystem(Nn, "mask").addSystem(Ui, "context").addSystem(sr, "state").addSystem(Zn, "shader").addSystem(lr, "texture").addSystem(Gi, "geometry").addSystem(Hi, "framebuffer").addSystem(zn, "scissor").addSystem(Wn, "stencil").addSystem(Hn, "projection").addSystem(ar, "textureGC").addSystem(Bi, "filter").addSystem(Yn, "renderTexture").addSystem(ji, "batch"),
                 n.initPlugins(t.__plugins),
                 i.context ? n.context.initFromContext(i.context) : n.context.initFromOptions({
                     alpha: !!n.transparent,
@@ -11579,7 +11593,7 @@ and limitations under the License.
                 return i.shaderGenerator = null,
                 i.geometryClass = null,
                 i.vertexSize = null,
-                i.state = Cn.for2d(),
+                i.state = In.for2d(),
                 i.size = 4 * K.SPRITE_BATCH_SIZE,
                 i._vertexCount = 0,
                 i._indexCount = 0,
@@ -11880,7 +11894,7 @@ and limitations under the License.
             }
             return qt(t, e),
             t
-        }(Ci)
+        }(Ii)
           , _r = "precision highp float;\nattribute vec2 aVertexPosition;\nattribute vec2 aTextureCoord;\nattribute vec4 aColor;\nattribute float aTextureId;\n\nuniform mat3 projectionMatrix;\nuniform mat3 translationMatrix;\nuniform vec4 tint;\n\nvarying vec2 vTextureCoord;\nvarying vec4 vColor;\nvarying float vTextureId;\n\nvoid main(void){\n    gl_Position = vec4((projectionMatrix * translationMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);\n\n    vTextureCoord = aTextureCoord;\n    vTextureId = aTextureId;\n    vColor = aColor * tint;\n}\n"
           , Tr = "varying vec2 vTextureCoord;\nvarying vec4 vColor;\nvarying float vTextureId;\nuniform sampler2D uSamplers[%count%];\n\nvoid main(void){\n    vec4 color;\n    %forloop%\n    gl_FragColor = color * vColor;\n}\n"
           , Ar = function() {
@@ -11978,7 +11992,7 @@ and limitations under the License.
             e
         }();
         Mr._plugins = [];
-        var Er = function() {
+        var kr = function() {
             function e() {}
             return e.init = function(e) {
                 var t = this;
@@ -12039,7 +12053,7 @@ and limitations under the License.
             ,
             e
         }();
-        Mr.registerPlugin(Er);
+        Mr.registerPlugin(kr);
         /*!
  * @pixi/extract - v5.3.3
  * Compiled Tue, 04 Aug 2020 16:23:09 UTC
@@ -12047,9 +12061,9 @@ and limitations under the License.
  * @pixi/extract is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license
  */
-        var Ir = new qe
-          , kr = 4
-          , Cr = function() {
+        var Er = new qe
+          , Cr = 4
+          , Ir = function() {
             function e(e) {
                 this.renderer = e,
                 e.extract = this
@@ -12073,14 +12087,14 @@ and limitations under the License.
                 a = !1,
                 s.renderTexture.bind(r)) : (i = this.renderer.resolution,
                 a = !0,
-                n = Ir,
+                n = Er,
                 n.width = this.renderer.width,
                 n.height = this.renderer.height,
                 s.renderTexture.bind(null));
                 var l = Math.floor(n.width * i + 1e-4)
                   , h = Math.floor(n.height * i + 1e-4)
                   , u = new je(l,h,1)
-                  , c = new Uint8Array(kr * l * h)
+                  , c = new Uint8Array(Cr * l * h)
                   , d = s.gl;
                 d.readPixels(n.x * i, n.y * i, l, h, d.RGBA, d.UNSIGNED_BYTE, c);
                 var p = u.context.getImageData(0, 0, l, h);
@@ -12104,13 +12118,13 @@ and limitations under the License.
                 r ? (i = r.baseTexture.resolution,
                 n = r.frame,
                 s.renderTexture.bind(r)) : (i = s.resolution,
-                n = Ir,
+                n = Er,
                 n.width = s.width,
                 n.height = s.height,
                 s.renderTexture.bind(null));
                 var o = n.width * i
                   , l = n.height * i
-                  , h = new Uint8Array(kr * o * l)
+                  , h = new Uint8Array(Cr * o * l)
                   , u = s.gl;
                 return u.readPixels(n.x * i, n.y * i, o, l, u.RGBA, u.UNSIGNED_BYTE, h),
                 a && r.destroy(!0),
@@ -12148,8 +12162,8 @@ and limitations under the License.
  * resource-loader is licensed under the MIT license.
  * http://www.opensource.org/licenses/mit-license
  */
-        function Br() {}
-        function Lr(e, t, i, n) {
+        function Lr() {}
+        function Br(e, t, i, n) {
             var r = 0
               , s = e.length;
             (function a(o) {
@@ -12178,12 +12192,12 @@ and limitations under the License.
               , n = {
                 _tasks: [],
                 concurrency: t,
-                saturated: Br,
-                unsaturated: Br,
+                saturated: Lr,
+                unsaturated: Lr,
                 buffer: t / 4,
-                empty: Br,
-                drain: Br,
-                error: Br,
+                empty: Lr,
+                drain: Lr,
+                error: Lr,
                 started: !1,
                 paused: !1,
                 push: function(e, t) {
@@ -12191,7 +12205,7 @@ and limitations under the License.
                 },
                 kill: function() {
                     i = 0,
-                    n.drain = Br,
+                    n.drain = Lr,
                     n.started = !1,
                     n._tasks = []
                 },
@@ -12239,7 +12253,7 @@ and limitations under the License.
                 else {
                     var r = {
                         data: e,
-                        callback: "function" === typeof i ? i : Br
+                        callback: "function" === typeof i ? i : Lr
                     };
                     t ? n._tasks.unshift(r) : n._tasks.push(r),
                     setTimeout((function() {
@@ -12910,7 +12924,7 @@ and limitations under the License.
             t._loadResource = function(e, t) {
                 var i = this;
                 e._dequeue = t,
-                Lr(this._beforeMiddleware, (function(t, n) {
+                Br(this._beforeMiddleware, (function(t, n) {
                     t.call(i, e, (function() {
                         n(e.isComplete ? {} : null)
                     }
@@ -12940,7 +12954,7 @@ and limitations under the License.
                 e._onLoadBinding = null,
                 this._resourcesParsing.push(e),
                 e._dequeue(),
-                Lr(this._afterMiddleware, (function(i, n) {
+                Br(this._afterMiddleware, (function(i, n) {
                     i.call(t, e, n)
                 }
                 ), (function() {
@@ -13214,7 +13228,7 @@ and limitations under the License.
             t
         }(bt), bs = function() {
             function e(e, t, i) {
-                this.geometry = new Ci,
+                this.geometry = new Ii,
                 this.indexBuffer = null,
                 this.size = i,
                 this.dynamicProperties = [],
@@ -13343,7 +13357,7 @@ and limitations under the License.
                     offset: 0
                 }],
                 i.shader = An.from(ws, xs, {}),
-                i.state = Cn.for2d(),
+                i.state = In.for2d(),
                 i
             }
             return ms(t, e),
@@ -13576,7 +13590,7 @@ and limitations under the License.
             e.prototype = null === t ? Object.create(t) : (i.prototype = t.prototype,
             new i)
         }
-        var Es = {
+        var ks = {
             build: function(e) {
                 e.points = e.shape.points.slice()
             },
@@ -13604,7 +13618,7 @@ and limitations under the License.
                 }
             }
         }
-          , Is = {
+          , Es = {
             build: function(e) {
                 var t, i, n = e.shape, r = e.points, s = n.x, a = n.y;
                 if (r.length = 0,
@@ -13640,7 +13654,7 @@ and limitations under the License.
                     r.push(s++, a, s)
             }
         }
-          , ks = {
+          , Cs = {
             build: function(e) {
                 var t = e.shape
                   , i = t.x
@@ -13659,7 +13673,7 @@ and limitations under the License.
                 t.indices.push(r, r + 1, r + 2, r + 1, r + 2, r + 3)
             }
         };
-        function Cs(e, t, i) {
+        function Is(e, t, i) {
             var n = t - e;
             return e + n * i
         }
@@ -13667,12 +13681,12 @@ and limitations under the License.
             void 0 === a && (a = []);
             for (var o = 20, l = a, h = 0, u = 0, c = 0, d = 0, p = 0, f = 0, m = 0, g = 0; m <= o; ++m)
                 g = m / o,
-                h = Cs(e, i, g),
-                u = Cs(t, n, g),
-                c = Cs(i, r, g),
-                d = Cs(n, s, g),
-                p = Cs(h, c, g),
-                f = Cs(u, d, g),
+                h = Is(e, i, g),
+                u = Is(t, n, g),
+                c = Is(i, r, g),
+                d = Is(n, s, g),
+                p = Is(h, c, g),
+                f = Is(u, d, g),
                 l.push(p, f);
             return l
         }
@@ -13749,7 +13763,7 @@ and limitations under the License.
             }
             return 2 * g
         }
-        function Bs(e, t) {
+        function Ls(e, t) {
             var i = e.shape
               , n = e.points || i.points.slice()
               , r = t.closePointEps;
@@ -13784,16 +13798,16 @@ and limitations under the License.
                   , A = 0
                   , S = -(x - _)
                   , M = b - w
+                  , k = 0
                   , E = 0
-                  , I = 0
-                  , k = Math.sqrt(S * S + M * M);
-                S /= k,
-                M /= k,
+                  , C = Math.sqrt(S * S + M * M);
+                S /= C,
+                M /= C,
                 S *= g,
                 M *= g;
-                var C = s.alignment
-                  , O = 2 * (1 - C)
-                  , P = 2 * C;
+                var I = s.alignment
+                  , O = 2 * (1 - I)
+                  , P = 2 * I;
                 l || (s.cap === vs.ROUND ? f += Ds(b - S * (O - P) * .5, x - M * (O - P) * .5, b - S * O, x - M * O, b + S * P, x + M * P, d, !0) + 2 : s.cap === vs.SQUARE && (f += Rs(b, x, S, M, O, P, !0, d))),
                 d.push(b - S * O, x - M * O),
                 d.push(b + S * P, x + M * P);
@@ -13806,32 +13820,32 @@ and limitations under the License.
                     A = n[2 * (R + 1) + 1],
                     S = -(x - _),
                     M = b - w,
-                    k = Math.sqrt(S * S + M * M),
-                    S /= k,
-                    M /= k,
+                    C = Math.sqrt(S * S + M * M),
+                    S /= C,
+                    M /= C,
                     S *= g,
                     M *= g,
-                    E = -(_ - A),
-                    I = w - T,
-                    k = Math.sqrt(E * E + I * I),
-                    E /= k,
-                    I /= k,
-                    E *= g,
-                    I *= g;
+                    k = -(_ - A),
+                    E = w - T,
+                    C = Math.sqrt(k * k + E * E),
+                    k /= C,
+                    E /= C,
+                    k *= g,
+                    E *= g;
                     var D = w - b
-                      , B = x - _
-                      , L = w - T
+                      , L = x - _
+                      , B = w - T
                       , F = A - _
-                      , j = B * L - F * D
+                      , j = L * B - F * D
                       , N = j < 0;
                     if (Math.abs(j) < .1)
                         d.push(w - S * O, _ - M * O),
                         d.push(w + S * P, _ + M * P);
                     else {
                         var U = (-S + b) * (-M + _) - (-S + w) * (-M + x)
-                          , z = (-E + T) * (-I + _) - (-E + w) * (-I + A)
-                          , W = (D * z - L * U) / j
-                          , H = (F * U - B * z) / j
+                          , z = (-k + T) * (-E + _) - (-k + w) * (-E + A)
+                          , W = (D * z - B * U) / j
+                          , H = (F * U - L * z) / j
                           , V = (W - w) * (W - w) + (H - _) * (H - _)
                           , X = w + (W - w) * O
                           , G = _ + (H - _) * O
@@ -13840,18 +13854,18 @@ and limitations under the License.
                         s.join === gs.BEVEL || V / v > y ? (N ? (d.push(X, G),
                         d.push(w + S * P, _ + M * P),
                         d.push(X, G),
-                        d.push(w + E * P, _ + I * P)) : (d.push(w - S * O, _ - M * O),
+                        d.push(w + k * P, _ + E * P)) : (d.push(w - S * O, _ - M * O),
                         d.push(Y, $),
-                        d.push(w - E * O, _ - I * O),
+                        d.push(w - k * O, _ - E * O),
                         d.push(Y, $)),
                         f += 2) : s.join === gs.ROUND ? N ? (d.push(X, G),
                         d.push(w + S * P, _ + M * P),
-                        f += Ds(w, _, w + S * P, _ + M * P, w + E * P, _ + I * P, d, !0) + 4,
+                        f += Ds(w, _, w + S * P, _ + M * P, w + k * P, _ + E * P, d, !0) + 4,
                         d.push(X, G),
-                        d.push(w + E * P, _ + I * P)) : (d.push(w - S * O, _ - M * O),
+                        d.push(w + k * P, _ + E * P)) : (d.push(w - S * O, _ - M * O),
                         d.push(Y, $),
-                        f += Ds(w, _, w - S * O, _ - M * O, w - E * O, _ - I * O, d, !1) + 4,
-                        d.push(w - E * O, _ - I * O),
+                        f += Ds(w, _, w - S * O, _ - M * O, w - k * O, _ - E * O, d, !1) + 4,
+                        d.push(w - k * O, _ - E * O),
                         d.push(Y, $)) : (d.push(X, G),
                         d.push(Y, $))
                     }
@@ -13862,9 +13876,9 @@ and limitations under the License.
                 _ = n[2 * (p - 1) + 1],
                 S = -(x - _),
                 M = b - w,
-                k = Math.sqrt(S * S + M * M),
-                S /= k,
-                M /= k,
+                C = Math.sqrt(S * S + M * M),
+                S /= C,
+                M /= C,
                 S *= g,
                 M *= g,
                 d.push(w - S * O, _ - M * O),
@@ -13882,7 +13896,7 @@ and limitations under the License.
                     Math.abs(b * (_ - A) + w * (A - x) + T * (x - _)) < Q || q.push(R, R + 1, R + 2)
             }
         }
-        function Ls(e, t) {
+        function Bs(e, t) {
             var i = 0
               , n = e.shape
               , r = e.points || n.points
@@ -13902,7 +13916,7 @@ and limitations under the License.
             }
         }
         function Fs(e, t) {
-            e.lineStyle.native ? Ls(e, t) : Bs(e, t)
+            e.lineStyle.native ? Bs(e, t) : Ls(e, t)
         }
         var js, Ns = function(e) {
             function t(t, i, n, r, s, a) {
@@ -13946,13 +13960,13 @@ and limitations under the License.
                   , A = c * (g + b)
                   , S = u * (g + b)
                   , M = Math.atan2(T - w, _ - x)
-                  , E = Math.atan2(S - w, A - x);
+                  , k = Math.atan2(S - w, A - x);
                 return {
                     cx: x + e,
                     cy: w + t,
                     radius: r,
                     startAngle: M,
-                    endAngle: E,
+                    endAngle: k,
                     anticlockwise: h * u > c * l
                 }
             }
@@ -14064,15 +14078,15 @@ and limitations under the License.
             ,
             e
         }(), Vs = (js = {},
-        js[Xe.POLY] = Es,
-        js[Xe.CIRC] = Is,
-        js[Xe.ELIP] = Is,
-        js[Xe.RECT] = ks,
+        js[Xe.POLY] = ks,
+        js[Xe.CIRC] = Es,
+        js[Xe.ELIP] = Es,
+        js[Xe.RECT] = Cs,
         js[Xe.RREC] = Ps,
         js), Xs = [], Gs = [], Ys = {
-            buildPoly: Es,
-            buildCircle: Is,
-            buildRectangle: ks,
+            buildPoly: ks,
+            buildCircle: Es,
+            buildRectangle: Cs,
             buildRoundedRectangle: Ps,
             FILL_COMMANDS: Vs,
             BATCH_POOL: Xs,
@@ -14410,7 +14424,7 @@ and limitations under the License.
             t.prototype.processFill = function(e) {
                 if (e.holes.length)
                     this.processHoles(e.holes),
-                    Es.triangulate(e, this);
+                    ks.triangulate(e, this);
                 else {
                     var t = Vs[e.type];
                     t.triangulate(e, this)
@@ -14569,7 +14583,7 @@ and limitations under the License.
                 return i._geometry = t || new Ks,
                 i._geometry.refCount++,
                 i.shader = null,
-                i.state = Cn.for2d(),
+                i.state = In.for2d(),
                 i._fillStyle = new As,
                 i._lineStyle = new Zs,
                 i._matrix = null,
@@ -15134,8 +15148,8 @@ and limitations under the License.
                 this._textureID = -1,
                 this._textureTrimmedID = -1,
                 this._cachedTint = 16777215,
-                this._width && (this.scale.x = Ie(this.scale.x) * this._width / this._texture.orig.width),
-                this._height && (this.scale.y = Ie(this.scale.y) * this._height / this._texture.orig.height)
+                this._width && (this.scale.x = Ee(this.scale.x) * this._width / this._texture.orig.width),
+                this._height && (this.scale.y = Ee(this.scale.y) * this._height / this._texture.orig.height)
             }
             ,
             t.prototype._onAnchorUpdate = function() {
@@ -15285,7 +15299,7 @@ and limitations under the License.
                     return Math.abs(this.scale.x) * this._texture.orig.width
                 },
                 set: function(e) {
-                    var t = Ie(this.scale.x) || 1;
+                    var t = Ee(this.scale.x) || 1;
                     this.scale.x = t * e / this._texture.orig.width,
                     this._width = e
                 },
@@ -15297,7 +15311,7 @@ and limitations under the License.
                     return Math.abs(this.scale.y) * this._texture.orig.height
                 },
                 set: function(e) {
-                    var t = Ie(this.scale.y) || 1;
+                    var t = Ee(this.scale.y) || 1;
                     this.scale.y = t * e / this._texture.orig.height,
                     this._height = e
                 },
@@ -15849,20 +15863,20 @@ and limitations under the License.
                                     A++
                                 }
                                 _ += T.length - 1;
-                                var E = e.getFromCache(T, h, l, r);
-                                E + s > f && (o += e.addLine(a),
+                                var k = e.getFromCache(T, h, l, r);
+                                k + s > f && (o += e.addLine(a),
                                 p = !1,
                                 a = "",
                                 s = 0),
                                 a += T,
-                                s += E
+                                s += k
                             }
                         else {
                             a.length > 0 && (o += e.addLine(a),
                             a = "",
                             s = 0);
-                            var I = g === m.length - 1;
-                            o += e.addLine(v, !I),
+                            var E = g === m.length - 1;
+                            o += e.addLine(v, !E),
                             p = !1,
                             a = "",
                             s = 0
@@ -16239,7 +16253,7 @@ and limitations under the License.
                 },
                 set: function(e) {
                     this.updateText(!0);
-                    var t = Ie(this.scale.x) || 1;
+                    var t = Ee(this.scale.x) || 1;
                     this.scale.x = t * e / this._texture.orig.width,
                     this._width = e
                 },
@@ -16253,7 +16267,7 @@ and limitations under the License.
                 },
                 set: function(e) {
                     this.updateText(!0);
-                    var t = Ie(this.scale.y) || 1;
+                    var t = Ee(this.scale.y) || 1;
                     this.scale.y = t * e / this._texture.orig.height,
                     this._height = e
                 },
@@ -16384,11 +16398,11 @@ and limitations under the License.
             }
             return !1
         }
-        function Ea(e, t) {
+        function ka(e, t) {
             return t instanceof xa && (t.updateText(!0),
             !0)
         }
-        function Ia(e, t) {
+        function Ea(e, t) {
             if (t instanceof da) {
                 var i = t.toFontString();
                 return va.measureFont(i),
@@ -16396,7 +16410,7 @@ and limitations under the License.
             }
             return !1
         }
-        function ka(e, t) {
+        function Ca(e, t) {
             if (e instanceof xa) {
                 -1 === t.indexOf(e.style) && t.push(e.style),
                 -1 === t.indexOf(e) && t.push(e);
@@ -16406,7 +16420,7 @@ and limitations under the License.
             }
             return !1
         }
-        function Ca(e, t) {
+        function Ia(e, t) {
             return e instanceof da && (-1 === t.indexOf(e) && t.push(e),
             !0)
         }
@@ -16425,13 +16439,13 @@ and limitations under the License.
                     t.queue && t.prepareItems()
                 }
                 ,
-                this.registerFindHook(ka),
                 this.registerFindHook(Ca),
+                this.registerFindHook(Ia),
                 this.registerFindHook(Aa),
                 this.registerFindHook(Sa),
                 this.registerFindHook(Ma),
-                this.registerUploadHook(Ea),
-                this.registerUploadHook(Ia)
+                this.registerUploadHook(ka),
+                this.registerUploadHook(Ea)
             }
             return e.prototype.upload = function(e, t) {
                 "function" === typeof e && (t = e,
@@ -16527,7 +16541,7 @@ and limitations under the License.
             return e instanceof ta && (t.push(e),
             !0)
         }
-        var Ba = function(e) {
+        var La = function(e) {
             function t(t) {
                 var i = e.call(this, t) || this;
                 return i.uploadHookHelper = i.renderer,
@@ -16539,7 +16553,7 @@ and limitations under the License.
             return _a(t, e),
             t
         }(Oa)
-          , La = function() {
+          , Ba = function() {
             function e(e) {
                 this.maxMilliseconds = e,
                 this.frameStart = 0
@@ -16851,7 +16865,7 @@ and limitations under the License.
                 return i.shader = An.from(Ha, Va, n),
                 i.simpleShader = An.from(Ha, Xa, n),
                 i.quad = new Pi,
-                i.state = Cn.for2d(),
+                i.state = In.for2d(),
                 i
             }
             return Ua(t, e),
@@ -16950,7 +16964,7 @@ and limitations under the License.
                 return s.geometry = t,
                 t.refCount++,
                 s.shader = i,
-                s.state = n || Cn.for2d(),
+                s.state = n || In.for2d(),
                 s.drawMode = r,
                 s.start = 0,
                 s.size = 0,
@@ -17220,7 +17234,7 @@ and limitations under the License.
                 configurable: !0
             }),
             t
-        }(Ci)
+        }(Ii)
           , ro = function(e, t) {
             return ro = Object.setPrototypeOf || {
                 __proto__: []
@@ -17650,10 +17664,10 @@ and limitations under the License.
                         v = Math.ceil(v)
                     }
                 }
-                var E = new e(p,x);
+                var k = new e(p,x);
                 return void 0 !== e.available[t] && e.uninstall(t),
-                e.available[t] = E,
-                E
+                e.available[t] = k,
+                k
             }
             ,
             e.ALPHA = [["a", "z"], ["A", "Z"], " "],
@@ -17735,7 +17749,7 @@ and limitations under the License.
                             g = Math.max(g, x.yOffset + x.texture.height),
                             h = y,
                             -1 !== p && l > 0 && n.x > l && (++m,
-                            Ee(r, 1 + p - m, 1 + v - p),
+                            ke(r, 1 + p - m, 1 + v - p),
                             v = p,
                             p = -1,
                             s.push(f),
@@ -17766,14 +17780,14 @@ and limitations under the License.
                 }
                 var S = r.length
                   , M = {}
-                  , E = []
-                  , I = this._activePagesMeshData;
-                for (v = 0; v < I.length; v++)
-                    go.push(I[v]);
+                  , k = []
+                  , E = this._activePagesMeshData;
+                for (v = 0; v < E.length; v++)
+                    go.push(E[v]);
                 for (v = 0; v < S; v++) {
-                    var k = r[v].texture
-                      , C = k.baseTexture.uid;
-                    if (!M[C]) {
+                    var C = r[v].texture
+                      , I = C.baseTexture.uid;
+                    if (!M[I]) {
                         var O = go.pop();
                         if (!O) {
                             var P = new no
@@ -17796,34 +17810,34 @@ and limitations under the License.
                         O.vertexCount = 0,
                         O.uvsCount = 0,
                         O.total = 0,
-                        O.mesh.texture = new gi(k.baseTexture),
+                        O.mesh.texture = new gi(C.baseTexture),
                         O.mesh.tint = this._tint,
-                        E.push(O),
-                        M[C] = O
+                        k.push(O),
+                        M[I] = O
                     }
-                    M[C].total++
+                    M[I].total++
                 }
-                for (v = 0; v < I.length; v++)
-                    -1 === E.indexOf(I[v]) && this.removeChild(I[v].mesh);
                 for (v = 0; v < E.length; v++)
-                    E[v].mesh.parent !== this && this.addChild(E[v].mesh);
-                for (var v in this._activePagesMeshData = E,
+                    -1 === k.indexOf(E[v]) && this.removeChild(E[v].mesh);
+                for (v = 0; v < k.length; v++)
+                    k[v].mesh.parent !== this && this.addChild(k[v].mesh);
+                for (var v in this._activePagesMeshData = k,
                 M) {
                     O = M[v];
-                    var B = O.total;
-                    (null === (e = O.indices) || void 0 === e ? void 0 : e.length) > 6 * B && !(O.vertices.length < 2 * Ja.BATCHABLE_SIZE) || (O.vertices = new Float32Array(8 * B),
-                    O.uvs = new Float32Array(8 * B),
-                    O.indices = new Uint16Array(6 * B)),
-                    O.mesh.size = 6 * B
+                    var L = O.total;
+                    (null === (e = O.indices) || void 0 === e ? void 0 : e.length) > 6 * L && !(O.vertices.length < 2 * Ja.BATCHABLE_SIZE) || (O.vertices = new Float32Array(8 * L),
+                    O.uvs = new Float32Array(8 * L),
+                    O.indices = new Uint16Array(6 * L)),
+                    O.mesh.size = 6 * L
                 }
                 for (v = 0; v < S; v++) {
                     b = r[v];
-                    var L = (b.position.x + T[b.line]) * i
+                    var B = (b.position.x + T[b.line]) * i
                       , F = b.position.y * i
-                      , j = (k = b.texture,
-                    M[k.baseTexture.uid])
-                      , N = k.frame
-                      , U = k._uvs
+                      , j = (C = b.texture,
+                    M[C.baseTexture.uid])
+                      , N = C.frame
+                      , U = C._uvs
                       , z = j.index++;
                     j.indices[6 * z + 0] = 0 + 4 * z,
                     j.indices[6 * z + 1] = 1 + 4 * z,
@@ -17831,13 +17845,13 @@ and limitations under the License.
                     j.indices[6 * z + 3] = 0 + 4 * z,
                     j.indices[6 * z + 4] = 2 + 4 * z,
                     j.indices[6 * z + 5] = 3 + 4 * z,
-                    j.vertices[8 * z + 0] = L,
+                    j.vertices[8 * z + 0] = B,
                     j.vertices[8 * z + 1] = F,
-                    j.vertices[8 * z + 2] = L + N.width * i,
+                    j.vertices[8 * z + 2] = B + N.width * i,
                     j.vertices[8 * z + 3] = F,
-                    j.vertices[8 * z + 4] = L + N.width * i,
+                    j.vertices[8 * z + 4] = B + N.width * i,
                     j.vertices[8 * z + 5] = F + N.height * i,
-                    j.vertices[8 * z + 6] = L,
+                    j.vertices[8 * z + 6] = B,
                     j.vertices[8 * z + 7] = F + N.height * i,
                     j.uvs[8 * z + 0] = U.x0,
                     j.uvs[8 * z + 1] = U.y0,
@@ -18164,7 +18178,7 @@ and limitations under the License.
             new i)
         }
         var Mo = "\n    attribute vec2 aVertexPosition;\n\n    uniform mat3 projectionMatrix;\n\n    uniform float strength;\n\n    varying vec2 vBlurTexCoords[%size%];\n\n    uniform vec4 inputSize;\n    uniform vec4 outputFrame;\n\n    vec4 filterVertexPosition( void )\n    {\n        vec2 position = aVertexPosition * max(outputFrame.zw, vec2(0.)) + outputFrame.xy;\n\n        return vec4((projectionMatrix * vec3(position, 1.0)).xy, 0.0, 1.0);\n    }\n\n    vec2 filterTextureCoord( void )\n    {\n        return aVertexPosition * (outputFrame.zw * inputSize.zw);\n    }\n\n    void main(void)\n    {\n        gl_Position = filterVertexPosition();\n\n        vec2 textureCoord = filterTextureCoord();\n        %blur%\n    }";
-        function Eo(e, t) {
+        function ko(e, t) {
             var i, n = Math.ceil(e / 2), r = Mo, s = "";
             i = t ? "vBlurTexCoords[%index%] =  textureCoord + vec2(%sampleIndex% * strength, 0.0);" : "vBlurTexCoords[%index%] =  textureCoord + vec2(0.0, %sampleIndex% * strength);";
             for (var a = 0; a < e; a++) {
@@ -18177,7 +18191,7 @@ and limitations under the License.
             r = r.replace("%size%", e.toString()),
             r
         }
-        var Io, ko, Co, Oo, Po, Ro, Do, Bo, Lo, Fo, jo, No, Uo, zo, Wo, Ho, Vo, Xo = {
+        var Eo, Co, Io, Oo, Po, Ro, Do, Lo, Bo, Fo, jo, No, Uo, zo, Wo, Ho, Vo, Xo = {
             5: [.153388, .221461, .250301],
             7: [.071303, .131514, .189879, .214607],
             9: [.028532, .067234, .124009, .179044, .20236],
@@ -18203,17 +18217,17 @@ and limitations under the License.
             e[e["WEBGL"] = 1] = "WEBGL",
             e[e["WEBGL2"] = 2] = "WEBGL2"
         }
-        )(Io || (Io = {})),
+        )(Eo || (Eo = {})),
         function(e) {
             e[e["UNKNOWN"] = 0] = "UNKNOWN",
             e[e["WEBGL"] = 1] = "WEBGL",
             e[e["CANVAS"] = 2] = "CANVAS"
-        }(ko || (ko = {})),
+        }(Co || (Co = {})),
         function(e) {
             e[e["COLOR"] = 16384] = "COLOR",
             e[e["DEPTH"] = 256] = "DEPTH",
             e[e["STENCIL"] = 1024] = "STENCIL"
-        }(Co || (Co = {})),
+        }(Io || (Io = {})),
         function(e) {
             e[e["NORMAL"] = 0] = "NORMAL",
             e[e["ADD"] = 1] = "ADD",
@@ -18285,11 +18299,11 @@ and limitations under the License.
             e[e["UNSIGNED_SHORT_5_5_5_1"] = 32820] = "UNSIGNED_SHORT_5_5_5_1",
             e[e["FLOAT"] = 5126] = "FLOAT",
             e[e["HALF_FLOAT"] = 36193] = "HALF_FLOAT"
-        }(Bo || (Bo = {})),
+        }(Lo || (Lo = {})),
         function(e) {
             e[e["NEAREST"] = 0] = "NEAREST",
             e[e["LINEAR"] = 1] = "LINEAR"
-        }(Lo || (Lo = {})),
+        }(Bo || (Bo = {})),
         function(e) {
             e[e["CLAMP"] = 33071] = "CLAMP",
             e[e["REPEAT"] = 10497] = "REPEAT",
@@ -18344,7 +18358,7 @@ and limitations under the License.
                 void 0 === r && (r = K.RESOLUTION),
                 void 0 === s && (s = 5);
                 var a = this
-                  , o = Eo(s, t)
+                  , o = ko(s, t)
                   , l = Yo(s);
                 return a = e.call(this, o, l) || this,
                 a.horizontal = t,
@@ -18990,7 +19004,7 @@ and limitations under the License.
                     width: i.width,
                     height: i.height
                 })
-                  , l = "cacheAsBitmap_" + Ce();
+                  , l = "cacheAsBitmap_" + Ie();
                 this._cacheData.textureCacheId = l,
                 Jt.addToCache(o.baseTexture, l),
                 gi.addToCache(o, l);
@@ -19038,7 +19052,7 @@ and limitations under the License.
                     width: t.width,
                     height: t.height
                 })
-                  , a = "cacheAsBitmap_" + Ce();
+                  , a = "cacheAsBitmap_" + Ie();
                 this._cacheData.textureCacheId = a,
                 Jt.addToCache(s.baseTexture, a),
                 gi.addToCache(s, a);
@@ -19575,7 +19589,7 @@ and limitations under the License.
             e.prototype = null === t ? Object.create(t) : (i.prototype = t.prototype,
             new i)
         }
-        var El = function(e) {
+        var kl = function(e) {
             function t(t, i) {
                 void 0 === i && (i = !0);
                 var n = e.call(this, t[0]instanceof gi ? t[0] : t[0].texture) || this;
@@ -19737,8 +19751,8 @@ and limitations under the License.
             }),
             t
         }(oa)
-          , Il = function(e, t) {
-            return Il = Object.setPrototypeOf || {
+          , El = function(e, t) {
+            return El = Object.setPrototypeOf || {
                 __proto__: []
             }instanceof Array && function(e, t) {
                 e.__proto__ = t
@@ -19748,7 +19762,7 @@ and limitations under the License.
                     t.hasOwnProperty(i) && (e[i] = t[i])
             }
             ,
-            Il(e, t)
+            El(e, t)
         };
         /*!
  * pixi.js - v5.3.3
@@ -19771,39 +19785,39 @@ MERCHANTABLITY OR NON-INFRINGEMENT.
 See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
-        function kl(e, t) {
+        function Cl(e, t) {
             function i() {
                 this.constructor = e
             }
-            Il(e, t),
+            El(e, t),
             e.prototype = null === t ? Object.create(t) : (i.prototype = t.prototype,
             new i)
         }
-        var Cl = "5.0.0";
+        var Il = "5.0.0";
         function Ol() {
             var e = this;
             Object.defineProperties(e, {
                 SVG_SIZE: {
                     get: function() {
-                        return Pe(Cl, "PIXI.utils.SVG_SIZE property has moved to PIXI.resources.SVGResource.SVG_SIZE"),
+                        return Pe(Il, "PIXI.utils.SVG_SIZE property has moved to PIXI.resources.SVGResource.SVG_SIZE"),
                         e.SVGResource.SVG_SIZE
                     }
                 },
                 TransformStatic: {
                     get: function() {
-                        return Pe(Cl, "PIXI.TransformStatic class has been removed, use PIXI.Transform"),
+                        return Pe(Il, "PIXI.TransformStatic class has been removed, use PIXI.Transform"),
                         e.Transform
                     }
                 },
                 TransformBase: {
                     get: function() {
-                        return Pe(Cl, "PIXI.TransformBase class has been removed, use PIXI.Transform"),
+                        return Pe(Il, "PIXI.TransformBase class has been removed, use PIXI.Transform"),
                         e.Transform
                     }
                 },
                 TRANSFORM_MODE: {
                     get: function() {
-                        return Pe(Cl, "PIXI.TRANSFORM_MODE property has been removed"),
+                        return Pe(Il, "PIXI.TRANSFORM_MODE property has been removed"),
                         {
                             STATIC: 0,
                             DYNAMIC: 1
@@ -19812,25 +19826,25 @@ and limitations under the License.
                 },
                 WebGLRenderer: {
                     get: function() {
-                        return Pe(Cl, "PIXI.WebGLRenderer class has moved to PIXI.Renderer"),
+                        return Pe(Il, "PIXI.WebGLRenderer class has moved to PIXI.Renderer"),
                         e.Renderer
                     }
                 },
                 CanvasRenderTarget: {
                     get: function() {
-                        return Pe(Cl, "PIXI.CanvasRenderTarget class has moved to PIXI.utils.CanvasRenderTarget"),
+                        return Pe(Il, "PIXI.CanvasRenderTarget class has moved to PIXI.utils.CanvasRenderTarget"),
                         e.utils.CanvasRenderTarget
                     }
                 },
                 loader: {
                     get: function() {
-                        return Pe(Cl, "PIXI.loader instance has moved to PIXI.Loader.shared"),
+                        return Pe(Il, "PIXI.loader instance has moved to PIXI.Loader.shared"),
                         e.Loader.shared
                     }
                 },
                 FilterManager: {
                     get: function() {
-                        return Pe(Cl, "PIXI.FilterManager class has moved to PIXI.systems.FilterSystem"),
+                        return Pe(Il, "PIXI.FilterManager class has moved to PIXI.systems.FilterSystem"),
                         e.systems.FilterSystem
                     }
                 },
@@ -19917,25 +19931,25 @@ and limitations under the License.
             Object.defineProperties(e.extras, {
                 TilingSprite: {
                     get: function() {
-                        return Pe(Cl, "PIXI.extras.TilingSprite class has moved to PIXI.TilingSprite"),
+                        return Pe(Il, "PIXI.extras.TilingSprite class has moved to PIXI.TilingSprite"),
                         e.TilingSprite
                     }
                 },
                 TilingSpriteRenderer: {
                     get: function() {
-                        return Pe(Cl, "PIXI.extras.TilingSpriteRenderer class has moved to PIXI.TilingSpriteRenderer"),
+                        return Pe(Il, "PIXI.extras.TilingSpriteRenderer class has moved to PIXI.TilingSpriteRenderer"),
                         e.TilingSpriteRenderer
                     }
                 },
                 AnimatedSprite: {
                     get: function() {
-                        return Pe(Cl, "PIXI.extras.AnimatedSprite class has moved to PIXI.AnimatedSprite"),
+                        return Pe(Il, "PIXI.extras.AnimatedSprite class has moved to PIXI.AnimatedSprite"),
                         e.AnimatedSprite
                     }
                 },
                 BitmapText: {
                     get: function() {
-                        return Pe(Cl, "PIXI.extras.BitmapText class has moved to PIXI.BitmapText"),
+                        return Pe(Il, "PIXI.extras.BitmapText class has moved to PIXI.BitmapText"),
                         e.BitmapText
                     }
                 }
@@ -19965,7 +19979,7 @@ and limitations under the License.
             Object.defineProperties(e.utils, {
                 getSvgSize: {
                     get: function() {
-                        return Pe(Cl, "PIXI.utils.getSvgSize function has moved to PIXI.resources.SVGResource.getSize"),
+                        return Pe(Il, "PIXI.utils.getSvgSize function has moved to PIXI.resources.SVGResource.getSize"),
                         e.resources.SVGResource.getSize
                     }
                 }
@@ -19974,43 +19988,43 @@ and limitations under the License.
             Object.defineProperties(e.mesh, {
                 Mesh: {
                     get: function() {
-                        return Pe(Cl, "PIXI.mesh.Mesh class has moved to PIXI.SimpleMesh"),
+                        return Pe(Il, "PIXI.mesh.Mesh class has moved to PIXI.SimpleMesh"),
                         e.SimpleMesh
                     }
                 },
                 NineSlicePlane: {
                     get: function() {
-                        return Pe(Cl, "PIXI.mesh.NineSlicePlane class has moved to PIXI.NineSlicePlane"),
+                        return Pe(Il, "PIXI.mesh.NineSlicePlane class has moved to PIXI.NineSlicePlane"),
                         e.NineSlicePlane
                     }
                 },
                 Plane: {
                     get: function() {
-                        return Pe(Cl, "PIXI.mesh.Plane class has moved to PIXI.SimplePlane"),
+                        return Pe(Il, "PIXI.mesh.Plane class has moved to PIXI.SimplePlane"),
                         e.SimplePlane
                     }
                 },
                 Rope: {
                     get: function() {
-                        return Pe(Cl, "PIXI.mesh.Rope class has moved to PIXI.SimpleRope"),
+                        return Pe(Il, "PIXI.mesh.Rope class has moved to PIXI.SimpleRope"),
                         e.SimpleRope
                     }
                 },
                 RawMesh: {
                     get: function() {
-                        return Pe(Cl, "PIXI.mesh.RawMesh class has moved to PIXI.Mesh"),
+                        return Pe(Il, "PIXI.mesh.RawMesh class has moved to PIXI.Mesh"),
                         e.Mesh
                     }
                 },
                 CanvasMeshRenderer: {
                     get: function() {
-                        return Pe(Cl, "PIXI.mesh.CanvasMeshRenderer class has moved to PIXI.CanvasMeshRenderer"),
+                        return Pe(Il, "PIXI.mesh.CanvasMeshRenderer class has moved to PIXI.CanvasMeshRenderer"),
                         e.CanvasMeshRenderer
                     }
                 },
                 MeshRenderer: {
                     get: function() {
-                        return Pe(Cl, "PIXI.mesh.MeshRenderer class has moved to PIXI.MeshRenderer"),
+                        return Pe(Il, "PIXI.mesh.MeshRenderer class has moved to PIXI.MeshRenderer"),
                         e.MeshRenderer
                     }
                 }
@@ -20019,13 +20033,13 @@ and limitations under the License.
             Object.defineProperties(e.particles, {
                 ParticleContainer: {
                     get: function() {
-                        return Pe(Cl, "PIXI.particles.ParticleContainer class has moved to PIXI.ParticleContainer"),
+                        return Pe(Il, "PIXI.particles.ParticleContainer class has moved to PIXI.ParticleContainer"),
                         e.ParticleContainer
                     }
                 },
                 ParticleRenderer: {
                     get: function() {
-                        return Pe(Cl, "PIXI.particles.ParticleRenderer class has moved to PIXI.ParticleRenderer"),
+                        return Pe(Il, "PIXI.particles.ParticleRenderer class has moved to PIXI.ParticleRenderer"),
                         e.ParticleRenderer
                     }
                 }
@@ -20034,13 +20048,13 @@ and limitations under the License.
             Object.defineProperties(e.ticker, {
                 Ticker: {
                     get: function() {
-                        return Pe(Cl, "PIXI.ticker.Ticker class has moved to PIXI.Ticker"),
+                        return Pe(Il, "PIXI.ticker.Ticker class has moved to PIXI.Ticker"),
                         e.Ticker
                     }
                 },
                 shared: {
                     get: function() {
-                        return Pe(Cl, "PIXI.ticker.shared instance has moved to PIXI.Ticker.shared"),
+                        return Pe(Il, "PIXI.ticker.shared instance has moved to PIXI.Ticker.shared"),
                         e.Ticker.shared
                     }
                 }
@@ -20049,42 +20063,42 @@ and limitations under the License.
             Object.defineProperties(e.loaders, {
                 Loader: {
                     get: function() {
-                        return Pe(Cl, "PIXI.loaders.Loader class has moved to PIXI.Loader"),
+                        return Pe(Il, "PIXI.loaders.Loader class has moved to PIXI.Loader"),
                         e.Loader
                     }
                 },
                 Resource: {
                     get: function() {
-                        return Pe(Cl, "PIXI.loaders.Resource class has moved to PIXI.LoaderResource"),
+                        return Pe(Il, "PIXI.loaders.Resource class has moved to PIXI.LoaderResource"),
                         e.LoaderResource
                     }
                 },
                 bitmapFontParser: {
                     get: function() {
-                        return Pe(Cl, "PIXI.loaders.bitmapFontParser function has moved to PIXI.BitmapFontLoader.use"),
+                        return Pe(Il, "PIXI.loaders.bitmapFontParser function has moved to PIXI.BitmapFontLoader.use"),
                         e.BitmapFontLoader.use
                     }
                 },
                 parseBitmapFontData: {
                     get: function() {
-                        Pe(Cl, "PIXI.loaders.parseBitmapFontData function has removed")
+                        Pe(Il, "PIXI.loaders.parseBitmapFontData function has removed")
                     }
                 },
                 spritesheetParser: {
                     get: function() {
-                        return Pe(Cl, "PIXI.loaders.spritesheetParser function has moved to PIXI.SpritesheetLoader.use"),
+                        return Pe(Il, "PIXI.loaders.spritesheetParser function has moved to PIXI.SpritesheetLoader.use"),
                         e.SpritesheetLoader.use
                     }
                 },
                 getResourcePath: {
                     get: function() {
-                        return Pe(Cl, "PIXI.loaders.getResourcePath property has moved to PIXI.SpritesheetLoader.getResourcePath"),
+                        return Pe(Il, "PIXI.loaders.getResourcePath property has moved to PIXI.SpritesheetLoader.getResourcePath"),
                         e.SpritesheetLoader.getResourcePath
                     }
                 }
             }),
             e.Loader.addPixiMiddleware = function(t) {
-                return Pe(Cl, "PIXI.loaders.Loader.addPixiMiddleware function is deprecated, use PIXI.loaders.Loader.registerPlugin"),
+                return Pe(Il, "PIXI.loaders.Loader.addPixiMiddleware function is deprecated, use PIXI.loaders.Loader.registerPlugin"),
                 e.loaders.Loader.registerPlugin({
                     use: t()
                 })
@@ -20096,63 +20110,63 @@ and limitations under the License.
             Object.assign(e.Loader.prototype, {
                 on: function(e) {
                     var i = t(e);
-                    Pe(Cl, "PIXI.Loader#on is completely deprecated, use PIXI.Loader#" + i + ".add")
+                    Pe(Il, "PIXI.Loader#on is completely deprecated, use PIXI.Loader#" + i + ".add")
                 },
                 once: function(e) {
                     var i = t(e);
-                    Pe(Cl, "PIXI.Loader#once is completely deprecated, use PIXI.Loader#" + i + ".once")
+                    Pe(Il, "PIXI.Loader#once is completely deprecated, use PIXI.Loader#" + i + ".once")
                 },
                 off: function(e) {
                     var i = t(e);
-                    Pe(Cl, "PIXI.Loader#off is completely deprecated, use PIXI.Loader#" + i + ".detach")
+                    Pe(Il, "PIXI.Loader#off is completely deprecated, use PIXI.Loader#" + i + ".detach")
                 }
             }),
             Object.defineProperty(e.extract, "WebGLExtract", {
                 get: function() {
-                    return Pe(Cl, "PIXI.extract.WebGLExtract method has moved to PIXI.Extract"),
+                    return Pe(Il, "PIXI.extract.WebGLExtract method has moved to PIXI.Extract"),
                     e.Extract
                 }
             }),
             Object.defineProperty(e.prepare, "WebGLPrepare", {
                 get: function() {
-                    return Pe(Cl, "PIXI.prepare.WebGLPrepare class has moved to PIXI.Prepare"),
+                    return Pe(Il, "PIXI.prepare.WebGLPrepare class has moved to PIXI.Prepare"),
                     e.Prepare
                 }
             }),
             e.Container.prototype._renderWebGL = function(e) {
-                Pe(Cl, "PIXI.Container._renderWebGL method has moved to PIXI.Container._render"),
+                Pe(Il, "PIXI.Container._renderWebGL method has moved to PIXI.Container._render"),
                 this._render(e)
             }
             ,
             e.Container.prototype.renderWebGL = function(e) {
-                Pe(Cl, "PIXI.Container.renderWebGL method has moved to PIXI.Container.render"),
+                Pe(Il, "PIXI.Container.renderWebGL method has moved to PIXI.Container.render"),
                 this.render(e)
             }
             ,
             e.DisplayObject.prototype.renderWebGL = function(e) {
-                Pe(Cl, "PIXI.DisplayObject.renderWebGL method has moved to PIXI.DisplayObject.render"),
+                Pe(Il, "PIXI.DisplayObject.renderWebGL method has moved to PIXI.DisplayObject.render"),
                 this.render(e)
             }
             ,
             e.Container.prototype.renderAdvancedWebGL = function(e) {
-                Pe(Cl, "PIXI.Container.renderAdvancedWebGL method has moved to PIXI.Container.renderAdvanced"),
+                Pe(Il, "PIXI.Container.renderAdvancedWebGL method has moved to PIXI.Container.renderAdvanced"),
                 this.renderAdvanced(e)
             }
             ,
             Object.defineProperties(e.settings, {
                 TRANSFORM_MODE: {
                     get: function() {
-                        return Pe(Cl, "PIXI.settings.TRANSFORM_MODE property has been removed"),
+                        return Pe(Il, "PIXI.settings.TRANSFORM_MODE property has been removed"),
                         0
                     },
                     set: function() {
-                        Pe(Cl, "PIXI.settings.TRANSFORM_MODE property has been removed")
+                        Pe(Il, "PIXI.settings.TRANSFORM_MODE property has been removed")
                     }
                 }
             });
             var i = e.BaseTexture;
             i.prototype.loadSource = function(t) {
-                Pe(Cl, "PIXI.BaseTexture.loadSource method has been deprecated");
+                Pe(Il, "PIXI.BaseTexture.loadSource method has been deprecated");
                 var i = e.resources.autoDetectResource(t);
                 i.internal = !0,
                 this.setResource(i),
@@ -20163,28 +20177,28 @@ and limitations under the License.
             Object.defineProperties(i.prototype, {
                 hasLoaded: {
                     get: function() {
-                        return Pe(Cl, "PIXI.BaseTexture.hasLoaded property has been removed, use PIXI.BaseTexture.valid"),
+                        return Pe(Il, "PIXI.BaseTexture.hasLoaded property has been removed, use PIXI.BaseTexture.valid"),
                         this.valid
                     }
                 },
                 imageUrl: {
                     get: function() {
                         var e;
-                        return Pe(Cl, "PIXI.BaseTexture.imageUrl property has been removed, use PIXI.BaseTexture.resource.url"),
+                        return Pe(Il, "PIXI.BaseTexture.imageUrl property has been removed, use PIXI.BaseTexture.resource.url"),
                         null === (e = this.resource) || void 0 === e ? void 0 : e.url
                     },
                     set: function(e) {
-                        Pe(Cl, "PIXI.BaseTexture.imageUrl property has been removed, use PIXI.BaseTexture.resource.url"),
+                        Pe(Il, "PIXI.BaseTexture.imageUrl property has been removed, use PIXI.BaseTexture.resource.url"),
                         this.resource && (this.resource.url = e)
                     }
                 },
                 source: {
                     get: function() {
-                        return Pe(Cl, "PIXI.BaseTexture.source property has been moved, use `PIXI.BaseTexture.resource.source`"),
+                        return Pe(Il, "PIXI.BaseTexture.source property has been moved, use `PIXI.BaseTexture.resource.source`"),
                         this.resource.source
                     },
                     set: function(e) {
-                        Pe(Cl, "PIXI.BaseTexture.source property has been moved, use `PIXI.BaseTexture.resource.source` if you want to set HTMLCanvasElement. Otherwise, create new BaseTexture."),
+                        Pe(Il, "PIXI.BaseTexture.source property has been moved, use `PIXI.BaseTexture.resource.source` if you want to set HTMLCanvasElement. Otherwise, create new BaseTexture."),
                         this.resource && (this.resource.source = e)
                     }
                 },
@@ -20210,7 +20224,7 @@ and limitations under the License.
                 }
             }),
             i.fromImage = function(e, t, n, r) {
-                Pe(Cl, "PIXI.BaseTexture.fromImage method has been replaced with PIXI.BaseTexture.from");
+                Pe(Il, "PIXI.BaseTexture.fromImage method has been replaced with PIXI.BaseTexture.from");
                 var s = {
                     scale: r,
                     crossorigin: t
@@ -20222,14 +20236,14 @@ and limitations under the License.
             }
             ,
             i.fromCanvas = function(e, t) {
-                return Pe(Cl, "PIXI.BaseTexture.fromCanvas method has been replaced with PIXI.BaseTexture.from"),
+                return Pe(Il, "PIXI.BaseTexture.fromCanvas method has been replaced with PIXI.BaseTexture.from"),
                 i.from(e, {
                     scaleMode: t
                 })
             }
             ,
             i.fromSVG = function(e, t, n, r) {
-                Pe(Cl, "PIXI.BaseTexture.fromSVG method has been replaced with PIXI.BaseTexture.from");
+                Pe(Il, "PIXI.BaseTexture.fromSVG method has been replaced with PIXI.BaseTexture.from");
                 var s = {
                     scale: r,
                     crossorigin: t
@@ -20253,22 +20267,22 @@ and limitations under the License.
                 }
             }),
             e.Point.prototype.copy = function(e) {
-                return Pe(Cl, "PIXI.Point.copy method has been replaced with PIXI.Point.copyFrom"),
+                return Pe(Il, "PIXI.Point.copy method has been replaced with PIXI.Point.copyFrom"),
                 this.copyFrom(e)
             }
             ,
             e.ObservablePoint.prototype.copy = function(e) {
-                return Pe(Cl, "PIXI.ObservablePoint.copy method has been replaced with PIXI.ObservablePoint.copyFrom"),
+                return Pe(Il, "PIXI.ObservablePoint.copy method has been replaced with PIXI.ObservablePoint.copyFrom"),
                 this.copyFrom(e)
             }
             ,
             e.Rectangle.prototype.copy = function(e) {
-                return Pe(Cl, "PIXI.Rectangle.copy method has been replaced with PIXI.Rectangle.copyFrom"),
+                return Pe(Il, "PIXI.Rectangle.copy method has been replaced with PIXI.Rectangle.copyFrom"),
                 this.copyFrom(e)
             }
             ,
             e.Matrix.prototype.copy = function(e) {
-                return Pe(Cl, "PIXI.Matrix.copy method has been replaced with PIXI.Matrix.copyTo"),
+                return Pe(Il, "PIXI.Matrix.copy method has been replaced with PIXI.Matrix.copyTo"),
                 this.copyTo(e)
             }
             ,
@@ -20279,15 +20293,15 @@ and limitations under the License.
             ,
             Object.assign(e.systems.FilterSystem.prototype, {
                 getRenderTarget: function(e, t) {
-                    return Pe(Cl, "PIXI.FilterManager.getRenderTarget method has been replaced with PIXI.systems.FilterSystem#getFilterTexture"),
+                    return Pe(Il, "PIXI.FilterManager.getRenderTarget method has been replaced with PIXI.systems.FilterSystem#getFilterTexture"),
                     this.getFilterTexture(null, t)
                 },
                 returnRenderTarget: function(e) {
-                    Pe(Cl, "PIXI.FilterManager.returnRenderTarget method has been replaced with PIXI.systems.FilterSystem.returnFilterTexture"),
+                    Pe(Il, "PIXI.FilterManager.returnRenderTarget method has been replaced with PIXI.systems.FilterSystem.returnFilterTexture"),
                     this.returnFilterTexture(e)
                 },
                 calculateScreenSpaceMatrix: function(e) {
-                    Pe(Cl, "PIXI.systems.FilterSystem.calculateScreenSpaceMatrix method is removed, use `(vTextureCoord * inputSize.xy) + outputFrame.xy` instead");
+                    Pe(Il, "PIXI.systems.FilterSystem.calculateScreenSpaceMatrix method is removed, use `(vTextureCoord * inputSize.xy) + outputFrame.xy` instead");
                     var t = e.identity()
                       , i = this.activeState
                       , n = i.sourceFrame
@@ -20297,7 +20311,7 @@ and limitations under the License.
                     t
                 },
                 calculateNormalizedScreenSpaceMatrix: function(e) {
-                    Pe(Cl, "PIXI.systems.FilterManager.calculateNormalizedScreenSpaceMatrix method is removed, use `((vTextureCoord * inputSize.xy) + outputFrame.xy) / outputFrame.zw` instead.");
+                    Pe(Il, "PIXI.systems.FilterManager.calculateNormalizedScreenSpaceMatrix method is removed, use `((vTextureCoord * inputSize.xy) + outputFrame.xy) / outputFrame.zw` instead.");
                     var t = this.activeState
                       , i = t.sourceFrame
                       , n = t.destinationFrame
@@ -20312,13 +20326,13 @@ and limitations under the License.
             Object.defineProperties(e.RenderTexture.prototype, {
                 sourceFrame: {
                     get: function() {
-                        return Pe(Cl, "PIXI.RenderTexture.sourceFrame property has been removed"),
+                        return Pe(Il, "PIXI.RenderTexture.sourceFrame property has been removed"),
                         this.filterFrame
                     }
                 },
                 size: {
                     get: function() {
-                        return Pe(Cl, "PIXI.RenderTexture.size property has been removed"),
+                        return Pe(Il, "PIXI.RenderTexture.size property has been removed"),
                         this._frame
                     }
                 }
@@ -20326,21 +20340,21 @@ and limitations under the License.
             var r = function(e) {
                 function t(t, i, n, r) {
                     var s = this;
-                    return Pe(Cl, "PIXI.filters.BlurXFilter class is deprecated, use PIXI.filters.BlurFilterPass"),
+                    return Pe(Il, "PIXI.filters.BlurXFilter class is deprecated, use PIXI.filters.BlurFilterPass"),
                     s = e.call(this, !0, t, i, n, r) || this,
                     s
                 }
-                return kl(t, e),
+                return Cl(t, e),
                 t
             }(e.filters.BlurFilterPass)
               , s = function(e) {
                 function t(t, i, n, r) {
                     var s = this;
-                    return Pe(Cl, "PIXI.filters.BlurYFilter class is deprecated, use PIXI.filters.BlurFilterPass"),
+                    return Pe(Il, "PIXI.filters.BlurYFilter class is deprecated, use PIXI.filters.BlurFilterPass"),
                     s = e.call(this, !1, t, i, n, r) || this,
                     s
                 }
-                return kl(t, e),
+                return Cl(t, e),
                 t
             }(e.filters.BlurFilterPass);
             Object.assign(e.filters, {
@@ -20351,7 +20365,7 @@ and limitations under the License.
               , o = e.Texture
               , l = e.Graphics;
             function h(e, t, i, n) {
-                return Pe(Cl, "PIXI.Sprite." + e + " method is deprecated, use PIXI.Sprite.from"),
+                return Pe(Il, "PIXI.Sprite." + e + " method is deprecated, use PIXI.Sprite.from"),
                 a.from(t, {
                     resourceOptions: {
                         scale: n,
@@ -20360,7 +20374,7 @@ and limitations under the License.
                 })
             }
             function u(e, t, i, n) {
-                return Pe(Cl, "PIXI.Texture." + e + " method is deprecated, use PIXI.Texture.from"),
+                return Pe(Il, "PIXI.Texture." + e + " method is deprecated, use PIXI.Texture.from"),
                 o.from(t, {
                     resourceOptions: {
                         scale: n,
@@ -20369,12 +20383,12 @@ and limitations under the License.
                 })
             }
             l.prototype.generateCanvasTexture || (l.prototype.generateCanvasTexture = function() {
-                Pe(Cl, 'PIXI.Graphics.generateCanvasTexture method is only available in "pixi.js-legacy"')
+                Pe(Il, 'PIXI.Graphics.generateCanvasTexture method is only available in "pixi.js-legacy"')
             }
             ),
             Object.defineProperty(l.prototype, "graphicsData", {
                 get: function() {
-                    return Pe(Cl, "PIXI.Graphics.graphicsData property is deprecated, use PIXI.Graphics.geometry.graphicsData"),
+                    return Pe(Il, "PIXI.Graphics.graphicsData property is deprecated, use PIXI.Graphics.geometry.graphicsData"),
                     this.geometry.graphicsData
                 }
             }),
@@ -20390,29 +20404,29 @@ and limitations under the License.
             o.fromFrame = u.bind(null, "fromFrame"),
             Object.defineProperty(e.AbstractRenderer.prototype, "autoResize", {
                 get: function() {
-                    return Pe(Cl, "PIXI.AbstractRenderer.autoResize property is deprecated, use PIXI.AbstractRenderer.autoDensity"),
+                    return Pe(Il, "PIXI.AbstractRenderer.autoResize property is deprecated, use PIXI.AbstractRenderer.autoDensity"),
                     this.autoDensity
                 },
                 set: function(e) {
-                    Pe(Cl, "PIXI.AbstractRenderer.autoResize property is deprecated, use PIXI.AbstractRenderer.autoDensity"),
+                    Pe(Il, "PIXI.AbstractRenderer.autoResize property is deprecated, use PIXI.AbstractRenderer.autoDensity"),
                     this.autoDensity = e
                 }
             }),
             Object.defineProperty(e.Renderer.prototype, "textureManager", {
                 get: function() {
-                    return Pe(Cl, "PIXI.Renderer.textureManager property is deprecated, use PIXI.Renderer.texture"),
+                    return Pe(Il, "PIXI.Renderer.textureManager property is deprecated, use PIXI.Renderer.texture"),
                     this.texture
                 }
             }),
             e.utils.mixins = {
                 mixin: function() {
-                    Pe(Cl, "PIXI.utils.mixins.mixin function is no longer available")
+                    Pe(Il, "PIXI.utils.mixins.mixin function is no longer available")
                 },
                 delayMixin: function() {
-                    Pe(Cl, "PIXI.utils.mixins.delayMixin function is no longer available")
+                    Pe(Il, "PIXI.utils.mixins.delayMixin function is no longer available")
                 },
                 performMixins: function() {
-                    Pe(Cl, "PIXI.utils.mixins.performMixins function is no longer available")
+                    Pe(Il, "PIXI.utils.mixins.performMixins function is no longer available")
                 }
             },
             Object.defineProperty(e.BitmapText.prototype, "font", {
@@ -20441,10 +20455,10 @@ and limitations under the License.
             })
         }
         dr.registerPlugin("accessibility", Ot),
-        dr.registerPlugin("extract", Cr),
+        dr.registerPlugin("extract", Ir),
         dr.registerPlugin("interaction", Vt),
         dr.registerPlugin("particle", _s),
-        dr.registerPlugin("prepare", Ba),
+        dr.registerPlugin("prepare", La),
         dr.registerPlugin("batch", Sr),
         dr.registerPlugin("tilingSprite", Ya),
         ds.registerPlugin(bo),
@@ -20476,36 +20490,29 @@ and limitations under the License.
                 i.directives[n] = i.directives[n] || t[n]
         }
     },
-    "28e7": function(e, t, i) {
-        "use strict";
-        var n = i("4a1a")
-          , r = i.n(n);
-        r.a
-    },
-    "2a13": function(e, t, i) {},
     "2b3d": function(e, t, i) {
         "use strict";
         i("3ca3");
-        var n, r = i("23e7"), s = i("83ab"), a = i("0d3b"), o = i("da84"), l = i("37e8"), h = i("6eeb"), u = i("19aa"), c = i("5135"), d = i("60da"), p = i("4df4"), f = i("6547").codeAt, m = i("5fb2"), g = i("d44e"), v = i("9861"), y = i("69f3"), b = o.URL, x = v.URLSearchParams, w = v.getState, _ = y.set, T = y.getterFor("URL"), A = Math.floor, S = Math.pow, M = "Invalid authority", E = "Invalid scheme", I = "Invalid host", k = "Invalid port", C = /[A-Za-z]/, O = /[\d+-.A-Za-z]/, P = /\d/, R = /^(0x|0X)/, D = /^[0-7]+$/, B = /^\d+$/, L = /^[\dA-Fa-f]+$/, F = /[\u0000\u0009\u000A\u000D #%/:?@[\\]]/, j = /[\u0000\u0009\u000A\u000D #/:?@[\\]]/, N = /^[\u0000-\u001F ]+|[\u0000-\u001F ]+$/g, U = /[\u0009\u000A\u000D]/g, z = function(e, t) {
+        var n, r = i("23e7"), s = i("83ab"), a = i("0d3b"), o = i("da84"), l = i("37e8"), h = i("6eeb"), u = i("19aa"), c = i("5135"), d = i("60da"), p = i("4df4"), f = i("6547").codeAt, m = i("5fb2"), g = i("d44e"), v = i("9861"), y = i("69f3"), b = o.URL, x = v.URLSearchParams, w = v.getState, _ = y.set, T = y.getterFor("URL"), A = Math.floor, S = Math.pow, M = "Invalid authority", k = "Invalid scheme", E = "Invalid host", C = "Invalid port", I = /[A-Za-z]/, O = /[\d+-.A-Za-z]/, P = /\d/, R = /^(0x|0X)/, D = /^[0-7]+$/, L = /^\d+$/, B = /^[\dA-Fa-f]+$/, F = /[\u0000\u0009\u000A\u000D #%/:?@[\\]]/, j = /[\u0000\u0009\u000A\u000D #/:?@[\\]]/, N = /^[\u0000-\u001F ]+|[\u0000-\u001F ]+$/g, U = /[\u0009\u000A\u000D]/g, z = function(e, t) {
             var i, n, r;
             if ("[" == t.charAt(0)) {
                 if ("]" != t.charAt(t.length - 1))
-                    return I;
+                    return E;
                 if (i = H(t.slice(1, -1)),
                 !i)
-                    return I;
+                    return E;
                 e.host = i
             } else if (Z(e)) {
                 if (t = m(t),
                 F.test(t))
-                    return I;
+                    return E;
                 if (i = W(t),
                 null === i)
-                    return I;
+                    return E;
                 e.host = i
             } else {
                 if (j.test(t))
-                    return I;
+                    return E;
                 for (i = "",
                 n = p(t),
                 r = 0; r < n.length; r++)
@@ -20529,7 +20536,7 @@ and limitations under the License.
                 "" === r)
                     a = 0;
                 else {
-                    if (!(10 == s ? B : 8 == s ? D : L).test(r))
+                    if (!(10 == s ? L : 8 == s ? D : B).test(r))
                         return e;
                     a = parseInt(r, s)
                 }
@@ -20562,7 +20569,7 @@ and limitations under the License.
                     return;
                 if (":" != d()) {
                     t = i = 0;
-                    while (i < 4 && L.test(d()))
+                    while (i < 4 && B.test(d()))
                         t = 16 * t + parseInt(d(), 16),
                         c++,
                         i++;
@@ -20698,7 +20705,7 @@ and limitations under the License.
             return !e.host || e.cannotBeABaseURL || "file" == e.scheme
         }, te = function(e, t) {
             var i;
-            return 2 == e.length && C.test(e.charAt(0)) && (":" == (i = e.charAt(1)) || !t && "|" == i)
+            return 2 == e.length && I.test(e.charAt(0)) && (":" == (i = e.charAt(1)) || !t && "|" == i)
         }, ie = function(e) {
             var t;
             return e.length > 1 && te(e.slice(0, 2)) && (2 == e.length || "/" === (t = e.charAt(2)) || "\\" === t || "?" === t || "#" === t)
@@ -20711,7 +20718,7 @@ and limitations under the License.
         }, se = function(e) {
             return e = e.toLowerCase(),
             ".." === e || "%2e." === e || ".%2e" === e || "%2e%2e" === e
-        }, ae = {}, oe = {}, le = {}, he = {}, ue = {}, ce = {}, de = {}, pe = {}, fe = {}, me = {}, ge = {}, ve = {}, ye = {}, be = {}, xe = {}, we = {}, _e = {}, Te = {}, Ae = {}, Se = {}, Me = {}, Ee = function(e, t, i, r) {
+        }, ae = {}, oe = {}, le = {}, he = {}, ue = {}, ce = {}, de = {}, pe = {}, fe = {}, me = {}, ge = {}, ve = {}, ye = {}, be = {}, xe = {}, we = {}, _e = {}, Te = {}, Ae = {}, Se = {}, Me = {}, ke = function(e, t, i, r) {
             var s, a, o, l, h = i || ae, u = 0, d = "", f = !1, m = !1, g = !1;
             i || (e.scheme = "",
             e.username = "",
@@ -20729,9 +20736,9 @@ and limitations under the License.
                 switch (a = s[u],
                 h) {
                 case ae:
-                    if (!a || !C.test(a)) {
+                    if (!a || !I.test(a)) {
                         if (i)
-                            return E;
+                            return k;
                         h = le;
                         continue
                     }
@@ -20744,7 +20751,7 @@ and limitations under the License.
                     else {
                         if (":" != a) {
                             if (i)
-                                return E;
+                                return k;
                             d = "",
                             h = le,
                             u = 0;
@@ -20764,7 +20771,7 @@ and limitations under the License.
                     break;
                 case le:
                     if (!r || r.cannotBeABaseURL && "#" != a)
-                        return E;
+                        return k;
                     if (r.cannotBeABaseURL && "#" == a) {
                         e.scheme = r.scheme,
                         e.path = r.path.slice(),
@@ -20889,7 +20896,7 @@ and limitations under the License.
                     if (":" != a || m) {
                         if (a == n || "/" == a || "?" == a || "#" == a || "\\" == a && Z(e)) {
                             if (Z(e) && "" == d)
-                                return I;
+                                return E;
                             if (i && "" == d && (J(e) || null !== e.port))
                                 return;
                             if (l = z(e, d),
@@ -20905,7 +20912,7 @@ and limitations under the License.
                         d += a
                     } else {
                         if ("" == d)
-                            return I;
+                            return E;
                         if (l = z(e, d),
                         l)
                             return l;
@@ -20921,7 +20928,7 @@ and limitations under the License.
                             if ("" != d) {
                                 var x = parseInt(d, 10);
                                 if (x > 65535)
-                                    return k;
+                                    return C;
                                 e.port = Z(e) && x === K[e.scheme] ? null : x,
                                 d = ""
                             }
@@ -20930,7 +20937,7 @@ and limitations under the License.
                             h = _e;
                             continue
                         }
-                        return k
+                        return C
                     }
                     d += a;
                     break;
@@ -21047,17 +21054,17 @@ and limitations under the License.
                 }
                 u++
             }
-        }, Ie = function(e) {
-            var t, i, n = u(this, Ie, "URL"), r = arguments.length > 1 ? arguments[1] : void 0, a = String(e), o = _(n, {
+        }, Ee = function(e) {
+            var t, i, n = u(this, Ee, "URL"), r = arguments.length > 1 ? arguments[1] : void 0, a = String(e), o = _(n, {
                 type: "URL"
             });
             if (void 0 !== r)
-                if (r instanceof Ie)
+                if (r instanceof Ee)
                     t = T(r);
-                else if (i = Ee(t = {}, String(r)),
+                else if (i = ke(t = {}, String(r)),
                 i)
                     throw TypeError(i);
-            if (i = Ee(o, a, null, t),
+            if (i = ke(o, a, null, t),
             i)
                 throw TypeError(i);
             var l = o.searchParams = new x
@@ -21067,19 +21074,19 @@ and limitations under the License.
                 o.query = String(l) || null
             }
             ,
-            s || (n.href = Ce.call(n),
+            s || (n.href = Ie.call(n),
             n.origin = Oe.call(n),
             n.protocol = Pe.call(n),
             n.username = Re.call(n),
             n.password = De.call(n),
-            n.host = Be.call(n),
-            n.hostname = Le.call(n),
+            n.host = Le.call(n),
+            n.hostname = Be.call(n),
             n.port = Fe.call(n),
             n.pathname = je.call(n),
             n.search = Ne.call(n),
             n.searchParams = Ue.call(n),
             n.hash = ze.call(n))
-        }, ke = Ie.prototype, Ce = function() {
+        }, Ce = Ee.prototype, Ie = function() {
             var e = T(this)
               , t = e.scheme
               , i = e.username
@@ -21115,12 +21122,12 @@ and limitations under the License.
             return T(this).username
         }, De = function() {
             return T(this).password
-        }, Be = function() {
+        }, Le = function() {
             var e = T(this)
               , t = e.host
               , i = e.port;
             return null === t ? "" : null === i ? X(t) : X(t) + ":" + i
-        }, Le = function() {
+        }, Be = function() {
             var e = T(this).host;
             return null === e ? "" : X(e)
         }, Fe = function() {
@@ -21146,11 +21153,11 @@ and limitations under the License.
                 enumerable: !0
             }
         };
-        if (s && l(ke, {
-            href: We(Ce, (function(e) {
+        if (s && l(Ce, {
+            href: We(Ie, (function(e) {
                 var t = T(this)
                   , i = String(e)
-                  , n = Ee(t, i);
+                  , n = ke(t, i);
                 if (n)
                     throw TypeError(n);
                 w(t.searchParams).updateSearchParams(t.query)
@@ -21159,7 +21166,7 @@ and limitations under the License.
             origin: We(Oe),
             protocol: We(Pe, (function(e) {
                 var t = T(this);
-                Ee(t, String(e) + ":", ae)
+                ke(t, String(e) + ":", ae)
             }
             )),
             username: We(Re, (function(e) {
@@ -21182,26 +21189,26 @@ and limitations under the License.
                 }
             }
             )),
-            host: We(Be, (function(e) {
+            host: We(Le, (function(e) {
                 var t = T(this);
-                t.cannotBeABaseURL || Ee(t, String(e), ge)
+                t.cannotBeABaseURL || ke(t, String(e), ge)
             }
             )),
-            hostname: We(Le, (function(e) {
+            hostname: We(Be, (function(e) {
                 var t = T(this);
-                t.cannotBeABaseURL || Ee(t, String(e), ve)
+                t.cannotBeABaseURL || ke(t, String(e), ve)
             }
             )),
             port: We(Fe, (function(e) {
                 var t = T(this);
                 ee(t) || (e = String(e),
-                "" == e ? t.port = null : Ee(t, e, ye))
+                "" == e ? t.port = null : ke(t, e, ye))
             }
             )),
             pathname: We(je, (function(e) {
                 var t = T(this);
                 t.cannotBeABaseURL || (t.path = [],
-                Ee(t, e + "", _e))
+                ke(t, e + "", _e))
             }
             )),
             search: We(Ne, (function(e) {
@@ -21209,7 +21216,7 @@ and limitations under the License.
                 e = String(e),
                 "" == e ? t.query = null : ("?" == e.charAt(0) && (e = e.slice(1)),
                 t.query = "",
-                Ee(t, e, Se)),
+                ke(t, e, Se)),
                 w(t.searchParams).updateSearchParams(t.query)
             }
             )),
@@ -21219,18 +21226,18 @@ and limitations under the License.
                 e = String(e),
                 "" != e ? ("#" == e.charAt(0) && (e = e.slice(1)),
                 t.fragment = "",
-                Ee(t, e, Me)) : t.fragment = null
+                ke(t, e, Me)) : t.fragment = null
             }
             ))
         }),
-        h(ke, "toJSON", (function() {
-            return Ce.call(this)
+        h(Ce, "toJSON", (function() {
+            return Ie.call(this)
         }
         ), {
             enumerable: !0
         }),
-        h(ke, "toString", (function() {
-            return Ce.call(this)
+        h(Ce, "toString", (function() {
+            return Ie.call(this)
         }
         ), {
             enumerable: !0
@@ -21238,22 +21245,22 @@ and limitations under the License.
         b) {
             var He = b.createObjectURL
               , Ve = b.revokeObjectURL;
-            He && h(Ie, "createObjectURL", (function(e) {
+            He && h(Ee, "createObjectURL", (function(e) {
                 return He.apply(b, arguments)
             }
             )),
-            Ve && h(Ie, "revokeObjectURL", (function(e) {
+            Ve && h(Ee, "revokeObjectURL", (function(e) {
                 return Ve.apply(b, arguments)
             }
             ))
         }
-        g(Ie, "URL"),
+        g(Ee, "URL"),
         r({
             global: !0,
             forced: !a,
             sham: !s
         }, {
-            URL: Ie
+            URL: Ee
         })
     },
     "2bfd": function(e, t, i) {},
@@ -22195,7 +22202,18 @@ object-assign
                 attrs: {
                     "fill-height": ""
                 }
-            }, [i("v-container", {
+            }, [i("v-overlay", {
+                attrs: {
+                    value: e.lockLoading
+                }
+            }, [i("div", {
+                staticClass: "text-center"
+            }, [i("h4", [e._v("Loading... Don't close this window")]), i("v-progress-circular", {
+                attrs: {
+                    indeterminate: "",
+                    size: "64"
+                }
+            })], 1)]), i("v-container", {
                 staticStyle: {
                     height: "calc(100vh - 48px)"
                 }
@@ -22204,12 +22222,80 @@ object-assign
                 attrs: {
                     elevation: "0"
                 }
-            }, [i("v-card-title", [e._v(" " + e._s(e.title) + " ")]), i("v-card-subtitle", [e._v(" " + e._s(e.subtitle) + " ")]), e.skins && e.animals && e.tiersWithSkins && e.animalsWithSkins ? i("v-card-text", {
+            }, [i("v-card-title", [e._v(" " + e._s(e.title) + " ")]), i("v-card-subtitle", [e._v(" " + e._s(e.subtitle) + " ")]), e.isSkinBoard ? i("div", {
+                staticClass: "board-bar d-flex flex-row align-center"
+            }, [i("span", [e._v("Skin Board Tools")]), i("v-checkbox", {
+                staticClass: "mt-0 pt-0",
+                attrs: {
+                    label: "Filter by animal",
+                    "hide-details": ""
+                },
+                model: {
+                    value: e.filterByAnimal,
+                    callback: function(t) {
+                        e.filterByAnimal = t
+                    },
+                    expression: "filterByAnimal"
+                }
+            }), i("v-spacer"), e.isSkinBoardManager ? [i("v-item-group", {
+                staticClass: "v-btn-toggle"
+            }, [i("v-btn", {
+                staticClass: "v-btn--icon-small",
+                attrs: {
+                    small: ""
+                },
+                on: {
+                    click: function(t) {
+                        return e.toggleSelectAll(!0)
+                    }
+                }
+            }, [e._v("Select all")]), i("v-btn", {
+                staticClass: "v-btn--icon-small",
+                attrs: {
+                    small: ""
+                },
+                on: {
+                    click: function(t) {
+                        return e.toggleSelectAll(!1)
+                    }
+                }
+            }, [e._v("Deselect all")])], 1), i("span", {
+                staticStyle: {
+                    "font-size": ".9em",
+                    "margin-right": "-.5em"
+                }
+            }, [e._v("Mass motion (" + e._s(e.selectedSkinCount) + " skins)")]), i("v-item-group", {
+                staticClass: "v-btn-toggle"
+            }, [i("v-btn", {
+                attrs: {
+                    small: "",
+                    disabled: !e.selectedSkinCount,
+                    depressed: "",
+                    color: "success"
+                },
+                on: {
+                    click: function(t) {
+                        return e.massMotion("approve")
+                    }
+                }
+            }, [e._v("Approve")]), i("v-btn", {
+                attrs: {
+                    small: "",
+                    disabled: !e.selectedSkinCount,
+                    depressed: "",
+                    color: "error"
+                },
+                on: {
+                    click: function(t) {
+                        return e.massMotion("remove")
+                    }
+                }
+            }, [e._v("Remove")])], 1)] : e._e()], 2) : e._e(), e.skins && e.animals && e.tiersWithSkins && e.animalsWithSkins ? i("v-card-text", {
                 staticClass: "d-flex flex-row flex-fill",
                 staticStyle: {
                     overflow: "hidden"
                 }
-            }, [[i("div", {
+            }, [[e.filterByAnimal ? [i("div", {
                 staticClass: "tier-list d-flex flex-column text-center"
             }, [i("h4", [e._v("Tier")]), i("perfect-scrollbar", {
                 staticClass: "flex-fill",
@@ -22270,7 +22356,7 @@ object-assign
                     }
                 })], 1)
             }
-            )), 1)], 1), i("div", {
+            )), 1)], 1)] : e._e(), i("div", {
                 key: e.selectedAnimal ? e.selectedAnimal.fishLevel : void 0,
                 staticClass: "skin-list pl-4 d-flex flex-column flex-fill"
             }, [i("h4", [e._v("Skins")]), i("v-row", {
@@ -22331,7 +22417,63 @@ object-assign
                     },
                     expression: "selectedOrderType"
                 }
-            })], 1)], 1), e.availableSkins ? i("perfect-scrollbar", {
+            })], 1), i("v-col", {
+                attrs: {
+                    cols: "auto"
+                }
+            }, [i("v-select", {
+                staticClass: "v-select--small",
+                attrs: {
+                    items: e.skinCategories,
+                    "hide-details": "",
+                    solo: "",
+                    "menu-props": {
+                        offsetY: !0
+                    },
+                    "background-color": "#f2f2f2",
+                    label: "Category",
+                    "single-line": "",
+                    "item-value": "id",
+                    flat: "",
+                    dense: "",
+                    "item-text": "name"
+                },
+                model: {
+                    value: e.selectedCategory,
+                    callback: function(t) {
+                        e.selectedCategory = t
+                    },
+                    expression: "selectedCategory"
+                }
+            })], 1), "season" === e.selectedCategory ? i("v-col", {
+                attrs: {
+                    cols: "auto"
+                }
+            }, [i("v-select", {
+                staticClass: "v-select--small",
+                attrs: {
+                    items: e.skinSeasons,
+                    "hide-details": "",
+                    solo: "",
+                    "menu-props": {
+                        offsetY: !0
+                    },
+                    "background-color": "#f2f2f2",
+                    label: "Season",
+                    "single-line": "",
+                    "item-value": "id",
+                    flat: "",
+                    dense: "",
+                    "item-text": "name"
+                },
+                model: {
+                    value: e.selectedSeason,
+                    callback: function(t) {
+                        e.selectedSeason = t
+                    },
+                    expression: "selectedSeason"
+                }
+            })], 1) : e._e()], 1), i("perfect-scrollbar", {
                 staticClass: "flex-fill d-flex flex-row flex-wrap justify-start",
                 attrs: {
                     options: {
@@ -22339,7 +22481,7 @@ object-assign
                         wheelPropagation: !1
                     }
                 }
-            }, e._l(e.availableSkins, (function(t) {
+            }, [e.availableSkins ? e._l(e.availableSkins, (function(t) {
                 return i("div", {
                     key: t.id,
                     staticClass: "skin",
@@ -22415,19 +22557,40 @@ object-assign
                         small: 2 === e.gridSize,
                         label: ""
                     }
-                }, [e._v("pending review")])] : e._e()], 2)
+                }, [e._v("pending review")])] : e._e(), e.isSkinBoardManager ? i("v-checkbox", {
+                    staticClass: "select-skin mt-0 pt-0",
+                    attrs: {
+                        "input-value": t.id in e.selectedSkins,
+                        "hide-details": ""
+                    },
+                    on: {
+                        click: function(i) {
+                            return i.stopPropagation(),
+                            e.toggleSkinSelect(t)
+                        }
+                    }
+                }) : e._e()], 2)
             }
-            )), 0) : e._e()], 1)]], 2) : i("v-card-text", [i("v-skeleton-loader", {
+            )) : e._e()], 2)], 1)]], 2) : i("v-card-text", [i("v-skeleton-loader", {
                 attrs: {
                     type: "paragraph"
                 }
             })], 1)], 1)], 1)], 1)
         }
           , r = []
-          , s = (i("4de4"),
+          , s = (i("99af"),
+        i("4de4"),
         i("4160"),
+        i("a15b"),
+        i("d81d"),
+        i("a434"),
         i("b0c0"),
+        i("b64b"),
+        i("d3b7"),
+        i("07ac"),
+        i("3ca3"),
         i("159b"),
+        i("ddb0"),
         i("b85c"))
           , a = (i("96cf"),
         i("1da1"))
@@ -22442,13 +22605,19 @@ object-assign
           , m = i("67e5")
           , g = i("0e09")
           , v = i("0e38")
-          , y = function(e) {
+          , y = i("ac26")
+          , b = i("cb34")
+          , x = i("2fb6")
+          , w = i("80e4")
+          , _ = i("d8c3")
+          , T = function(e) {
             Object(h["a"])(i, e);
             var t = Object(u["a"])(i);
             function i() {
                 var e;
                 return Object(o["a"])(this, i),
                 e = t.apply(this, arguments),
+                e.motionsService = new _["a"],
                 e.skinsService = new m["a"],
                 e.tiers = [],
                 e.animalsByTier = {},
@@ -22458,6 +22627,7 @@ object-assign
                 e.tiersWithSkins = {},
                 e.animalsWithSkins = {},
                 e.gridSize = 1,
+                e.lockLoading = !1,
                 e.orderTypes = [{
                     id: "new",
                     name: "Newest first"
@@ -22465,8 +22635,44 @@ object-assign
                     id: "old",
                     name: "Oldest first"
                 }],
+                e.skinCategories = [{
+                    id: null,
+                    name: "All categories"
+                }, {
+                    id: y["a"].Realistic,
+                    name: "Realistic"
+                }, {
+                    id: y["a"].Unrealistic,
+                    name: "Unrealistic"
+                }, {
+                    id: y["a"].Seasonal,
+                    name: "Seasonal"
+                }],
+                e.skinSeasons = [{
+                    id: null,
+                    name: "All seasons"
+                }, {
+                    id: b["a"].Christmas,
+                    name: "Christmas"
+                }, {
+                    id: b["a"].Halloween,
+                    name: "Halloween"
+                }, {
+                    id: b["a"].Easter,
+                    name: "Easter"
+                }, {
+                    id: b["a"].Valentines,
+                    name: "Valentine's"
+                }, {
+                    id: b["a"].LunarNewYear,
+                    name: "Lunar New Year"
+                }],
                 e.selectedOrderType = null,
+                e.selectedCategory = null,
+                e.selectedSeason = null,
                 e.initialized = !1,
+                e.filterByAnimal = !0,
+                e.selectedSkins = {},
                 e
             }
             return Object(l["a"])(i, [{
@@ -22540,11 +22746,164 @@ object-assign
                     this.init()
                 }
             }, {
+                key: "toggleSkinSelect",
+                value: function(e) {
+                    this.selectedSkins[e.id] ? d["c"].delete(this.selectedSkins, e.id) : d["c"].set(this.selectedSkins, e.id, e)
+                }
+            }, {
+                key: "toggleSelectAll",
+                value: function(e) {
+                    if ("undefined" === typeof e && (e = this.availableSkins.length !== this.selectedSkinCount),
+                    this.selectedSkins = {},
+                    e) {
+                        var t, i = Object(s["a"])(this.availableSkins);
+                        try {
+                            for (i.s(); !(t = i.n()).done; ) {
+                                var n = t.value;
+                                this.toggleSkinSelect(n)
+                            }
+                        } catch (r) {
+                            i.e(r)
+                        } finally {
+                            i.f()
+                        }
+                    }
+                }
+            }, {
+                key: "massMotion",
+                value: function() {
+                    var e = Object(a["a"])(regeneratorRuntime.mark((function e(t) {
+                        var i, n, r, s, o, l, h, u = this;
+                        return regeneratorRuntime.wrap((function(e) {
+                            while (1)
+                                switch (e.prev = e.next) {
+                                case 0:
+                                    if (Object.keys(this.selectedSkins).length) {
+                                        e.next = 2;
+                                        break
+                                    }
+                                    return e.abrupt("return");
+                                case 2:
+                                    return e.next = 4,
+                                    g["a"].showConfirmDialog(this.$modal, "Are you sure?", "You are about to create a motion to ".concat(t, " ").concat(this.selectedSkinCount, " skins, are you sure to proceed?"));
+                                case 4:
+                                    if (i = e.sent,
+                                    i) {
+                                        e.next = 7;
+                                        break
+                                    }
+                                    return e.abrupt("return");
+                                case 7:
+                                    this.lockLoading = !0,
+                                    n = Object.values(this.selectedSkins),
+                                    r = [],
+                                    s = [],
+                                    o = function() {
+                                        var e = Object(a["a"])(regeneratorRuntime.mark((function e(i) {
+                                            return regeneratorRuntime.wrap((function(e) {
+                                                while (1)
+                                                    switch (e.prev = e.next) {
+                                                    case 0:
+                                                        return e.prev = 0,
+                                                        e.next = 3,
+                                                        u.motionsService.create({
+                                                            target_type: w["a"].Skin,
+                                                            target_id: i.id,
+                                                            target_version: i.version,
+                                                            type: "approve" === t ? w["b"].Approve : w["b"].Reject
+                                                        });
+                                                    case 3:
+                                                        e.sent,
+                                                        r.push(i),
+                                                        e.next = 10;
+                                                        break;
+                                                    case 7:
+                                                        e.prev = 7,
+                                                        e.t0 = e["catch"](0),
+                                                        s.push(i);
+                                                    case 10:
+                                                    case "end":
+                                                        return e.stop()
+                                                    }
+                                            }
+                                            ), e, null, [[0, 7]])
+                                        }
+                                        )));
+                                        return function(t) {
+                                            return e.apply(this, arguments)
+                                        }
+                                    }(),
+                                    e.prev = 10;
+                                case 11:
+                                    if (!n.length) {
+                                        e.next = 23;
+                                        break
+                                    }
+                                    return l = n.splice(0, 10),
+                                    h = l.map((function(e) {
+                                        return o(e)
+                                    }
+                                    )),
+                                    e.prev = 14,
+                                    e.next = 17,
+                                    Promise.all(h);
+                                case 17:
+                                    e.next = 21;
+                                    break;
+                                case 19:
+                                    e.prev = 19,
+                                    e.t0 = e["catch"](14);
+                                case 21:
+                                    e.next = 11;
+                                    break;
+                                case 23:
+                                    return e.prev = 23,
+                                    this.lockLoading = !1,
+                                    e.finish(23);
+                                case 26:
+                                    g["a"].showMessageDialog(this.$modal, "Job finished", "".concat(r.length, " motions created successfully") + (s.length ? "\r\n".concat(s.length, " motions failed: ").concat(s.map((function(e) {
+                                        return e.name
+                                    }
+                                    )).join(", ")) : ""));
+                                case 27:
+                                case "end":
+                                    return e.stop()
+                                }
+                        }
+                        ), e, this, [[10, , 23, 26], [14, 19]])
+                    }
+                    )));
+                    function t(t) {
+                        return e.apply(this, arguments)
+                    }
+                    return t
+                }()
+            }, {
                 key: "isNew",
                 value: function(e) {
                     var t = new Date(e.updated_at).getTime()
                       , i = Date.now();
                     return i - t < 864e5
+                }
+            }, {
+                key: "onCategoryChange",
+                value: function() {
+                    this.selectedSkins = {}
+                }
+            }, {
+                key: "onSeasonChange",
+                value: function() {
+                    this.selectedSkins = {}
+                }
+            }, {
+                key: "onAnimalChange",
+                value: function() {
+                    this.selectedSkins = {}
+                }
+            }, {
+                key: "onFilterByAnimalChange",
+                value: function() {
+                    this.selectedSkins = {}
                 }
             }, {
                 key: "selectTier",
@@ -22595,35 +22954,36 @@ object-assign
                                     this.skins = null,
                                     this.tiersWithSkins = {},
                                     this.animalsWithSkins = {},
-                                    e.prev = 3,
+                                    this.selectedSkins = {},
+                                    e.prev = 4,
                                     e.t0 = this.routeName,
-                                    e.next = "SkinsApproved" === e.t0 ? 7 : "SkinsPending" === e.t0 ? 11 : "SkinsMine" === e.t0 ? 15 : 19;
+                                    e.next = "SkinsApproved" === e.t0 ? 8 : "SkinsPending" === e.t0 ? 12 : "SkinsMine" === e.t0 ? 16 : 20;
                                     break;
-                                case 7:
-                                    return e.next = 9,
+                                case 8:
+                                    return e.next = 10,
                                     this.skinsService.getApproved({
                                         order: this.selectedOrderType.id
                                     });
-                                case 9:
+                                case 10:
                                     return t = this.skins = e.sent,
-                                    e.abrupt("break", 19);
-                                case 11:
-                                    return e.next = 13,
+                                    e.abrupt("break", 20);
+                                case 12:
+                                    return e.next = 14,
                                     this.skinsService.getPending({
                                         order: this.selectedOrderType.id
                                     });
-                                case 13:
+                                case 14:
                                     return t = this.skins = e.sent,
-                                    e.abrupt("break", 19);
-                                case 15:
-                                    return e.next = 17,
+                                    e.abrupt("break", 20);
+                                case 16:
+                                    return e.next = 18,
                                     this.skinsService.getByUser(this.user.id, {
                                         order: this.selectedOrderType.id
                                     });
-                                case 17:
+                                case 18:
                                     return t = this.skins = e.sent,
-                                    e.abrupt("break", 19);
-                                case 19:
+                                    e.abrupt("break", 20);
+                                case 20:
                                     i = Object(s["a"])(t);
                                     try {
                                         for (i.s(); !(n = i.n()).done; )
@@ -22635,19 +22995,19 @@ object-assign
                                     } finally {
                                         i.f()
                                     }
-                                    e.next = 27;
+                                    e.next = 28;
                                     break;
-                                case 23:
-                                    e.prev = 23,
-                                    e.t1 = e["catch"](3),
+                                case 24:
+                                    e.prev = 24,
+                                    e.t1 = e["catch"](4),
                                     console.error(e.t1),
                                     g["a"].serverError(e.t1);
-                                case 27:
+                                case 28:
                                 case "end":
                                     return e.stop()
                                 }
                         }
-                        ), e, this, [[3, 23]])
+                        ), e, this, [[4, 24]])
                     }
                     )));
                     function t() {
@@ -22669,6 +23029,16 @@ object-assign
                 key: "routeName",
                 get: function() {
                     return this.$route.name
+                }
+            }, {
+                key: "isSkinBoard",
+                get: function() {
+                    return this.user && (this.user.roles & x["a"].SkinBoard) === x["a"].SkinBoard
+                }
+            }, {
+                key: "isSkinBoardManager",
+                get: function() {
+                    return this.user && (this.user.roles & x["a"].SkinBoardManager) === x["a"].SkinBoardManager
                 }
             }, {
                 key: "title",
@@ -22733,11 +23103,20 @@ object-assign
                     ))
                 }
             }, {
+                key: "filteredSkins",
+                get: function() {
+                    var e = this;
+                    return this.skins ? this.skins.filter((function(t) {
+                        return (!e.selectedCategory || e.selectedCategory === y["a"].Realistic && !t.category || t.category === e.selectedCategory) && (e.selectedCategory !== y["a"].Seasonal || !e.selectedSeason || t.season === e.selectedSeason)
+                    }
+                    )) : null
+                }
+            }, {
                 key: "skinsByAnimal",
                 get: function() {
-                    if (!this.skins)
+                    if (!this.filteredSkins)
                         return {};
-                    var e, t = {}, i = Object(s["a"])(this.skins);
+                    var e, t = {}, i = Object(s["a"])(this.filteredSkins);
                     try {
                         for (i.s(); !(e = i.n()).done; ) {
                             var n = e.value
@@ -22753,61 +23132,74 @@ object-assign
                     return t
                 }
             }, {
+                key: "selectedSkinCount",
+                get: function() {
+                    return Object.keys(this.selectedSkins).length
+                }
+            }, {
                 key: "availableSkins",
                 get: function() {
-                    return this.selectedAnimal ? this.skinsByAnimal[this.selectedAnimal.fishLevel] : null
+                    return this.filterByAnimal ? this.selectedAnimal ? this.skinsByAnimal[this.selectedAnimal.fishLevel] : null : this.filteredSkins
                 }
             }]),
             i
         }(d["c"]);
-        Object(c["a"])([Object(d["b"])()], y.prototype, "user", void 0),
-        Object(c["a"])([Object(d["d"])("$route")], y.prototype, "onRouteChanged", null),
-        Object(c["a"])([Object(d["d"])("selectedOrderType")], y.prototype, "onOrderChanged", null),
-        y = Object(c["a"])([d["a"]], y);
-        var b = y
-          , x = b
-          , w = (i("28e7"),
+        Object(c["a"])([Object(d["b"])()], T.prototype, "user", void 0),
+        Object(c["a"])([Object(d["d"])("$route")], T.prototype, "onRouteChanged", null),
+        Object(c["a"])([Object(d["d"])("selectedCategory")], T.prototype, "onCategoryChange", null),
+        Object(c["a"])([Object(d["d"])("selectedSeason")], T.prototype, "onSeasonChange", null),
+        Object(c["a"])([Object(d["d"])("selectedAnimal")], T.prototype, "onAnimalChange", null),
+        Object(c["a"])([Object(d["d"])("filterByAnimal")], T.prototype, "onFilterByAnimalChange", null),
+        Object(c["a"])([Object(d["d"])("selectedOrderType")], T.prototype, "onOrderChanged", null),
+        T = Object(c["a"])([d["a"]], T);
+        var A = T
+          , S = A
+          , M = (i("e1ac"),
         i("2877"))
-          , _ = i("6544")
-          , T = i.n(_)
-          , A = i("8336")
-          , S = i("a609")
-          , M = i("b0af")
-          , E = i("99d9")
-          , I = i("cc20")
-          , k = i("62ad")
-          , C = i("a523")
-          , O = i("132d")
-          , P = i("adda")
-          , R = i("a722")
-          , D = i("0fd9")
-          , B = i("b974")
-          , L = i("3129")
-          , F = Object(w["a"])(x, n, r, !1, null, "eb1734a8", null);
-        t["default"] = F.exports;
-        T()(F, {
-            VBtn: A["a"],
-            VBtnToggle: S["a"],
-            VCard: M["a"],
-            VCardSubtitle: E["b"],
-            VCardText: E["c"],
-            VCardTitle: E["d"],
-            VChip: I["a"],
-            VCol: k["a"],
-            VContainer: C["a"],
-            VIcon: O["a"],
-            VImg: P["a"],
-            VLayout: R["a"],
-            VRow: D["a"],
-            VSelect: B["a"],
-            VSkeletonLoader: L["a"]
+          , k = i("6544")
+          , E = i.n(k)
+          , C = i("8336")
+          , I = i("a609")
+          , O = i("b0af")
+          , P = i("99d9")
+          , R = i("ac7c")
+          , D = i("cc20")
+          , L = i("62ad")
+          , B = i("a523")
+          , F = i("132d")
+          , j = i("adda")
+          , N = i("604c")
+          , U = i("a722")
+          , z = i("a797")
+          , W = i("490a")
+          , H = i("0fd9")
+          , V = i("b974")
+          , X = i("3129")
+          , G = i("2fa4")
+          , Y = Object(M["a"])(S, n, r, !1, null, "bc92b4f0", null);
+        t["default"] = Y.exports;
+        E()(Y, {
+            VBtn: C["a"],
+            VBtnToggle: I["a"],
+            VCard: O["a"],
+            VCardSubtitle: P["b"],
+            VCardText: P["c"],
+            VCardTitle: P["d"],
+            VCheckbox: R["a"],
+            VChip: D["a"],
+            VCol: L["a"],
+            VContainer: B["a"],
+            VIcon: F["a"],
+            VImg: j["a"],
+            VItemGroup: N["b"],
+            VLayout: U["a"],
+            VOverlay: z["a"],
+            VProgressCircular: W["a"],
+            VRow: H["a"],
+            VSelect: V["a"],
+            VSkeletonLoader: X["a"],
+            VSpacer: G["a"]
         })
-    },
-    "343c": function(e, t, i) {
-        "use strict";
-        var n = i("5009")
-          , r = i.n(n);
-        r.a
     },
     "34ef": function(e, t, i) {
         "use strict";
@@ -22831,12 +23223,6 @@ object-assign
             }
         }
     },
-    3618: function(e, t, i) {
-        "use strict";
-        var n = i("ddfb")
-          , r = i.n(n);
-        r.a
-    },
     3907: function(e, t, i) {
         (function(n) {
             var r;
@@ -22850,9 +23236,9 @@ object-assign
                     )),
                     "function" === typeof e
                 }();
-                t ? (t.Promise = a ? s : E,
-                t.Polyfill = E) : (r = function() {
-                    return a ? s : E
+                t ? (t.Promise = a ? s : k,
+                t.Polyfill = k) : (r = function() {
+                    return a ? s : k
                 }
                 .call(t, i, t, e),
                 void 0 === r || (e.exports = r));
@@ -22958,16 +23344,16 @@ object-assign
                     e.state_ = u,
                     A(e)
                 }
-                function E(e) {
+                function k(e) {
                     if ("function" !== typeof e)
                         throw new TypeError("Promise constructor takes a function argument");
-                    if (this instanceof E === !1)
+                    if (this instanceof k === !1)
                         throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.");
                     this.then_ = [],
                     y(e, this)
                 }
-                E.prototype = {
-                    constructor: E,
+                k.prototype = {
+                    constructor: k,
                     state_: o,
                     then_: null,
                     data_: void 0,
@@ -22985,7 +23371,7 @@ object-assign
                         return this.then(null, e)
                     }
                 },
-                E.all = function(e) {
+                k.all = function(e) {
                     var t = this;
                     if (!d(e))
                         throw new TypeError("You must pass an array to Promise.all().");
@@ -23007,7 +23393,7 @@ object-assign
                     ))
                 }
                 ,
-                E.race = function(e) {
+                k.race = function(e) {
                     var t = this;
                     if (!d(e))
                         throw new TypeError("You must pass an array to Promise.race().");
@@ -23019,7 +23405,7 @@ object-assign
                     ))
                 }
                 ,
-                E.resolve = function(e) {
+                k.resolve = function(e) {
                     var t = this;
                     return e && "object" === typeof e && e.constructor === t ? e : new t((function(t) {
                         t(e)
@@ -23027,7 +23413,7 @@ object-assign
                     ))
                 }
                 ,
-                E.reject = function(e) {
+                k.reject = function(e) {
                     var t = this;
                     return new t((function(t, i) {
                         i(e)
@@ -23039,8 +23425,6 @@ object-assign
         }
         ).call(this, i("c8ba"))
     },
-    "4a1a": function(e, t, i) {},
-    5009: function(e, t, i) {},
     5153: function(e, t, i) {
         "use strict";
         i.r(t);
@@ -23192,6 +23576,7 @@ object-assign
                     flat: "",
                     "background-color": "#fafafa",
                     items: e.animalList,
+                    disabled: e.skin,
                     rules: e.$rule("required"),
                     "item-text": "title",
                     "return-object": ""
@@ -23644,10 +24029,8 @@ object-assign
         i("d81d"),
         i("a434"),
         i("b0c0"),
-        i("d3b7"),
         i("498a"),
         i("159b"),
-        i("ddb0"),
         i("5530"))
           , a = i("b85c")
           , o = (i("96cf"),
@@ -23732,13 +24115,13 @@ object-assign
           , A = i("2877")
           , S = i("6544")
           , M = i.n(S)
-          , E = i("62ad")
-          , I = i("0fd9")
-          , k = Object(A["a"])(T, b, x, !1, null, null, null)
-          , C = k.exports;
-        M()(k, {
-            VCol: E["a"],
-            VRow: I["a"]
+          , k = i("62ad")
+          , E = i("0fd9")
+          , C = Object(A["a"])(T, b, x, !1, null, null, null)
+          , I = C.exports;
+        M()(C, {
+            VCol: k["a"],
+            VRow: E["a"]
         });
         var O = function() {
             function e(t) {
@@ -23783,8 +24166,8 @@ object-assign
           , P = i("0e09")
           , R = i("b253")
           , D = i("67e5")
-          , B = i("0e8a")
-          , L = i("725d")
+          , L = i("0e8a")
+          , B = i("725d")
           , F = i("ac26")
           , j = i("cb34")
           , N = i("b4d9")
@@ -23806,12 +24189,12 @@ object-assign
                 e.animalsService = new z["a"],
                 e.attributesTypes = [],
                 e.attributesTypesMap = {},
-                e.attributeSymbols = L["a"].attributeSymbol,
+                e.attributeSymbols = B["a"].attributeSymbol,
                 e.initialized = !1,
                 e.animals = null,
                 e.currentIAnimal = null,
                 e.animalsData = m["a"].getAll(),
-                e.currentAnimal = e.animalList[0],
+                e.currentAnimal = null,
                 e.degToRad = f["DEG_TO_RAD"],
                 e.skin = null,
                 e.name = null,
@@ -23845,6 +24228,9 @@ object-assign
                 }, {
                     value: j["a"].Valentines,
                     text: "Valentine's day"
+                }, {
+                    value: j["a"].LunarNewYear,
+                    text: "Lunar New Year"
                 }],
                 e.attributeModes = [{
                     value: "+",
@@ -23870,6 +24256,8 @@ object-assign
                 e.assetIndex = 0,
                 e.hideBaseSprite = !1,
                 e.hitboxData = null,
+                e._loadedSkinId = null,
+                e._initSkinId = null,
                 e._startSkinScale = null,
                 e
             }
@@ -23931,21 +24319,16 @@ object-assign
                 key: "onPixiEditorLoad",
                 value: function() {
                     var e = Object(o["a"])(regeneratorRuntime.mark((function e(t) {
-                        var i = this;
                         return regeneratorRuntime.wrap((function(e) {
                             while (1)
                                 switch (e.prev = e.next) {
                                 case 0:
                                     this.skinEditor = t,
-                                    this.currentAnimal = this.animalList.find((function(e) {
+                                    this.$route.params.id ? this.loadSkin() : this.currentAnimal = this.animalList.find((function(e) {
                                         return 68 === e.fishLevel
                                     }
-                                    )),
-                                    p["c"].nextTick((function() {
-                                        return i.initSkin()
-                                    }
                                     ));
-                                case 3:
+                                case 2:
                                 case "end":
                                     return e.stop()
                                 }
@@ -24021,94 +24404,33 @@ object-assign
                     return t
                 }()
             }, {
-                key: "initSkin",
+                key: "loadSkin",
                 value: function() {
                     var e = Object(o["a"])(regeneratorRuntime.mark((function e() {
-                        var t, i, n, r, s, o, l, h, u, c, d, p, f, g, v = this;
+                        var t, i = this;
                         return regeneratorRuntime.wrap((function(e) {
                             while (1)
                                 switch (e.prev = e.next) {
                                 case 0:
                                     if (t = this.$route.params.id,
-                                    !t) {
-                                        e.next = 34;
+                                    this._loadedSkinId !== +t) {
+                                        e.next = 3;
                                         break
                                     }
-                                    return e.next = 4,
+                                    return e.abrupt("return");
+                                case 3:
+                                    return e.next = 5,
                                     this.skinsService.getById(+t, 9999);
-                                case 4:
-                                    return i = this.skin = e.sent,
-                                    n = m["a"].getSkinPath(i),
-                                    L["a"].processSkinAttributes(i),
-                                    this.name = i.name,
-                                    this.description = i.description,
-                                    this.price = i.price,
-                                    this.category = i.category,
-                                    this.season = i.season,
-                                    this.redditLink = i.reddit_link,
+                                case 5:
+                                    return this.skin = e.sent,
+                                    this._loadedSkinId = +t,
                                     this.currentAnimal = this.animalList.find((function(e) {
-                                        return e.fishLevel === i.fish_level
+                                        return e.fishLevel === i.skin.fish_level
                                     }
                                     )),
-                                    e.next = 16,
-                                    B["a"].getRemoteTexture("".concat(i.id, "-").concat(i.version), n);
-                                case 16:
-                                    if (r = e.sent,
-                                    this.skinSpriteData = new H["a"](r),
-                                    i.data && (s = i.data.offset,
-                                    o = s.x,
-                                    l = s.y,
-                                    this.skinSpriteData.setPosition(this.skinEditor.worldCenter.x + o, this.skinEditor.worldCenter.y + l)),
-                                    !this.skin.assets_data) {
-                                        e.next = 33;
-                                        break
-                                    }
-                                    e.t0 = regeneratorRuntime.keys(this.skin.assets_data);
-                                case 21:
-                                    if ((e.t1 = e.t0()).done) {
-                                        e.next = 33;
-                                        break
-                                    }
-                                    return h = e.t1.value,
-                                    u = this.skin.assets_data[h],
-                                    e.next = 26,
-                                    B["a"].getRemoteTexture(u.asset, m["a"].getSkinPath(i, h));
-                                case 26:
-                                    c = e.sent,
-                                    d = new H["a"](c),
-                                    p = u.offset,
-                                    p && (f = p.x,
-                                    g = p.y,
-                                    d.setPosition(this.skinEditor.worldCenter.x + f, this.skinEditor.worldCenter.y + g)),
-                                    this.skinAssetsData.push(d),
-                                    e.next = 21;
-                                    break;
-                                case 33:
-                                    i.attributeMap && i.attributeMap.forEach((function(e, t) {
-                                        if ("HA" === t) {
-                                            e = v.currentAnimal.habitat + e;
-                                            var i, n = 0, r = Object(a["a"])(v.areas);
-                                            try {
-                                                for (r.s(); !(i = r.n()).done; ) {
-                                                    var s = i.value;
-                                                    for (var o in s)
-                                                        (e & +o) === +o && (n += +o)
-                                                }
-                                            } catch (l) {
-                                                r.e(l)
-                                            } finally {
-                                                r.f()
-                                            }
-                                            e = n
-                                        }
-                                        v.attributes.push({
-                                            type: t,
-                                            mode: e < 0 ? "-" : "+",
-                                            value: Math.abs(e)
-                                        })
-                                    }
-                                    ));
-                                case 34:
+                                    e.next = 10,
+                                    p["c"].nextTick();
+                                case 10:
                                 case "end":
                                     return e.stop()
                                 }
@@ -24122,9 +24444,124 @@ object-assign
                     return t
                 }()
             }, {
+                key: "initSkin",
+                value: function() {
+                    var e = Object(o["a"])(regeneratorRuntime.mark((function e() {
+                        var t, i, n, r, s, o, l, h, u, c, d, p, f, g, v, y, b = this;
+                        return regeneratorRuntime.wrap((function(e) {
+                            while (1)
+                                switch (e.prev = e.next) {
+                                case 0:
+                                    if (!this.skin) {
+                                        e.next = 43;
+                                        break
+                                    }
+                                    if (this._initSkinId !== this.skin.id) {
+                                        e.next = 3;
+                                        break
+                                    }
+                                    return e.abrupt("return");
+                                case 3:
+                                    return t = this.skin,
+                                    i = m["a"].getSkinPath(t),
+                                    B["a"].processSkinAttributes(t),
+                                    this.name = t.name,
+                                    this.description = t.description,
+                                    this.price = t.price,
+                                    this.category = t.category,
+                                    this.season = t.season,
+                                    this.redditLink = t.reddit_link,
+                                    e.next = 13,
+                                    L["a"].getRemoteTexture("".concat(t.id, "-").concat(t.version), i);
+                                case 13:
+                                    if (n = e.sent,
+                                    this.skinSpriteData = new H["a"](n),
+                                    t.data && (r = t.data.offset,
+                                    s = r.x,
+                                    o = r.y,
+                                    this.skinSpriteData.setPosition(this.skinEditor.worldCenter.x + s, this.skinEditor.worldCenter.y + o)),
+                                    !this.skin.assets_data) {
+                                        e.next = 41;
+                                        break
+                                    }
+                                    l = Object(a["a"])(this.currentIAnimal.assets_data),
+                                    e.prev = 18,
+                                    l.s();
+                                case 20:
+                                    if ((h = l.n()).done) {
+                                        e.next = 33;
+                                        break
+                                    }
+                                    return u = h.value,
+                                    c = u.asset,
+                                    d = this.skin.assets_data[u.asset],
+                                    e.next = 26,
+                                    L["a"].getRemoteTexture(d.asset, m["a"].getSkinPath(t, c));
+                                case 26:
+                                    p = e.sent,
+                                    f = new H["a"](p),
+                                    g = d.offset,
+                                    g && (v = g.x,
+                                    y = g.y,
+                                    f.setPosition(this.skinEditor.worldCenter.x + v, this.skinEditor.worldCenter.y + y)),
+                                    this.skinAssetsData.push(f);
+                                case 31:
+                                    e.next = 20;
+                                    break;
+                                case 33:
+                                    e.next = 38;
+                                    break;
+                                case 35:
+                                    e.prev = 35,
+                                    e.t0 = e["catch"](18),
+                                    l.e(e.t0);
+                                case 38:
+                                    return e.prev = 38,
+                                    l.f(),
+                                    e.finish(38);
+                                case 41:
+                                    t.attributeMap && t.attributeMap.forEach((function(e, t) {
+                                        if ("HA" === t) {
+                                            e = b.currentAnimal.habitat + e;
+                                            var i, n = 0, r = Object(a["a"])(b.areas);
+                                            try {
+                                                for (r.s(); !(i = r.n()).done; ) {
+                                                    var s = i.value;
+                                                    for (var o in s)
+                                                        (e & +o) === +o && (n += +o)
+                                                }
+                                            } catch (l) {
+                                                r.e(l)
+                                            } finally {
+                                                r.f()
+                                            }
+                                            e = n
+                                        }
+                                        b.attributes.push({
+                                            type: t,
+                                            mode: e < 0 ? "-" : "+",
+                                            value: Math.abs(e)
+                                        })
+                                    }
+                                    )),
+                                    this._initSkinId = this.skin.id;
+                                case 43:
+                                case "end":
+                                    return e.stop()
+                                }
+                        }
+                        ), e, this, [[18, 35, 38, 41]])
+                    }
+                    )));
+                    function t() {
+                        return e.apply(this, arguments)
+                    }
+                    return t
+                }()
+            }, {
                 key: "initAttributes",
                 value: function() {
-                    for (var e in L["a"].attributeName) {
+                    for (var e in B["a"].attributeName) {
                         var t = void 0;
                         switch (e) {
                         case U["a"].HealthMultiplier:
@@ -24139,8 +24576,8 @@ object-assign
                         }
                         var i = {
                             id: e,
-                            title: L["a"].attributeName[e],
-                            symbol: L["a"].attributeSymbol[e],
+                            title: B["a"].attributeName[e],
+                            symbol: B["a"].attributeSymbol[e],
                             description: t
                         };
                         this.attributesTypes.push(i),
@@ -24316,6 +24753,9 @@ object-assign
                                     return e.next = 5,
                                     this.loadSpriteAssets();
                                 case 5:
+                                    return e.next = 7,
+                                    this.initSkin();
+                                case 7:
                                 case "end":
                                     return e.stop()
                                 }
@@ -24373,7 +24813,7 @@ object-assign
                                     this.animalSpriteData = new H["a"](a,null,Object(s["a"])({}, n)),
                                     this.skinEditor,
                                     this.hitboxData = new V["a"](r),
-                                    this.newAttributeMap.hasOwnProperty("HA") && (o = this.attributes.find((function(e) {
+                                    !this.skin && this.newAttributeMap.hasOwnProperty("HA") && (o = this.attributes.find((function(e) {
                                         return "HA" === e.type
                                     }
                                     )),
@@ -24460,45 +24900,46 @@ object-assign
                                     return P["a"].addAlert("You must enter a name", R["a"].Error),
                                     e.abrupt("return");
                                 case 15:
-                                    e.prev = 15,
+                                    this.saving = !0,
+                                    e.prev = 16,
                                     r = 0;
-                                case 17:
+                                case 18:
                                     if (!(r < this.currentIAnimal.asset_count)) {
-                                        e.next = 42;
+                                        e.next = 43;
                                         break
                                     }
                                     if (this.assetIndex = r,
                                     0 !== r) {
-                                        e.next = 24;
+                                        e.next = 25;
                                         break
                                     }
-                                    return e.next = 22,
+                                    return e.next = 23,
                                     this.skinEditor.forceRedraw(this.skinSpriteData);
-                                case 22:
-                                    e.next = 34;
+                                case 23:
+                                    e.next = 35;
                                     break;
-                                case 24:
+                                case 25:
                                     if (s = this.skinAssetsData[r - 1],
                                     s && s.texture) {
-                                        e.next = 32;
+                                        e.next = 33;
                                         break
                                     }
                                     if (null !== (o = this.currentIAnimal.assets_data[r - 1].mandatory) && void 0 !== o && !o) {
-                                        e.next = 31;
+                                        e.next = 32;
                                         break
                                     }
                                     return P["a"].addAlert("You must upload all the assets", R["a"].Error),
                                     e.abrupt("return");
-                                case 31:
-                                    return e.abrupt("continue", 39);
                                 case 32:
-                                    return e.next = 34,
+                                    return e.abrupt("continue", 40);
+                                case 33:
+                                    return e.next = 35,
                                     this.skinEditor.forceRedraw(s);
-                                case 34:
+                                case 35:
                                     return l = this.skinEditor.getSpriteOffset(),
-                                    e.next = 37,
+                                    e.next = 38,
                                     this.skinEditor.getSpriteB64();
-                                case 37:
+                                case 38:
                                     h = e.sent,
                                     0 === r ? (t = h,
                                     i = l) : (n || (n = {}),
@@ -24506,20 +24947,23 @@ object-assign
                                         b64: h,
                                         offset: l
                                     });
-                                case 39:
+                                case 40:
                                     r++,
-                                    e.next = 17;
+                                    e.next = 18;
                                     break;
-                                case 42:
-                                    e.next = 48;
+                                case 43:
+                                    e.next = 50;
                                     break;
-                                case 44:
-                                    return e.prev = 44,
-                                    e.t0 = e["catch"](15),
+                                case 45:
+                                    return e.prev = 45,
+                                    e.t0 = e["catch"](16),
                                     P["a"].addAlert("Error getting assets", R["a"].Error),
+                                    this.saving = !1,
                                     e.abrupt("return");
-                                case 48:
-                                    if (u = {
+                                case 50:
+                                    if (e.prev = 50,
+                                    this.saving = !0,
+                                    u = {
                                         name: this.name || "Untitled",
                                         description: this.description || null,
                                         price: this.price,
@@ -24534,16 +24978,16 @@ object-assign
                                         assets_data: n
                                     },
                                     !(this.attributes.length > 0)) {
-                                        e.next = 72;
+                                        e.next = 76;
                                         break
                                     }
                                     c = [],
                                     d = Object(a["a"])(this.attributes),
-                                    e.prev = 52,
+                                    e.prev = 56,
                                     d.s();
-                                case 54:
+                                case 58:
                                     if ((p = d.n()).done) {
-                                        e.next = 63;
+                                        e.next = 67;
                                         break
                                     }
                                     if (f = p.value,
@@ -24553,55 +24997,53 @@ object-assign
                                     g < 0 && (m = "-"),
                                     g = Math.abs(g)),
                                     0 !== g) {
-                                        e.next = 60;
+                                        e.next = 64;
                                         break
                                     }
-                                    return e.abrupt("continue", 61);
-                                case 60:
+                                    return e.abrupt("continue", 65);
+                                case 64:
                                     c.push("".concat(f.type, "=").concat(m).concat(g));
-                                case 61:
-                                    e.next = 54;
-                                    break;
-                                case 63:
-                                    e.next = 68;
-                                    break;
                                 case 65:
-                                    e.prev = 65,
-                                    e.t1 = e["catch"](52),
+                                    e.next = 58;
+                                    break;
+                                case 67:
+                                    e.next = 72;
+                                    break;
+                                case 69:
+                                    e.prev = 69,
+                                    e.t1 = e["catch"](56),
                                     d.e(e.t1);
-                                case 68:
-                                    return e.prev = 68,
-                                    d.f(),
-                                    e.finish(68);
-                                case 71:
-                                    u.attributes = c.join(";");
                                 case 72:
+                                    return e.prev = 72,
+                                    d.f(),
+                                    e.finish(72);
+                                case 75:
+                                    u.attributes = c.join(";");
+                                case 76:
                                     return this.skin && this.skin.id && (u.id = this.skin.id,
                                     u.fish_level = this.skin.fish_level),
-                                    e.prev = 73,
-                                    this.saving = !0,
-                                    e.next = 77,
+                                    e.next = 79,
                                     this.skinsService.save(u);
-                                case 77:
+                                case 79:
                                     this.skin = e.sent,
                                     P["a"].addAlert("Skin saved successfully", R["a"].Success),
                                     this.$router.push("/skins/mine"),
-                                    e.next = 85;
+                                    e.next = 87;
                                     break;
-                                case 82:
-                                    e.prev = 82,
-                                    e.t2 = e["catch"](73),
+                                case 84:
+                                    e.prev = 84,
+                                    e.t2 = e["catch"](50),
                                     P["a"].serverError(e.t2);
-                                case 85:
-                                    return e.prev = 85,
+                                case 87:
+                                    return e.prev = 87,
                                     this.saving = !1,
-                                    e.finish(85);
-                                case 88:
+                                    e.finish(87);
+                                case 90:
                                 case "end":
                                     return e.stop()
                                 }
                         }
-                        ), e, this, [[15, 44], [52, 65, 68, 71], [73, 82, 85, 88]])
+                        ), e, this, [[16, 45], [50, 84, 87, 90], [56, 69, 72, 75]])
                     }
                     )));
                     function t() {
@@ -24670,12 +25112,12 @@ object-assign
         Y = Object(d["a"])([Object(p["a"])({
             components: {
                 PixiEditor: W["a"],
-                SettingItem: C
+                SettingItem: I
             }
         })], Y);
         var $ = Y
           , q = $
-          , Q = (i("3618"),
+          , Q = (i("8b27"),
         i("40dc"))
           , K = (i("c975"),
         i("45fc"),
@@ -25195,6 +25637,7 @@ object-assign
           , ye = i("a722")
           , be = i("3129")
           , xe = (i("b680"),
+        i("d3b7"),
         i("25f0"),
         i("2532"),
         i("ade3"))
@@ -25659,10 +26102,10 @@ object-assign
                 }
             }
         })
-          , Ee = i("2fa4")
-          , Ie = i("b73d")
-          , ke = i("71a3")
-          , Ce = i("fe57")
+          , ke = i("2fa4")
+          , Ee = i("b73d")
+          , Ce = i("71a3")
+          , Ie = i("fe57")
           , Oe = (i("1681"),
         Object(Te["a"])(Z["a"]))
           , Pe = Oe.extend({
@@ -25741,9 +26184,9 @@ object-assign
         })
           , Re = i("269a")
           , De = i.n(Re)
-          , Be = Object(A["a"])(q, n, r, !1, null, "5f0ad0c8", null);
-        t["default"] = Be.exports;
-        M()(Be, {
+          , Le = Object(A["a"])(q, n, r, !1, null, "69ef8026", null);
+        t["default"] = Le.exports;
+        M()(Le, {
             VAppBar: Q["a"],
             VAutocomplete: ie,
             VBtn: ne["a"],
@@ -25751,25 +26194,25 @@ object-assign
             VCard: se["a"],
             VCardText: ae["c"],
             VCheckbox: oe["a"],
-            VCol: E["a"],
+            VCol: k["a"],
             VContainer: le["a"],
             VFileInput: fe,
             VForm: me["a"],
             VIcon: ge["a"],
             VImg: ve["a"],
             VLayout: ye["a"],
-            VRow: I["a"],
+            VRow: E["a"],
             VSelect: K["a"],
             VSkeletonLoader: be["a"],
             VSlider: Me,
-            VSpacer: Ee["a"],
-            VSwitch: Ie["a"],
-            VTab: ke["a"],
-            VTabs: Ce["a"],
+            VSpacer: ke["a"],
+            VSwitch: Ee["a"],
+            VTab: Ce["a"],
+            VTabs: Ie["a"],
             VTextField: Z["a"],
             VTextarea: Pe
         }),
-        De()(Be, {
+        De()(Le, {
             ClickOutside: Se["a"]
         })
     },
@@ -25903,7 +26346,7 @@ object-assign
             do {
                 var r = n.prev
                   , a = n.next.next;
-                !T(r, a) && A(r, n, n.next, a) && I(r, a) && I(a, r) && (t.push(r.i / i),
+                !T(r, a) && A(r, n, n.next, a) && E(r, a) && E(a, r) && (t.push(r.i / i),
                 t.push(n.i / i),
                 t.push(a.i / i),
                 P(n),
@@ -25919,7 +26362,7 @@ object-assign
                 var h = l.next.next;
                 while (h !== l.prev) {
                     if (l.i !== h.i && w(l, h)) {
-                        var u = C(l, h);
+                        var u = I(l, h);
                         return l = s(l, l.next),
                         u = s(u, u.next),
                         a(l, t, i, n, r, o),
@@ -25951,7 +26394,7 @@ object-assign
         function p(e, t) {
             if (t = f(e, t),
             t) {
-                var i = C(t, e);
+                var i = I(t, e);
                 s(t, t.next),
                 s(i, i.next)
             }
@@ -25982,7 +26425,7 @@ object-assign
             n = i;
             do {
                 r >= n.x && n.x >= u && r !== n.x && x(s < c ? r : a, s, u, c, s < c ? a : r, s, n.x, n.y) && (l = Math.abs(s - n.y) / (r - n.x),
-                I(n, e) && (l < d || l === d && (n.x > i.x || n.x === i.x && m(i, n))) && (i = n,
+                E(n, e) && (l < d || l === d && (n.x > i.x || n.x === i.x && m(i, n))) && (i = n,
                 d = l)),
                 n = n.next
             } while (n !== h);
@@ -26062,7 +26505,7 @@ object-assign
             return (r - a) * (t - o) - (e - a) * (s - o) >= 0 && (e - a) * (n - o) - (i - a) * (t - o) >= 0 && (i - a) * (s - o) - (r - a) * (n - o) >= 0
         }
         function w(e, t) {
-            return e.next.i !== t.i && e.prev.i !== t.i && !E(e, t) && (I(e, t) && I(t, e) && k(e, t) && (_(e.prev, e, t.prev) || _(e, t.prev, t)) || T(e, t) && _(e.prev, e, e.next) > 0 && _(t.prev, t, t.next) > 0)
+            return e.next.i !== t.i && e.prev.i !== t.i && !k(e, t) && (E(e, t) && E(t, e) && C(e, t) && (_(e.prev, e, t.prev) || _(e, t.prev, t)) || T(e, t) && _(e.prev, e, e.next) > 0 && _(t.prev, t, t.next) > 0)
         }
         function _(e, t, i) {
             return (t.y - e.y) * (i.x - t.x) - (t.x - e.x) * (i.y - t.y)
@@ -26083,7 +26526,7 @@ object-assign
         function M(e) {
             return e > 0 ? 1 : e < 0 ? -1 : 0
         }
-        function E(e, t) {
+        function k(e, t) {
             var i = e;
             do {
                 if (i.i !== e.i && i.next.i !== e.i && i.i !== t.i && i.next.i !== t.i && A(i, i.next, e, t))
@@ -26092,10 +26535,10 @@ object-assign
             } while (i !== e);
             return !1
         }
-        function I(e, t) {
+        function E(e, t) {
             return _(e.prev, e, e.next) < 0 ? _(e, t, e.next) >= 0 && _(e, e.prev, t) >= 0 : _(e, t, e.prev) < 0 || _(e, e.next, t) < 0
         }
-        function k(e, t) {
+        function C(e, t) {
             var i = e
               , n = !1
               , r = (e.x + t.x) / 2
@@ -26106,7 +26549,7 @@ object-assign
             } while (i !== e);
             return n
         }
-        function C(e, t) {
+        function I(e, t) {
             var i = new R(e.i,e.x,e.y)
               , n = new R(t.i,t.x,t.y)
               , r = e.next
@@ -26231,7 +26674,7 @@ object-assign
                     }
                 }, [e._v(e._s(e.getAnimalName(t.fish_level)))]), e._v(" "), i("strong", [e._v(e._s(t.name))]), e._v(" (v" + e._s(t.version) + ")")], 1), i("span", {
                     staticClass: "subtitle"
-                }, [e._v("By " + e._s(t.user.name) + " (@"), i("span", {}, [e._v(e._s(t.user.username))]), e._v(")")])]), i("div", [i("v-btn-toggle", {
+                }, [e._v("By " + e._s(t.user.username) + " (@"), i("span", {}, [e._v(e._s(t.user.username))]), e._v(")")])]), i("div", [i("v-btn-toggle", {
                     attrs: {
                         dense: ""
                     }
@@ -26430,7 +26873,7 @@ object-assign
         g = Object(u["a"])([c["a"]], g);
         var v = g
           , y = v
-          , b = (i("c002"),
+          , b = (i("d1e4"),
         i("2877"))
           , x = i("6544")
           , w = i.n(x)
@@ -26439,12 +26882,12 @@ object-assign
           , A = i("b0af")
           , S = i("99d9")
           , M = i("cc20")
-          , E = i("a523")
-          , I = i("132d")
-          , k = i("adda")
-          , C = i("a722")
+          , k = i("a523")
+          , E = i("132d")
+          , C = i("adda")
+          , I = i("a722")
           , O = i("3129")
-          , P = Object(b["a"])(y, n, r, !1, null, "ab396d10", null);
+          , P = Object(b["a"])(y, n, r, !1, null, "52a682c0", null);
         t["default"] = P.exports;
         w()(P, {
             VBtn: _["a"],
@@ -26454,10 +26897,10 @@ object-assign
             VCardText: S["c"],
             VCardTitle: S["d"],
             VChip: M["a"],
-            VContainer: E["a"],
-            VIcon: I["a"],
-            VImg: k["a"],
-            VLayout: C["a"],
+            VContainer: k["a"],
+            VIcon: E["a"],
+            VImg: C["a"],
+            VLayout: I["a"],
             VSkeletonLoader: O["a"]
         })
     },
@@ -26529,13 +26972,13 @@ object-assign
                         throw RangeError(f);
                     if (o == d) {
                         for (var S = p, M = r; ; M += r) {
-                            var E = M <= m ? s : M >= m + a ? a : M - m;
-                            if (S < E)
+                            var k = M <= m ? s : M >= m + a ? a : M - m;
+                            if (S < k)
                                 break;
-                            var I = S - E
-                              , k = r - E;
-                            t.push(v(b(E + I % k))),
-                            S = g(I / k)
+                            var E = S - k
+                              , C = r - k;
+                            t.push(v(b(k + E % C))),
+                            S = g(E / C)
                         }
                         t.push(v(b(S))),
                         m = x(p, A, _ == w),
@@ -26706,6 +27149,7 @@ object-assign
           , g = Object(m["a"])(f, n, r, !1, null, "bba561a4", null);
         t["a"] = g.exports
     },
+    "67b2": function(e, t, i) {},
     "67e5": function(e, t, i) {
         "use strict";
         i.d(t, "a", (function() {
@@ -27262,6 +27706,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 0,
+            fishLevel: 0,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -27284,6 +27729,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27309,6 +27755,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 1,
+            fishLevel: 1,
             oxygenTime: 0,
             oxygenTimeMs: 0,
             temperatureTime: 10,
@@ -27331,6 +27778,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .3,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27356,6 +27804,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 2,
+            fishLevel: 2,
             oxygenTime: 0,
             oxygenTimeMs: 0,
             temperatureTime: 10,
@@ -27378,6 +27827,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27403,6 +27853,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 3,
+            fishLevel: 3,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -27425,6 +27876,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27450,28 +27902,30 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 4,
-            oxygenTime: 15,
-            oxygenTimeMs: 15e3,
+            fishLevel: 4,
+            oxygenTime: 30,
+            oxygenTimeMs: 3e4,
             temperatureTime: 10,
             temperatureTimeMs: 1e4,
             pressureTime: 5,
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: 1,
-            walkSpeedMultiplier: 1,
+            speedMultiplier: 1.05,
+            walkSpeedMultiplier: 1.05,
             jumpForceMultiplier: 1,
-            sizeMultiplier: 1.3,
+            sizeMultiplier: 1.4,
             sizeScale: {
                 x: 1,
                 y: 1
             },
-            damageMultiplier: 4,
+            damageMultiplier: 4.5,
             healthMultiplier: 4,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !0,
             canSwim: !1,
@@ -27497,6 +27951,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 5,
+            fishLevel: 5,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -27519,6 +27974,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27544,6 +28000,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 6,
+            fishLevel: 6,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -27566,6 +28023,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27591,6 +28049,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 6,
+            fishLevel: 7,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -27599,8 +28058,8 @@ object-assign
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: 1.25,
-            walkSpeedMultiplier: 1.25,
+            speedMultiplier: 1.15,
+            walkSpeedMultiplier: 1.15,
             jumpForceMultiplier: 1,
             sizeMultiplier: 1.8,
             sizeScale: {
@@ -27608,11 +28067,12 @@ object-assign
                 y: 1
             },
             damageMultiplier: 5,
-            healthMultiplier: 5,
+            healthMultiplier: 5.5,
             damageBlock: 0,
             damageReflection: 0,
-            bleedReduction: .5,
+            bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27638,6 +28098,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 8,
+            fishLevel: 8,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -27660,6 +28121,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27685,6 +28147,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 8,
+            fishLevel: 9,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -27702,11 +28165,12 @@ object-assign
                 y: 1
             },
             damageMultiplier: 6,
-            healthMultiplier: 7.5,
+            healthMultiplier: 7,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27732,6 +28196,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 10,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 10,
@@ -27754,6 +28219,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27779,6 +28245,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 11,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -27799,8 +28266,9 @@ object-assign
             healthMultiplier: 9,
             damageBlock: 0,
             damageReflection: 0,
-            bleedReduction: .5,
+            bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27826,6 +28294,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 12,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -27834,8 +28303,8 @@ object-assign
             pressureTimeMs: 1e4,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: 1,
-            walkSpeedMultiplier: 1,
+            speedMultiplier: 1.05,
+            walkSpeedMultiplier: 1.05,
             jumpForceMultiplier: 1,
             sizeMultiplier: 2.2,
             sizeScale: {
@@ -27848,6 +28317,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: .5,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27873,6 +28343,7 @@ object-assign
             mass: 1,
             boosts: 0,
             level: 0,
+            fishLevel: 13,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -27895,6 +28366,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27920,6 +28392,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 6,
+            fishLevel: 14,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -27942,6 +28415,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -27967,6 +28441,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 8,
+            fishLevel: 15,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -27975,20 +28450,21 @@ object-assign
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: 1.25,
-            walkSpeedMultiplier: 1.25,
+            speedMultiplier: 1.15,
+            walkSpeedMultiplier: 1.15,
             jumpForceMultiplier: 1,
             sizeMultiplier: 1.8,
             sizeScale: {
                 x: 1,
                 y: 1
             },
-            damageMultiplier: 7,
+            damageMultiplier: 6,
             healthMultiplier: 7,
             damageBlock: 0,
             damageReflection: 0,
-            bleedReduction: .5,
+            bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28014,6 +28490,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 0,
+            fishLevel: 16,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -28036,6 +28513,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28061,6 +28539,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 1,
+            fishLevel: 17,
             oxygenTime: 0,
             oxygenTimeMs: 0,
             temperatureTime: 10,
@@ -28083,6 +28562,7 @@ object-assign
             damageReflection: .3,
             bleedReduction: 0,
             armorPenetration: .3,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28108,6 +28588,7 @@ object-assign
             mass: 1,
             boosts: 0,
             level: 0,
+            fishLevel: 18,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -28130,6 +28611,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28141,7 +28623,7 @@ object-assign
             biomes: [37],
             collisionCategory: 1,
             collisionMask: 7935,
-            chooseable: !0,
+            chooseable: !1,
             hasSecondaryAbility: !1,
             secondaryAbilityLoadTime: 500,
             hasScalingBoost: !1,
@@ -28155,6 +28637,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 8,
+            fishLevel: 19,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -28177,6 +28660,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28202,6 +28686,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 8,
+            fishLevel: 20,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -28224,6 +28709,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28249,6 +28735,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 7,
+            fishLevel: 21,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -28265,12 +28752,13 @@ object-assign
                 x: 1,
                 y: 1
             },
-            damageMultiplier: 5,
+            damageMultiplier: 6,
             healthMultiplier: 6,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .4,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28296,6 +28784,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 22,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -28313,11 +28802,12 @@ object-assign
                 y: 1
             },
             damageMultiplier: 8,
-            healthMultiplier: 9,
+            healthMultiplier: 8.5,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28343,6 +28833,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 8,
+            fishLevel: 23,
             oxygenTime: 90,
             oxygenTimeMs: 9e4,
             temperatureTime: 10,
@@ -28363,8 +28854,9 @@ object-assign
             healthMultiplier: 7.5,
             damageBlock: 0,
             damageReflection: 0,
-            bleedReduction: .5,
+            bleedReduction: 0,
             armorPenetration: 1,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28372,8 +28864,8 @@ object-assign
             needsAir: !0,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 37,
-            biomes: [37],
+            habitat: 45,
+            biomes: [37, 41],
             collisionCategory: 1,
             collisionMask: 7935,
             chooseable: !0,
@@ -28390,6 +28882,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 24,
             oxygenTime: 90,
             oxygenTimeMs: 9e4,
             temperatureTime: 10,
@@ -28398,8 +28891,8 @@ object-assign
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: .85,
-            walkSpeedMultiplier: .85,
+            speedMultiplier: .9,
+            walkSpeedMultiplier: .9,
             jumpForceMultiplier: 1,
             sizeMultiplier: 2.1,
             sizeScale: {
@@ -28412,6 +28905,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: .5,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28437,6 +28931,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 25,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 40,
@@ -28457,8 +28952,9 @@ object-assign
             healthMultiplier: 9,
             damageBlock: 0,
             damageReflection: 0,
-            bleedReduction: .5,
+            bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28471,8 +28967,8 @@ object-assign
             collisionCategory: 1,
             collisionMask: 7935,
             chooseable: !0,
-            hasSecondaryAbility: !1,
-            secondaryAbilityLoadTime: 500,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 350,
             hasScalingBoost: !1,
             ungrabbable: !1,
             canDig: !1,
@@ -28484,6 +28980,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 1,
+            fishLevel: 26,
             oxygenTime: 5,
             oxygenTimeMs: 5e3,
             temperatureTime: 5,
@@ -28506,6 +29003,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28531,6 +29029,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 5,
+            fishLevel: 27,
             oxygenTime: 30,
             oxygenTimeMs: 3e4,
             temperatureTime: 10,
@@ -28553,6 +29052,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !0,
             canSwim: !1,
@@ -28578,6 +29078,7 @@ object-assign
             mass: 1,
             boosts: 4,
             level: 9,
+            fishLevel: 28,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -28586,8 +29087,8 @@ object-assign
             pressureTimeMs: 2e4,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: .9,
-            walkSpeedMultiplier: .9,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
             sizeMultiplier: 2.1,
             sizeScale: {
@@ -28600,6 +29101,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: .5,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28625,6 +29127,7 @@ object-assign
             mass: 1,
             boosts: 0,
             level: 0,
+            fishLevel: 29,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 10,
@@ -28633,8 +29136,8 @@ object-assign
             pressureTimeMs: 2e4,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: 1.2,
-            walkSpeedMultiplier: 1.2,
+            speedMultiplier: 1.4,
+            walkSpeedMultiplier: 1.4,
             jumpForceMultiplier: 1,
             sizeMultiplier: .5,
             sizeScale: {
@@ -28647,6 +29150,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28658,12 +29162,12 @@ object-assign
             biomes: [38],
             collisionCategory: 1,
             collisionMask: 7935,
-            chooseable: !0,
+            chooseable: !1,
             hasSecondaryAbility: !1,
             secondaryAbilityLoadTime: 500,
             hasScalingBoost: !1,
             ungrabbable: !1,
-            canDig: !1,
+            canDig: !0,
             canWalkUnderwater: !1,
             hasWalkingAbility: !1,
             walkingAbilityLoadTime: 250
@@ -28672,6 +29176,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 9,
+            fishLevel: 30,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -28688,12 +29193,13 @@ object-assign
                 x: .85,
                 y: 1
             },
-            damageMultiplier: 5,
+            damageMultiplier: 6,
             healthMultiplier: 7,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 1,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28719,12 +29225,13 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 31,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 30,
             temperatureTimeMs: 3e4,
-            pressureTime: 0,
-            pressureTimeMs: 0,
+            pressureTime: 5,
+            pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
             speedMultiplier: 1,
@@ -28735,19 +29242,20 @@ object-assign
                 x: 1,
                 y: 1
             },
-            damageMultiplier: 2,
+            damageMultiplier: 3,
             healthMultiplier: 9,
-            damageBlock: .6,
+            damageBlock: .3,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: .2,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
             canStand: !1,
             needsAir: !1,
             canClimb: !1,
-            poisonResistant: !0,
+            poisonResistant: !1,
             habitat: 46,
             biomes: [38, 42],
             collisionCategory: 1,
@@ -28766,6 +29274,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 32,
             oxygenTime: 10,
             oxygenTimeMs: 1e4,
             temperatureTime: 10,
@@ -28774,20 +29283,21 @@ object-assign
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: .9,
-            walkSpeedMultiplier: .9,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
             sizeMultiplier: 1.4,
             sizeScale: {
                 x: 1,
                 y: 1
             },
-            damageMultiplier: 5,
+            damageMultiplier: 6,
             healthMultiplier: 7,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28813,6 +29323,7 @@ object-assign
             mass: 1,
             boosts: 0,
             level: 0,
+            fishLevel: 33,
             oxygenTime: 0,
             oxygenTimeMs: 0,
             temperatureTime: 10,
@@ -28835,6 +29346,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28860,6 +29372,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 9,
+            fishLevel: 34,
             oxygenTime: 90,
             oxygenTimeMs: 9e4,
             temperatureTime: 10,
@@ -28882,6 +29395,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28907,6 +29421,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 8,
+            fishLevel: 35,
             oxygenTime: 75,
             oxygenTimeMs: 75e3,
             temperatureTime: 10,
@@ -28929,6 +29444,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28936,7 +29452,7 @@ object-assign
             needsAir: !0,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 22,
+            habitat: 23,
             biomes: [22],
             collisionCategory: 1,
             collisionMask: 7935,
@@ -28954,6 +29470,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 2,
+            fishLevel: 36,
             oxygenTime: 75,
             oxygenTimeMs: 75e3,
             temperatureTime: 10,
@@ -28976,6 +29493,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -28983,7 +29501,7 @@ object-assign
             needsAir: !0,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 22,
+            habitat: 23,
             biomes: [22],
             collisionCategory: 1,
             collisionMask: 7935,
@@ -29001,6 +29519,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 37,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -29023,6 +29542,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: .5,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29048,6 +29568,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 8,
+            fishLevel: 38,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -29056,8 +29577,8 @@ object-assign
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: .85,
-            walkSpeedMultiplier: .85,
+            speedMultiplier: .9,
+            walkSpeedMultiplier: .9,
             jumpForceMultiplier: 1,
             sizeMultiplier: 1.9,
             sizeScale: {
@@ -29070,6 +29591,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: .5,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29077,7 +29599,7 @@ object-assign
             needsAir: !0,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 22,
+            habitat: 23,
             biomes: [22],
             collisionCategory: 1,
             collisionMask: 7935,
@@ -29095,6 +29617,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 7,
+            fishLevel: 39,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -29117,6 +29640,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29142,6 +29666,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 0,
+            fishLevel: 40,
             oxygenTime: 10,
             oxygenTimeMs: 1e4,
             temperatureTime: 10,
@@ -29164,6 +29689,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29171,7 +29697,7 @@ object-assign
             needsAir: !1,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 22,
+            habitat: 23,
             biomes: [22],
             collisionCategory: 1,
             collisionMask: 7935,
@@ -29189,8 +29715,9 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 6,
-            oxygenTime: 25,
-            oxygenTimeMs: 25e3,
+            fishLevel: 41,
+            oxygenTime: 45,
+            oxygenTimeMs: 45e3,
             temperatureTime: 10,
             temperatureTimeMs: 1e4,
             pressureTime: 5,
@@ -29211,6 +29738,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29234,30 +29762,32 @@ object-assign
         }, {
             name: "baldeagle",
             mass: 1,
-            boosts: 2,
+            boosts: 3,
             level: 9,
-            oxygenTime: 10,
-            oxygenTimeMs: 1e4,
+            fishLevel: 42,
+            oxygenTime: 30,
+            oxygenTimeMs: 3e4,
             temperatureTime: 60,
             temperatureTimeMs: 6e4,
             pressureTime: 5,
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: 1.15,
-            walkSpeedMultiplier: 1.15,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
             sizeMultiplier: 1.4,
             sizeScale: {
                 x: 1,
                 y: 1
             },
-            damageMultiplier: 5,
-            healthMultiplier: 6.5,
+            damageMultiplier: 6,
+            healthMultiplier: 7.5,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !0,
             canSwim: !1,
@@ -29270,8 +29800,8 @@ object-assign
             collisionCategory: 1,
             collisionMask: 7935,
             chooseable: !0,
-            hasSecondaryAbility: !1,
-            secondaryAbilityLoadTime: 500,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 300,
             hasScalingBoost: !1,
             ungrabbable: !1,
             canDig: !1,
@@ -29283,6 +29813,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 8,
+            fishLevel: 43,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -29305,6 +29836,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29330,6 +29862,7 @@ object-assign
             mass: 1,
             boosts: 0,
             level: 0,
+            fishLevel: 44,
             oxygenTime: 10,
             oxygenTimeMs: 1e4,
             temperatureTime: 10,
@@ -29352,6 +29885,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !0,
             canSwim: !1,
@@ -29359,11 +29893,11 @@ object-assign
             needsAir: !0,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 22,
+            habitat: 23,
             biomes: [22],
             collisionCategory: 1,
             collisionMask: 6173,
-            chooseable: !0,
+            chooseable: !1,
             hasSecondaryAbility: !1,
             secondaryAbilityLoadTime: 500,
             hasScalingBoost: !1,
@@ -29377,6 +29911,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 9,
+            fishLevel: 45,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -29394,11 +29929,12 @@ object-assign
                 y: 1
             },
             damageMultiplier: 6,
-            healthMultiplier: 10,
+            healthMultiplier: 9,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29411,8 +29947,8 @@ object-assign
             collisionCategory: 1,
             collisionMask: 7935,
             chooseable: !0,
-            hasSecondaryAbility: !0,
-            secondaryAbilityLoadTime: 1e3,
+            hasSecondaryAbility: !1,
+            secondaryAbilityLoadTime: 500,
             hasScalingBoost: !1,
             ungrabbable: !1,
             canDig: !1,
@@ -29424,6 +29960,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 46,
             oxygenTime: 120,
             oxygenTimeMs: 12e4,
             temperatureTime: 30,
@@ -29432,8 +29969,8 @@ object-assign
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: .9,
-            walkSpeedMultiplier: .9,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
             sizeMultiplier: 2,
             sizeScale: {
@@ -29444,8 +29981,9 @@ object-assign
             healthMultiplier: 10,
             damageBlock: 0,
             damageReflection: 0,
-            bleedReduction: .5,
+            bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29471,6 +30009,7 @@ object-assign
             mass: 1,
             boosts: 0,
             level: 0,
+            fishLevel: 47,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -29493,6 +30032,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29504,7 +30044,7 @@ object-assign
             biomes: [41, 42, 26],
             collisionCategory: 1,
             collisionMask: 7935,
-            chooseable: !0,
+            chooseable: !1,
             hasSecondaryAbility: !1,
             secondaryAbilityLoadTime: 500,
             hasScalingBoost: !1,
@@ -29518,6 +30058,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 48,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 15,
@@ -29540,6 +30081,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29565,6 +30107,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 6,
+            fishLevel: 49,
             oxygenTime: 30,
             oxygenTimeMs: 3e4,
             temperatureTime: 10,
@@ -29587,6 +30130,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29612,6 +30156,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 3,
+            fishLevel: 50,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -29634,6 +30179,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29659,6 +30205,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 3,
+            fishLevel: 51,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -29681,6 +30228,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29706,6 +30254,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 0,
+            fishLevel: 52,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -29728,6 +30277,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29739,7 +30289,7 @@ object-assign
             biomes: [37],
             collisionCategory: 1,
             collisionMask: 7935,
-            chooseable: !0,
+            chooseable: !1,
             hasSecondaryAbility: !1,
             secondaryAbilityLoadTime: 500,
             hasScalingBoost: !1,
@@ -29753,6 +30303,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 4,
+            fishLevel: 53,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -29775,6 +30326,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: .4,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29800,6 +30352,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 0,
+            fishLevel: 54,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 5,
@@ -29822,6 +30375,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29847,6 +30401,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 4,
+            fishLevel: 55,
             oxygenTime: 10,
             oxygenTimeMs: 1e4,
             temperatureTime: 5,
@@ -29869,6 +30424,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29894,6 +30450,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 7,
+            fishLevel: 56,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 30,
@@ -29916,6 +30473,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29941,6 +30499,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 8,
+            fishLevel: 57,
             oxygenTime: 10,
             oxygenTimeMs: 1e4,
             temperatureTime: 10,
@@ -29958,11 +30517,12 @@ object-assign
                 y: 1
             },
             damageMultiplier: 4,
-            healthMultiplier: 5,
+            healthMultiplier: 6,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -29988,8 +30548,9 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 7,
-            oxygenTime: 30,
-            oxygenTimeMs: 3e4,
+            fishLevel: 58,
+            oxygenTime: 50,
+            oxygenTimeMs: 5e4,
             temperatureTime: 10,
             temperatureTimeMs: 1e4,
             pressureTime: 5,
@@ -30008,8 +30569,9 @@ object-assign
             healthMultiplier: 6,
             damageBlock: 0,
             damageReflection: 0,
-            bleedReduction: .5,
+            bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30035,6 +30597,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 2,
+            fishLevel: 59,
             oxygenTime: 30,
             oxygenTimeMs: 3e4,
             temperatureTime: 10,
@@ -30057,6 +30620,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30080,8 +30644,9 @@ object-assign
         }, {
             name: "duck",
             mass: 1,
-            boosts: 1,
+            boosts: 2,
             level: 4,
+            fishLevel: 60,
             oxygenTime: 30,
             oxygenTimeMs: 3e4,
             temperatureTime: 10,
@@ -30104,6 +30669,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !0,
             canSwim: !1,
@@ -30129,6 +30695,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 61,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -30151,6 +30718,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30176,6 +30744,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 3,
+            fishLevel: 62,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -30198,6 +30767,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30223,16 +30793,17 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 3,
-            oxygenTime: 15,
-            oxygenTimeMs: 15e3,
+            fishLevel: 63,
+            oxygenTime: 25,
+            oxygenTimeMs: 25e3,
             temperatureTime: 10,
             temperatureTimeMs: 1e4,
             pressureTime: 5,
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: 1,
-            walkSpeedMultiplier: 1,
+            speedMultiplier: 1.05,
+            walkSpeedMultiplier: 1.05,
             jumpForceMultiplier: 1,
             sizeMultiplier: 1.2,
             sizeScale: {
@@ -30245,6 +30816,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !0,
             canSwim: !0,
@@ -30270,6 +30842,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 5,
+            fishLevel: 64,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 10,
@@ -30286,12 +30859,13 @@ object-assign
                 x: 1,
                 y: 1
             },
-            damageMultiplier: 4,
-            healthMultiplier: 4.5,
+            damageMultiplier: 5,
+            healthMultiplier: 5,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30317,6 +30891,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 5,
+            fishLevel: 65,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 10,
@@ -30334,11 +30909,12 @@ object-assign
                 y: 1
             },
             damageMultiplier: 1,
-            healthMultiplier: 4.5,
+            healthMultiplier: 5,
             damageBlock: .6,
             damageReflection: .7,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30364,6 +30940,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 66,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -30386,6 +30963,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30411,6 +30989,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 8,
+            fishLevel: 67,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -30433,6 +31012,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30458,6 +31038,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 9,
+            fishLevel: 68,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -30466,8 +31047,8 @@ object-assign
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: .9,
-            walkSpeedMultiplier: .9,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
             sizeMultiplier: 2,
             sizeScale: {
@@ -30480,6 +31061,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30487,7 +31069,7 @@ object-assign
             needsAir: !0,
             canClimb: !0,
             poisonResistant: !0,
-            habitat: 22,
+            habitat: 23,
             biomes: [22],
             collisionCategory: 1,
             collisionMask: 7935,
@@ -30505,6 +31087,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 5,
+            fishLevel: 69,
             oxygenTime: 5,
             oxygenTimeMs: 5e3,
             temperatureTime: 10,
@@ -30527,6 +31110,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .25,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30552,6 +31136,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 7,
+            fishLevel: 70,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -30563,7 +31148,7 @@ object-assign
             speedMultiplier: 1,
             walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
-            sizeMultiplier: 1.8,
+            sizeMultiplier: 1.7,
             sizeScale: {
                 x: .93,
                 y: 1
@@ -30574,6 +31159,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30587,7 +31173,7 @@ object-assign
             collisionMask: 7935,
             chooseable: !0,
             hasSecondaryAbility: !0,
-            secondaryAbilityLoadTime: 350,
+            secondaryAbilityLoadTime: 250,
             hasScalingBoost: !1,
             ungrabbable: !1,
             canDig: !1,
@@ -30599,6 +31185,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 71,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -30607,8 +31194,8 @@ object-assign
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: .9,
-            walkSpeedMultiplier: .9,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
             sizeMultiplier: 2,
             sizeScale: {
@@ -30619,8 +31206,9 @@ object-assign
             healthMultiplier: 9,
             damageBlock: 0,
             damageReflection: 0,
-            bleedReduction: .5,
+            bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30633,8 +31221,8 @@ object-assign
             collisionCategory: 1,
             collisionMask: 7935,
             chooseable: !0,
-            hasSecondaryAbility: !1,
-            secondaryAbilityLoadTime: 500,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 350,
             hasScalingBoost: !1,
             ungrabbable: !1,
             canDig: !1,
@@ -30646,6 +31234,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 8,
+            fishLevel: 72,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -30668,6 +31257,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30691,8 +31281,9 @@ object-assign
         }, {
             name: "sawfish",
             mass: 1,
-            boosts: 2,
+            boosts: 3,
             level: 9,
+            fishLevel: 73,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 10,
@@ -30715,6 +31306,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30740,6 +31332,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 8,
+            fishLevel: 74,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 10,
@@ -30762,6 +31355,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .75,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30787,6 +31381,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 3,
+            fishLevel: 75,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -30809,6 +31404,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30834,6 +31430,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 4,
+            fishLevel: 76,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -30856,6 +31453,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !0,
             canSwim: !1,
@@ -30881,6 +31479,7 @@ object-assign
             mass: 1,
             boosts: 0,
             level: 0,
+            fishLevel: 77,
             oxygenTime: 5,
             oxygenTimeMs: 5e3,
             temperatureTime: 10,
@@ -30903,6 +31502,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !0,
             canSwim: !1,
@@ -30910,11 +31510,11 @@ object-assign
             needsAir: !0,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 30,
+            habitat: 31,
             biomes: [22, 26],
             collisionCategory: 1,
             collisionMask: 7935,
-            chooseable: !0,
+            chooseable: !1,
             hasSecondaryAbility: !1,
             secondaryAbilityLoadTime: 500,
             hasScalingBoost: !1,
@@ -30928,6 +31528,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 0,
+            fishLevel: 78,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -30950,6 +31551,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -30975,6 +31577,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 1,
+            fishLevel: 79,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -30997,6 +31600,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31022,6 +31626,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 5,
+            fishLevel: 80,
             oxygenTime: 75,
             oxygenTimeMs: 75e3,
             temperatureTime: 10,
@@ -31044,6 +31649,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31051,7 +31657,7 @@ object-assign
             needsAir: !0,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 30,
+            habitat: 31,
             biomes: [22, 26],
             collisionCategory: 1,
             collisionMask: 7935,
@@ -31069,6 +31675,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 8,
+            fishLevel: 81,
             oxygenTime: 30,
             oxygenTimeMs: 3e4,
             temperatureTime: 10,
@@ -31091,6 +31698,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31116,6 +31724,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 82,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -31138,6 +31747,7 @@ object-assign
             damageReflection: .25,
             bleedReduction: 0,
             armorPenetration: .3,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31163,6 +31773,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 9,
+            fishLevel: 83,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -31179,12 +31790,13 @@ object-assign
                 x: 1,
                 y: .82
             },
-            damageMultiplier: 3,
+            damageMultiplier: 4,
             healthMultiplier: 9,
-            damageBlock: .6,
+            damageBlock: .3,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31210,6 +31822,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 9,
+            fishLevel: 84,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -31227,11 +31840,12 @@ object-assign
                 y: .79
             },
             damageMultiplier: 3,
-            healthMultiplier: 7,
+            healthMultiplier: 9,
             damageBlock: .9,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31257,6 +31871,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 2,
+            fishLevel: 85,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 10,
@@ -31279,6 +31894,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31304,6 +31920,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 86,
             oxygenTime: 90,
             oxygenTimeMs: 9e4,
             temperatureTime: 10,
@@ -31322,10 +31939,11 @@ object-assign
             },
             damageMultiplier: 7,
             healthMultiplier: 8,
-            damageBlock: .2,
+            damageBlock: .1,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .4,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31351,6 +31969,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 87,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -31373,6 +31992,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31398,6 +32018,7 @@ object-assign
             mass: 1,
             boosts: 0,
             level: 0,
+            fishLevel: 88,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -31420,6 +32041,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31431,7 +32053,7 @@ object-assign
             biomes: [38],
             collisionCategory: 1,
             collisionMask: 7935,
-            chooseable: !0,
+            chooseable: !1,
             hasSecondaryAbility: !1,
             secondaryAbilityLoadTime: 500,
             hasScalingBoost: !1,
@@ -31445,6 +32067,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 2,
+            fishLevel: 89,
             oxygenTime: 0,
             oxygenTimeMs: 0,
             temperatureTime: 10,
@@ -31467,6 +32090,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31492,6 +32116,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 90,
             oxygenTime: 15,
             oxygenTimeMs: 15e3,
             temperatureTime: 10,
@@ -31500,20 +32125,21 @@ object-assign
             pressureTimeMs: 25e3,
             salinityTime: 15,
             salinityTimeMs: 15e3,
-            speedMultiplier: .9,
-            walkSpeedMultiplier: .9,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
             sizeMultiplier: 2.1,
             sizeScale: {
                 x: 1,
                 y: 1.04
             },
-            damageMultiplier: 6,
-            healthMultiplier: 12,
+            damageMultiplier: 7,
+            healthMultiplier: 10,
             damageBlock: 0,
             damageReflection: 0,
-            bleedReduction: .3,
+            bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31539,6 +32165,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 91,
             oxygenTime: 10,
             oxygenTimeMs: 1e4,
             temperatureTime: 10,
@@ -31556,11 +32183,12 @@ object-assign
                 y: 1
             },
             damageMultiplier: 5,
-            healthMultiplier: 10.5,
+            healthMultiplier: 10,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .5,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31586,6 +32214,7 @@ object-assign
             mass: 1,
             boosts: 1,
             level: 1,
+            fishLevel: 92,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -31603,11 +32232,12 @@ object-assign
                 y: 1
             },
             damageMultiplier: 2,
-            healthMultiplier: 1.5,
+            healthMultiplier: 2,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31625,7 +32255,7 @@ object-assign
             hasScalingBoost: !1,
             ungrabbable: !1,
             canDig: !1,
-            canWalkUnderwater: !1,
+            canWalkUnderwater: !0,
             hasWalkingAbility: !1,
             walkingAbilityLoadTime: 250
         }, {
@@ -31633,6 +32263,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 5,
+            fishLevel: 93,
             oxygenTime: 25,
             oxygenTimeMs: 25e3,
             temperatureTime: 10,
@@ -31655,6 +32286,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31662,7 +32294,7 @@ object-assign
             needsAir: !1,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 22,
+            habitat: 23,
             biomes: [22],
             collisionCategory: 1,
             collisionMask: 7935,
@@ -31680,6 +32312,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 6,
+            fishLevel: 94,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -31702,6 +32335,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31709,8 +32343,8 @@ object-assign
             needsAir: !0,
             canClimb: !1,
             poisonResistant: !1,
-            habitat: 38,
-            biomes: [38],
+            habitat: 39,
+            biomes: [37, 38],
             collisionCategory: 1,
             collisionMask: 7935,
             chooseable: !0,
@@ -31727,6 +32361,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 5,
+            fishLevel: 95,
             oxygenTime: 45,
             oxygenTimeMs: 45e3,
             temperatureTime: 10,
@@ -31749,6 +32384,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .3,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31774,6 +32410,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 7,
+            fishLevel: 96,
             oxygenTime: 30,
             oxygenTimeMs: 3e4,
             temperatureTime: 10,
@@ -31796,6 +32433,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .3,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31821,6 +32459,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 6,
+            fishLevel: 97,
             oxygenTime: 30,
             oxygenTimeMs: 3e4,
             temperatureTime: 10,
@@ -31843,6 +32482,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .3,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31868,6 +32508,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 98,
             oxygenTime: 30,
             oxygenTimeMs: 3e4,
             temperatureTime: 10,
@@ -31884,12 +32525,13 @@ object-assign
                 x: .55,
                 y: 1
             },
-            damageMultiplier: 7,
+            damageMultiplier: 7.5,
             healthMultiplier: 7.5,
             damageBlock: 0,
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .3,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31915,6 +32557,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 8,
+            fishLevel: 99,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -31923,8 +32566,8 @@ object-assign
             pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: .9,
-            walkSpeedMultiplier: .9,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
             sizeMultiplier: 1.8,
             sizeScale: {
@@ -31937,6 +32580,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .4,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31962,16 +32606,17 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 100,
             oxygenTime: 110,
             oxygenTimeMs: 11e4,
             temperatureTime: 10,
             temperatureTimeMs: 1e4,
-            pressureTime: 90,
-            pressureTimeMs: 9e4,
+            pressureTime: 5,
+            pressureTimeMs: 5e3,
             salinityTime: 20,
             salinityTimeMs: 2e4,
-            speedMultiplier: .95,
-            walkSpeedMultiplier: .95,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
             jumpForceMultiplier: 1,
             sizeMultiplier: 2,
             sizeScale: {
@@ -31984,6 +32629,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -31991,8 +32637,8 @@ object-assign
             needsAir: !0,
             canClimb: !1,
             poisonResistant: !0,
-            habitat: 102,
-            biomes: [38],
+            habitat: 110,
+            biomes: [38, 42],
             collisionCategory: 1,
             collisionMask: 7935,
             chooseable: !0,
@@ -32009,6 +32655,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 101,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -32031,6 +32678,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -32056,8 +32704,9 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 9,
-            oxygenTime: 20,
-            oxygenTimeMs: 2e4,
+            fishLevel: 102,
+            oxygenTime: 80,
+            oxygenTimeMs: 8e4,
             temperatureTime: 10,
             temperatureTimeMs: 1e4,
             pressureTime: 5,
@@ -32078,6 +32727,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -32103,6 +32753,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 103,
             oxygenTime: 60,
             oxygenTimeMs: 6e4,
             temperatureTime: 10,
@@ -32121,10 +32772,11 @@ object-assign
             },
             damageMultiplier: 7,
             healthMultiplier: 7,
-            damageBlock: .5,
+            damageBlock: .35,
             damageReflection: 0,
-            bleedReduction: .3,
+            bleedReduction: 0,
             armorPenetration: .3,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -32150,6 +32802,7 @@ object-assign
             mass: 1,
             boosts: 3,
             level: 9,
+            fishLevel: 104,
             oxygenTime: 20,
             oxygenTimeMs: 2e4,
             temperatureTime: 10,
@@ -32172,6 +32825,7 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: .4,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
@@ -32197,6 +32851,7 @@ object-assign
             mass: 1,
             boosts: 2,
             level: 3,
+            fishLevel: 105,
             oxygenTime: 30,
             oxygenTimeMs: 3e4,
             temperatureTime: 10,
@@ -32219,12 +32874,13 @@ object-assign
             damageReflection: 0,
             bleedReduction: 0,
             armorPenetration: 0,
+            poisonResistance: 0,
             permanentEffects: 0,
             canFly: !1,
             canSwim: !0,
             canStand: !0,
             needsAir: !1,
-            canClimb: !1,
+            canClimb: !0,
             poisonResistant: !1,
             habitat: 110,
             biomes: [38, 42],
@@ -32238,6 +32894,692 @@ object-assign
             canDig: !1,
             canWalkUnderwater: !0,
             hasWalkingAbility: !0,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "giantpacificoctopus",
+            mass: 1,
+            boosts: 3,
+            level: 9,
+            fishLevel: 106,
+            oxygenTime: 15,
+            oxygenTimeMs: 15e3,
+            temperatureTime: 60,
+            temperatureTimeMs: 6e4,
+            pressureTime: 5,
+            pressureTimeMs: 5e3,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.7,
+            sizeScale: {
+                x: 1,
+                y: 1
+            },
+            damageMultiplier: 9,
+            healthMultiplier: 7.5,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: .25,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 45,
+            biomes: [37, 41],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 500,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "beakedwhale",
+            mass: 1,
+            boosts: 3,
+            level: 9,
+            fishLevel: 107,
+            oxygenTime: 140,
+            oxygenTimeMs: 14e4,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 5,
+            pressureTimeMs: 5e3,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 2,
+            sizeScale: {
+                x: 1,
+                y: 1
+            },
+            damageMultiplier: 7,
+            healthMultiplier: 9,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !0,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 47,
+            biomes: [37, 38, 41, 42],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 750,
+            hasScalingBoost: !0,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "megamouthshark",
+            mass: 1,
+            boosts: 3,
+            level: 9,
+            fishLevel: 108,
+            oxygenTime: 15,
+            oxygenTimeMs: 15e3,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 20,
+            pressureTimeMs: 2e4,
+            salinityTime: 10,
+            salinityTimeMs: 1e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 2,
+            sizeScale: {
+                x: 1,
+                y: 1
+            },
+            damageMultiplier: 7,
+            healthMultiplier: 10,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 43,
+            biomes: [41, 42],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 500,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "belugawhale",
+            mass: 1,
+            boosts: 3,
+            level: 8,
+            fishLevel: 109,
+            oxygenTime: 60,
+            oxygenTimeMs: 6e4,
+            temperatureTime: 30,
+            temperatureTimeMs: 3e4,
+            pressureTime: 60,
+            pressureTimeMs: 6e4,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.9,
+            sizeScale: {
+                x: 1,
+                y: 1
+            },
+            damageMultiplier: 5,
+            healthMultiplier: 8,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !0,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 37,
+            biomes: [37],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 600,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "vampiresquid",
+            mass: 1,
+            boosts: 2,
+            level: 4,
+            fishLevel: 110,
+            oxygenTime: 20,
+            oxygenTimeMs: 2e4,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 20,
+            pressureTimeMs: 2e4,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.3,
+            sizeScale: {
+                x: 1,
+                y: 1
+            },
+            damageMultiplier: 4,
+            healthMultiplier: 3.5,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 43,
+            biomes: [41, 42],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 500,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "halibut",
+            mass: 1,
+            boosts: 3,
+            level: 9,
+            fishLevel: 111,
+            oxygenTime: 20,
+            oxygenTimeMs: 2e4,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 5,
+            pressureTimeMs: 5e3,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.9,
+            sizeScale: {
+                x: 1,
+                y: 1
+            },
+            damageMultiplier: 7,
+            healthMultiplier: 8,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 45,
+            biomes: [37, 41],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 600,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "bowheadwhale",
+            mass: 1,
+            boosts: 3,
+            level: 9,
+            fishLevel: 112,
+            oxygenTime: 75,
+            oxygenTimeMs: 75e3,
+            temperatureTime: 20,
+            temperatureTimeMs: 2e4,
+            pressureTime: 10,
+            pressureTimeMs: 1e4,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 2.2,
+            sizeScale: {
+                x: 1,
+                y: .95
+            },
+            damageMultiplier: 5,
+            healthMultiplier: 11,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: .5,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !0,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 37,
+            biomes: [37],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 500,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !0,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "japanesespidercrab",
+            mass: 1,
+            boosts: 3,
+            level: 9,
+            fishLevel: 113,
+            oxygenTime: 30,
+            oxygenTimeMs: 3e4,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 30,
+            pressureTimeMs: 3e4,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: .6,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.6,
+            sizeScale: {
+                x: 1.1,
+                y: .73
+            },
+            damageMultiplier: 6,
+            healthMultiplier: 8,
+            damageBlock: .25,
+            damageReflection: .15,
+            bleedReduction: 0,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !0,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 45,
+            biomes: [37, 41],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 500,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !0,
+            hasWalkingAbility: !0,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "cookiecuttershark",
+            mass: 1,
+            boosts: 2,
+            level: 5,
+            fishLevel: 114,
+            oxygenTime: 15,
+            oxygenTimeMs: 15e3,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 60,
+            pressureTimeMs: 6e4,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.3,
+            sizeScale: {
+                x: .8,
+                y: 1
+            },
+            damageMultiplier: 4,
+            healthMultiplier: 4.5,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: .5,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 43,
+            biomes: [41, 42],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 300,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "sarcasticfringehead",
+            mass: 1,
+            boosts: 2,
+            level: 5,
+            fishLevel: 115,
+            oxygenTime: 20,
+            oxygenTimeMs: 2e4,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 5,
+            pressureTimeMs: 5e3,
+            salinityTime: 15,
+            salinityTimeMs: 15e3,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.4,
+            sizeScale: {
+                x: 1,
+                y: 1
+            },
+            damageMultiplier: 5,
+            healthMultiplier: 4.5,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 102,
+            biomes: [38],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 500,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "parrotfish",
+            mass: 1,
+            boosts: 2,
+            level: 4,
+            fishLevel: 116,
+            oxygenTime: 20,
+            oxygenTimeMs: 2e4,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 5,
+            pressureTimeMs: 5e3,
+            salinityTime: 15,
+            salinityTimeMs: 15e3,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.3,
+            sizeScale: {
+                x: 1,
+                y: .97
+            },
+            damageMultiplier: 3.5,
+            healthMultiplier: 4,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: .5,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 102,
+            biomes: [38],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 500,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "wolfeel",
+            mass: 1,
+            boosts: 2,
+            level: 8,
+            fishLevel: 117,
+            oxygenTime: 20,
+            oxygenTimeMs: 2e4,
+            temperatureTime: 30,
+            temperatureTimeMs: 3e4,
+            pressureTime: 5,
+            pressureTimeMs: 5e3,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.7,
+            sizeScale: {
+                x: .64,
+                y: 1
+            },
+            damageMultiplier: 7,
+            healthMultiplier: 7,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: .3,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 45,
+            biomes: [37, 41],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 600,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "giantsiphonophore",
+            mass: 1,
+            boosts: 2,
+            level: 8,
+            fishLevel: 118,
+            oxygenTime: 20,
+            oxygenTimeMs: 2e4,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 5,
+            pressureTimeMs: 5e3,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: .55,
+            walkSpeedMultiplier: .55,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 2.1,
+            sizeScale: {
+                x: 1.25,
+                y: 1
+            },
+            damageMultiplier: 0,
+            healthMultiplier: 10,
+            damageBlock: 0,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !0,
+            habitat: 41,
+            biomes: [41],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !1,
+            hasSecondaryAbility: !1,
+            secondaryAbilityLoadTime: 500,
+            hasScalingBoost: !1,
+            ungrabbable: !0,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
+            walkingAbilityLoadTime: 250
+        }, {
+            name: "coelacanth",
+            mass: 1,
+            boosts: 3,
+            level: 9,
+            fishLevel: 119,
+            oxygenTime: 20,
+            oxygenTimeMs: 2e4,
+            temperatureTime: 10,
+            temperatureTimeMs: 1e4,
+            pressureTime: 30,
+            pressureTimeMs: 3e4,
+            salinityTime: 20,
+            salinityTimeMs: 2e4,
+            speedMultiplier: 1,
+            walkSpeedMultiplier: 1,
+            jumpForceMultiplier: 1,
+            sizeMultiplier: 1.8,
+            sizeScale: {
+                x: .94,
+                y: 1
+            },
+            damageMultiplier: 7,
+            healthMultiplier: 8,
+            damageBlock: .2,
+            damageReflection: 0,
+            bleedReduction: 0,
+            armorPenetration: 0,
+            poisonResistance: 0,
+            permanentEffects: 0,
+            canFly: !1,
+            canSwim: !0,
+            canStand: !1,
+            needsAir: !1,
+            canClimb: !1,
+            poisonResistant: !1,
+            habitat: 43,
+            biomes: [41, 42],
+            collisionCategory: 1,
+            collisionMask: 7935,
+            chooseable: !0,
+            hasSecondaryAbility: !0,
+            secondaryAbilityLoadTime: 250,
+            hasScalingBoost: !1,
+            ungrabbable: !1,
+            canDig: !1,
+            canWalkUnderwater: !1,
+            hasWalkingAbility: !1,
             walkingAbilityLoadTime: 250
         }]
           , o = function() {
@@ -32259,7 +33601,7 @@ object-assign
                 key: "getSkinPath",
                 value: function(e, t) {
                     var i = t ? e.assets_data[t].asset : e.asset;
-                    return i ? e.id <= 80 && e.created_at < "2020-10-01" ? s["a"].gamePath + "/assets/skins/" + i + "?v=" + e.version : (s["a"].IsLocalhost ? "http://localhost:8080/assets/skins/" : "".concat(s["a"].gamePath, "/assets/skins/custom/")) + i : null
+                    return i ? e.id <= 80 && e.created_at < "2020-10-01" ? s["a"].gamePath + "/assets/skins/" + i + "?v=" + e.version : (s["a"].IsLocalhost ? "http://localhost:3000/assets/skins/" : "".concat(s["a"].CDN_PATH, "/custom/skins/")) + i + "?v=" + e.version : null
                 }
             }, {
                 key: "getAll",
@@ -33189,6 +34531,12 @@ object-assign
         }
         ))
     },
+    "7a47": function(e, t, i) {
+        "use strict";
+        var n = i("a1cc")
+          , r = i.n(n);
+        r.a
+    },
     "7e58": function(e, t, i) {},
     "80e4": function(e, t, i) {
         "use strict";
@@ -33425,11 +34773,11 @@ https://github.com/nodeca/pica
                         return Math.round(e * ((1 << r) - 1))
                     }
                     t.exports = function(e, t, i, r, a) {
-                        var o, l, h, u, c, d, p, f, m, g, v, y, b, x, w, _, T, A = n[e].filter, S = 1 / r, M = Math.min(1, r), E = n[e].win / M, I = Math.floor(2 * (E + 1)), k = new Int16Array((I + 2) * i), C = 0, O = !k.subarray || !k.set;
+                        var o, l, h, u, c, d, p, f, m, g, v, y, b, x, w, _, T, A = n[e].filter, S = 1 / r, M = Math.min(1, r), k = n[e].win / M, E = Math.floor(2 * (k + 1)), C = new Int16Array((E + 2) * i), I = 0, O = !C.subarray || !C.set;
                         for (o = 0; o < i; o++) {
                             for (l = (o + .5) * S + a,
-                            h = Math.max(0, Math.floor(l - E)),
-                            u = Math.min(t - 1, Math.ceil(l + E)),
+                            h = Math.max(0, Math.floor(l - k)),
+                            u = Math.min(t - 1, Math.ceil(l + k)),
                             c = u - h + 1,
                             d = new Float32Array(c),
                             p = new Int16Array(c),
@@ -33455,19 +34803,19 @@ https://github.com/nodeca/pica
                                     w--;
                                 if (_ = h + x,
                                 T = w - x + 1,
-                                k[C++] = _,
-                                k[C++] = T,
+                                C[I++] = _,
+                                C[I++] = T,
                                 O)
                                     for (g = x; g <= w; g++)
-                                        k[C++] = p[g];
+                                        C[I++] = p[g];
                                 else
-                                    k.set(p.subarray(x, w + 1), C),
-                                    C += T
+                                    C.set(p.subarray(x, w + 1), I),
+                                    I += T
                             } else
-                                k[C++] = 0,
-                                k[C++] = 0
+                                C[I++] = 0,
+                                C[I++] = 0
                         }
-                        return k
+                        return C
                     }
                 }
                 , {
@@ -33567,10 +34915,10 @@ https://github.com/nodeca/pica
                         S.set(M),
                         o(g, A, x),
                         o(v, A, w);
-                        var E = T.exports.convolveHV || T.exports._convolveHV;
-                        E(x, w, b, i, s, a, l);
-                        var I = new Uint32Array(p.buffer);
-                        return I.set(new Uint32Array(this.__memory.buffer,0,l * a)),
+                        var k = T.exports.convolveHV || T.exports._convolveHV;
+                        k(x, w, b, i, s, a, l);
+                        var E = new Uint32Array(p.buffer);
+                        return E.set(new Uint32Array(this.__memory.buffer,0,l * a)),
                         m || r(p, a, l),
                         p
                     }
@@ -34714,386 +36062,29 @@ object-assign
     8983: function(e, t, i) {
         "use strict";
         i.d(t, "b", (function() {
-            return l
+            return o
         }
         )),
         i.d(t, "a", (function() {
-            return h
+            return l
         }
         )),
         i.d(t, "c", (function() {
-            return u
+            return h
         }
         ));
         i("d81d"),
         i("b0c0"),
         i("d3b7");
-        var n = [{
-            name: "fish"
-        }, {
-            name: "crab"
-        }, {
-            name: "jellyfish"
-        }, {
-            name: "squid"
-        }, {
-            name: "seagull"
-        }, {
-            name: "ray"
-        }, {
-            name: "beaver"
-        }, {
-            name: "penguin"
-        }, {
-            name: "tshark"
-        }, {
-            name: "dolphin"
-        }, {
-            name: "shark",
-            color: "rgb(166, 202, 250)"
-        }, {
-            name: "killerwhale",
-            color: "rgb(26, 28, 27)"
-        }, {
-            name: "whale",
-            color: "rgb(155, 151, 150)"
-        }, {
-            name: "worm"
-        }, {
-            name: "anglerfish"
-        }, {
-            name: "leopardseal"
-        }, {
-            name: "blobfish"
-        }, {
-            name: "kingcrab"
-        }, {
-            name: "pollock",
-            clientSideSizeScale: .7
-        }, {
-            name: "seaturtle",
-            creatorId: 1
-        }, {
-            name: "oarfish",
-            creatorId: 1
-        }, {
-            name: "octopus",
-            creatorId: 1
-        }, {
-            name: "giantsquid",
-            color: "rgb(140, 57, 59)",
-            creatorId: 12,
-            ideatorId: 16
-        }, {
-            name: "narwhal",
-            creatorId: 12
-        }, {
-            name: "cachalot",
-            color: "rgb(114, 114, 114)",
-            creatorId: 1
-        }, {
-            name: "polarbear",
-            color: "rgb(251, 251, 255)",
-            creatorId: 12
-        }, {
-            name: "lamprey",
-            creatorId: 12
-        }, {
-            name: "pelican",
-            creatorId: 2
-        }, {
-            name: "whaleshark",
-            color: "rgb(209, 206, 190)",
-            creatorId: 1
-        }, {
-            name: "remora",
-            creatorId: 1
-        }, {
-            name: "marlin",
-            color: "rgb(24, 151, 151)",
-            creatorId: 1
-        }, {
-            name: "sunfish",
-            color: "rgb(179, 195, 198)",
-            creatorId: 1
-        }, {
-            name: "stonefish",
-            color: "rgb(219, 76, 41)",
-            creatorId: 1
-        }, {
-            name: "ghost",
-            creatorId: 15
-        }, {
-            name: "crocodile",
-            color: "rgb(170, 173, 66)",
-            creatorId: 2
-        }, {
-            name: "electriceel",
-            creatorId: 2
-        }, {
-            name: "frog",
-            creatorId: 12
-        }, {
-            name: "hippo",
-            color: "rgb(112, 80, 90)",
-            creatorId: 2
-        }, {
-            name: "manatee",
-            creatorId: 12
-        }, {
-            name: "snappingturtle",
-            creatorId: 14
-        }, {
-            name: "piranha",
-            color: "rgb(111, 115, 85)",
-            creatorId: 2
-        }, {
-            name: "snake",
-            creatorId: 12
-        }, {
-            name: "baldeagle",
-            color: "rgb(38, 34, 31)",
-            creatorId: 1
-        }, {
-            name: "lionfish",
-            creatorId: 2
-        }, {
-            name: "dragonfly",
-            clientSideSizeScale: .8
-        }, {
-            name: "mantaray",
-            color: "rgb(221, 219, 196)"
-        }, {
-            name: "elephantseal",
-            color: "rgb(121, 119, 97)",
-            creatorId: 2
-        }, {
-            name: "lanternfish",
-            clientSideSizeScale: .8,
-            creatorId: 1
-        }, {
-            name: "sleepershark",
-            color: "rgb(71, 72, 72)",
-            creatorId: 1,
-            ideatorId: 3
-        }, {
-            name: "gulpereel",
-            color: "rgb(221, 219, 196)",
-            creatorId: 1
-        }, {
-            name: "giantisopod",
-            color: "rgb(221, 219, 196)",
-            creatorId: 4,
-            ideatorId: 5
-        }, {
-            name: "giantisopodclosed",
-            color: "rgb(221, 219, 196)"
-        }, {
-            name: "babypenguin",
-            color: "rgb(221, 219, 196)"
-        }, {
-            name: "seal",
-            color: "rgb(221, 219, 196)",
-            creatorId: 2
-        }, {
-            name: "icefish",
-            color: "rgb(221, 219, 196)",
-            creatorId: 2
-        }, {
-            name: "barreleye",
-            color: "rgb(221, 219, 196)",
-            creatorId: 6
-        }, {
-            name: "dragonfish",
-            color: "rgb(221, 219, 196)",
-            creatorId: 7,
-            ideatorId: 8
-        }, {
-            name: "humboldtsquid",
-            color: "rgb(221, 219, 196)",
-            creatorId: 3
-        }, {
-            name: "sealion",
-            color: "rgb(221, 219, 196)",
-            creatorId: 2
-        }, {
-            name: "flyingfish",
-            color: "rgb(221, 219, 196)",
-            creatorId: 9
-        }, {
-            name: "duck",
-            color: "rgb(221, 219, 196)",
-            creatorId: 2
-        }, {
-            name: "goblinshark",
-            color: "rgb(161, 135, 124)",
-            creatorId: 3,
-            ideatorId: 10
-        }, {
-            name: "catfish",
-            color: "rgb(221, 219, 196)",
-            creatorId: 2
-        }, {
-            name: "littleauk",
-            color: "rgb(221, 219, 196)",
-            creatorId: 2
-        }, {
-            name: "pufferfish",
-            color: "rgb(221, 219, 196)",
-            creatorId: 2
-        }, {
-            name: "pufferfishfilled",
-            color: "rgb(221, 219, 196)",
-            creatorId: 2
-        }, {
-            name: "tigershark",
-            color: "rgb(100, 91, 74)",
-            creatorId: 10
-        }, {
-            name: "lionmanejellyfish",
-            color: "rgb(221, 219, 196)",
-            creatorId: 11
-        }, {
-            name: "anaconda",
-            color: "rgb(221, 219, 196)",
-            creatorId: 13
-        }, {
-            name: "bobbitworm",
-            color: "rgb(221, 219, 196)",
-            creatorId: 4
-        }, {
-            name: "mahimahi",
-            color: "rgb(221, 219, 196)",
-            creatorId: 3,
-            ideatorId: 10
-        }, {
-            name: "walrus",
-            color: "rgb(128, 97, 80)",
-            creatorId: 6
-        }, {
-            name: "frilledshark",
-            color: "rgb(221, 219, 196)",
-            creatorId: 10
-        }, {
-            name: "sawfish",
-            color: "rgb(185, 168, 133)",
-            creatorId: 3
-        }, {
-            name: "mantisshrimp",
-            color: "rgb(221, 219, 196)",
-            creatorId: 17,
-            ideatorId: 18
-        }, {
-            name: "axolotl",
-            creatorId: 3
-        }, {
-            name: "bat",
-            creatorId: 13
-        }, {
-            name: "firefly",
-            creatorId: 13
-        }, {
-            name: "blindcavefish",
-            creatorId: 5
-        }, {
-            name: "crayfish",
-            creatorId: 2
-        }, {
-            name: "goliathbullfrog",
-            creatorId: 2
-        }, {
-            name: "giantsalamander",
-            creatorId: 13
-        }, {
-            name: "alligatorsnappingturtle",
-            creatorId: 2
-        }, {
-            name: "giantsoftshellturtle",
-            creatorId: 2
-        }, {
-            name: "giantsoftshellturtleclosed",
-            creatorId: 2
-        }, {
-            name: "olm",
-            creatorId: 19,
-            ideatorId: 3
-        }, {
-            name: "alligatorgar",
-            creatorId: 18
-        }, {
-            name: "humpbackwhale",
-            creatorId: 2
-        }, {
-            name: "sardine",
-            clientSideSizeScale: .7,
-            creatorId: 2
-        }, {
-            name: "horseshoecrab",
-            creatorId: 11
-        }, {
-            name: "baskingshark",
-            creatorId: 26
-        }, {
-            name: "colossalsquid",
-            creatorId: 3,
-            ideatorId: 44
-        }, {
-            name: "climbingcavefish",
-            creatorId: 38
-        }, {
-            name: "archerfish",
-            creatorId: 1,
-            ideatorId: 44
-        }, {
-            name: "seaotter",
-            creatorId: 31,
-            ideatorId: 44
-        }, {
-            name: "lobster"
-        }, {
-            name: "barracuda",
-            creatorId: 6,
-            ideatorId: 44
-        }, {
-            name: "frogfish",
-            creatorId: 39,
-            ideatorId: 44
-        }, {
-            name: "morayeel",
-            creatorId: 2,
-            ideatorId: 44
-        }, {
-            name: "wobbegongshark",
-            creatorId: 40,
-            ideatorId: 44
-        }, {
-            name: "leatherbackturtle",
-            creatorId: 18
-        }, {
-            name: "threshershark",
-            creatorId: 1
-        }, {
-            name: "atlantictorpedo",
-            creatorId: 2,
-            ideatorId: 44
-        }, {
-            name: "coconutcrab",
-            creatorId: 22
-        }, {
-            name: "bullshark",
-            creatorId: 5
-        }, {
-            name: "hermitcrab"
-        }]
-          , r = n
-          , s = i("22a2")
-          , a = i("7523")
-          , o = s["utils"].TextureCache;
-        function l(e) {
-            return s["utils"].TextureCache[r[e].name + ".png"]
+        var n = i("22a2")
+          , r = i("7523")
+          , s = i("b4d9")
+          , a = n["utils"].TextureCache;
+        function o(e) {
+            return n["utils"].TextureCache[r["a"].get(e).name + ".png"]
         }
-        function h(e) {
-            var t = a["a"].get(e)
+        function l(e) {
+            var t = r["a"].get(e)
               , i = {
                 x: 180,
                 y: 255
@@ -35102,30 +36093,30 @@ object-assign
                 x: 180,
                 y: 255
             }
-              , r = t.sizeScale
-              , s = l(e)
-              , o = {
+              , s = t.sizeScale
+              , a = o(e)
+              , l = {
                 x: n.x / i.x,
                 y: n.y / i.y
             }
               , h = 1;
             "clientSideSizeScale"in t && (h *= t.clientSideSizeScale);
             var u = {
-                width: s.width * o.x * h,
-                height: s.height * o.y * h
+                width: a.width * l.x * h,
+                height: a.height * l.y * h
             }
               , c = {
-                width: n.x * h * r.x,
-                height: n.y * h * r.y
+                width: n.x * h * s.x,
+                height: n.y * h * s.y
             };
             return {
                 spriteSize: u,
                 bodySize: c
             }
         }
-        function u(e) {
+        function h(e) {
             return new Promise((function(t, i) {
-                if (o["bullshark.png"] && t(),
+                if (a["bullshark.png"] && t(),
                 e.loading)
                     e.onComplete.add((function() {
                         t()
@@ -35136,16 +36127,16 @@ object-assign
                     }
                     ));
                 else {
-                    var n = ["assets/spritesheets/assets.json", "assets/spritesheets/assets-1.json", "assets/spritesheets/assets-2.json", "assets/spritesheets/swamp.json", "assets/spritesheets/deepswamp.json", "assets/spritesheets/pearl.json"];
+                    var n = ["assets/spritesheets/assets.json", "assets/spritesheets/assets-1.json", "assets/spritesheets/assets-2.json", "assets/spritesheets/assets-3.json", "assets/spritesheets/swamp.json", "assets/spritesheets/deepswamp.json", "assets/spritesheets/pearl.json"];
                     n = n.map((function(e) {
-                        return "https://deeeep.io/" + e
+                        return s["a"].gamePath + "/" + e
                     }
                     )),
                     e.add(n),
-                    e.add("a-sonicblast.png", "https://deeeep.io/assets/animations/sonicblast.png"),
-                    e.add("a-aura.png", "https://deeeep.io/assets/animations/aura.png"),
-                    e.add("a-slowblast.png", "https://deeeep.io/assets/animations/slowblast.png"),
-                    e.add("a-poisonblast.png", "https://deeeep.io/assets/animations/poisonblast.png"),
+                    e.add("a-sonicblast.png", "".concat(s["a"].gamePath, "/assets/animations/sonicblast.png")),
+                    e.add("a-aura.png", "".concat(s["a"].gamePath, "/assets/animations/aura.png")),
+                    e.add("a-slowblast.png", "".concat(s["a"].gamePath, "/assets/animations/slowblast.png")),
+                    e.add("a-poisonblast.png", "".concat(s["a"].gamePath, "/assets/animations/poisonblast.png")),
                     e.onComplete.add((function() {
                         t()
                     }
@@ -35159,15 +36150,22 @@ object-assign
             }
             ))
         }
-        s["Loader"].shared.defaultQueryString = "v=32"
+        n["Loader"].shared.defaultQueryString = "v=32"
     },
     "8adc": function(e, t, i) {},
-    "8ae5": function(e, t, i) {
+    "8b27": function(e, t, i) {
         "use strict";
-        var n = i("ad7e")
+        var n = i("9045")
           , r = i.n(n);
         r.a
     },
+    "8eae": function(e, t, i) {
+        "use strict";
+        var n = i("67b2")
+          , r = i.n(n);
+        r.a
+    },
+    9045: function(e, t, i) {},
     "91dd": function(e, t, i) {
         "use strict";
         function n(e, t) {
@@ -35248,10 +36246,10 @@ object-assign
           , A = w("iterator")
           , S = "URLSearchParams"
           , M = S + "Iterator"
-          , E = u.set
-          , I = u.getterFor(S)
-          , k = u.getterFor(M)
-          , C = /\+/g
+          , k = u.set
+          , E = u.getterFor(S)
+          , C = u.getterFor(M)
+          , I = /\+/g
           , O = Array(4)
           , P = function(e) {
             return O[e - 1] || (O[e - 1] = RegExp("((?:%[\\da-f]{2}){" + e + "})", "gi"))
@@ -35264,7 +36262,7 @@ object-assign
             }
         }
           , D = function(e) {
-            var t = e.replace(C, " ")
+            var t = e.replace(I, " ")
               , i = 4;
             try {
                 return decodeURIComponent(t)
@@ -35274,8 +36272,8 @@ object-assign
                 return t
             }
         }
-          , B = /[!'()~]|%20/g
-          , L = {
+          , L = /[!'()~]|%20/g
+          , B = {
             "!": "%21",
             "'": "%27",
             "(": "%28",
@@ -35284,10 +36282,10 @@ object-assign
             "%20": "+"
         }
           , F = function(e) {
-            return L[e]
+            return B[e]
         }
           , j = function(e) {
-            return encodeURIComponent(e).replace(B, F)
+            return encodeURIComponent(e).replace(L, F)
         }
           , N = function(e, t) {
             if (t) {
@@ -35310,14 +36308,14 @@ object-assign
                 throw TypeError("Not enough arguments")
         }
           , W = h((function(e, t) {
-            E(this, {
+            k(this, {
                 type: M,
-                iterator: b(I(e).entries),
+                iterator: b(E(e).entries),
                 kind: t
             })
         }
         ), "Iterator", (function() {
-            var e = k(this)
+            var e = C(this)
               , t = e.kind
               , i = e.iterator.next()
               , n = i.value;
@@ -35328,7 +36326,7 @@ object-assign
           , H = function() {
             c(this, H, S);
             var e, t, i, n, r, s, a, o, l, h = arguments.length > 0 ? arguments[0] : void 0, u = this, p = [];
-            if (E(u, {
+            if (k(u, {
                 type: S,
                 entries: p,
                 updateURL: function() {},
@@ -35363,7 +36361,7 @@ object-assign
         o(V, {
             append: function(e, t) {
                 z(arguments.length, 2);
-                var i = I(this);
+                var i = E(this);
                 i.entries.push({
                     key: e + "",
                     value: t + ""
@@ -35372,7 +36370,7 @@ object-assign
             },
             delete: function(e) {
                 z(arguments.length, 1);
-                var t = I(this)
+                var t = E(this)
                   , i = t.entries
                   , n = e + ""
                   , r = 0;
@@ -35382,20 +36380,20 @@ object-assign
             },
             get: function(e) {
                 z(arguments.length, 1);
-                for (var t = I(this).entries, i = e + "", n = 0; n < t.length; n++)
+                for (var t = E(this).entries, i = e + "", n = 0; n < t.length; n++)
                     if (t[n].key === i)
                         return t[n].value;
                 return null
             },
             getAll: function(e) {
                 z(arguments.length, 1);
-                for (var t = I(this).entries, i = e + "", n = [], r = 0; r < t.length; r++)
+                for (var t = E(this).entries, i = e + "", n = [], r = 0; r < t.length; r++)
                     t[r].key === i && n.push(t[r].value);
                 return n
             },
             has: function(e) {
                 z(arguments.length, 1);
-                var t = I(this).entries
+                var t = E(this).entries
                   , i = e + ""
                   , n = 0;
                 while (n < t.length)
@@ -35405,7 +36403,7 @@ object-assign
             },
             set: function(e, t) {
                 z(arguments.length, 1);
-                for (var i, n = I(this), r = n.entries, s = !1, a = e + "", o = t + "", l = 0; l < r.length; l++)
+                for (var i, n = E(this), r = n.entries, s = !1, a = e + "", o = t + "", l = 0; l < r.length; l++)
                     i = r[l],
                     i.key === a && (s ? r.splice(l--, 1) : (s = !0,
                     i.value = o));
@@ -35416,7 +36414,7 @@ object-assign
                 n.updateURL()
             },
             sort: function() {
-                var e, t, i, n = I(this), r = n.entries, s = r.slice();
+                var e, t, i, n = E(this), r = n.entries, s = r.slice();
                 for (r.length = 0,
                 i = 0; i < s.length; i++) {
                     for (e = s[i],
@@ -35430,7 +36428,7 @@ object-assign
                 n.updateURL()
             },
             forEach: function(e) {
-                var t, i = I(this).entries, n = p(e, arguments.length > 1 ? arguments[1] : void 0, 3), r = 0;
+                var t, i = E(this).entries, n = p(e, arguments.length > 1 ? arguments[1] : void 0, 3), r = 0;
                 while (r < i.length)
                     t = i[r++],
                     n(t.value, t.key, this)
@@ -35449,7 +36447,7 @@ object-assign
         }),
         a(V, A, V.entries),
         a(V, "toString", (function() {
-            var e, t = I(this).entries, i = [], n = 0;
+            var e, t = E(this).entries, i = [], n = 0;
             while (n < t.length)
                 e = t[n++],
                 i.push(j(e.key) + "=" + j(e.value));
@@ -35486,7 +36484,7 @@ object-assign
         }),
         e.exports = {
             URLSearchParams: H,
-            getState: I
+            getState: E
         }
     },
     "9a1f": function(e, t, i) {
@@ -35589,6 +36587,14 @@ object-assign
         }
         ))
     },
+    a156: function(e, t, i) {
+        "use strict";
+        var n = i("bf83")
+          , r = i.n(n);
+        r.a
+    },
+    a1cc: function(e, t, i) {},
+    a58b: function(e, t, i) {},
     a609: function(e, t, i) {
         "use strict";
         var n = i("5530")
@@ -35766,7 +36772,7 @@ object-assign
         }
         ))
     },
-    a8d5: function(e, t, i) {},
+    a9ab: function(e, t, i) {},
     ac26: function(e, t, i) {
         "use strict";
         var n;
@@ -35779,12 +36785,6 @@ object-assign
             e["Unrealistic"] = "unrealistic",
             e["Seasonal"] = "season"
         }(n || (n = {}))
-    },
-    ac79: function(e, t, i) {
-        "use strict";
-        var n = i("a8d5")
-          , r = i.n(n);
-        r.a
     },
     ac7c: function(e, t, i) {
         "use strict";
@@ -35920,7 +36920,6 @@ object-assign
         }
         ))
     },
-    ad7e: function(e, t, i) {},
     afdd: function(e, t, i) {
         "use strict";
         var n = i("8336");
@@ -37068,7 +38067,7 @@ object-assign
                         }
                 }
             }
-            const E = {
+            const k = {
                 width: 0,
                 height: 0,
                 time: 1e3,
@@ -37080,10 +38079,10 @@ object-assign
                 forceStart: !1,
                 noMove: !1
             };
-            class I extends o {
+            class E extends o {
                 constructor(e, t={}) {
                     super(e),
-                    this.options = Object.assign({}, E, t),
+                    this.options = Object.assign({}, k, t),
                     this.ease = _(this.options.ease),
                     this.options.width > 0 && (this.xScale = e.screenWidth / this.options.width),
                     this.options.height > 0 && (this.yScale = e.screenHeight / this.options.height),
@@ -37152,16 +38151,16 @@ object-assign
                     super.resume()
                 }
             }
-            const k = {
+            const C = {
                 speed: 0,
                 acceleration: null,
                 radius: null
             };
-            class C extends o {
+            class I extends o {
                 constructor(e, t, i={}) {
                     super(e),
                     this.target = t,
-                    this.options = Object.assign({}, k, i),
+                    this.options = Object.assign({}, C, i),
                     this.velocity = {
                         x: 0,
                         y: 0
@@ -37416,15 +38415,15 @@ object-assign
                     }
                 }
             }
-            const B = {
+            const L = {
                 removeOnInterrupt: !1,
                 ease: "linear",
                 time: 1e3
             };
-            class L extends o {
+            class B extends o {
                 constructor(e, t={}) {
                     super(e),
-                    this.options = Object.assign({}, B, t),
+                    this.options = Object.assign({}, L, t),
                     this.options.ease = _(this.options.ease),
                     this.setupPosition(),
                     this.setupZoom()
@@ -37705,7 +38704,7 @@ object-assign
                     return this.scale.x
                 }
                 snapZoom(e) {
-                    return this.plugins.add("snap-zoom", new I(this,e)),
+                    return this.plugins.add("snap-zoom", new E(this,e)),
                     this
                 }
                 OOB() {
@@ -37784,7 +38783,7 @@ object-assign
                     this
                 }
                 follow(e, t) {
-                    return this.plugins.add("follow", new C(this,e,t)),
+                    return this.plugins.add("follow", new I(this,e,t)),
                     this
                 }
                 wheel(e) {
@@ -37792,7 +38791,7 @@ object-assign
                     this
                 }
                 animate(e) {
-                    return this.plugins.add("animate", new L(this,e)),
+                    return this.plugins.add("animate", new B(this,e)),
                     this
                 }
                 clampZoom(e) {
@@ -37871,6 +38870,7 @@ object-assign
             return t.join("&")
         }
     },
+    b55a: function(e, t, i) {},
     b73d: function(e, t, i) {
         "use strict";
         i("0481"),
@@ -38603,7 +39603,7 @@ object-assign
                 }
             }
         })
-          , E = c["a"].extend({
+          , k = c["a"].extend({
             name: "returnable",
             props: {
                 returnValue: null
@@ -38630,10 +39630,10 @@ object-assign
                 }
             }
         })
-          , I = i("a236")
-          , k = i("a293")
-          , C = i("dc22")
-          , O = Object(f["a"])(b["a"], d, _, M, E, I["a"], p["a"], l["a"])
+          , E = i("a236")
+          , C = i("a293")
+          , I = i("dc22")
+          , O = Object(f["a"])(b["a"], d, _, M, k, E["a"], p["a"], l["a"])
           , P = O.extend({
             name: "v-menu",
             provide: function() {
@@ -38643,8 +39643,8 @@ object-assign
                 }
             },
             directives: {
-                ClickOutside: k["a"],
-                Resize: C["a"]
+                ClickOutside: C["a"],
+                Resize: I["a"]
             },
             props: {
                 auto: Boolean,
@@ -38978,8 +39978,8 @@ object-assign
           , D = (i("a15b"),
         i("cf36"),
         i("5607"))
-          , B = i("132d")
-          , L = i("a9ad")
+          , L = i("132d")
+          , B = i("a9ad")
           , F = i("d9f7")
           , j = c["a"].extend({
             name: "v-simple-checkbox",
@@ -38987,7 +39987,7 @@ object-assign
             directives: {
                 ripple: D["a"]
             },
-            props: Object(s["a"])(Object(s["a"])(Object(s["a"])({}, L["a"].options.props), l["a"].options.props), {}, {
+            props: Object(s["a"])(Object(s["a"])(Object(s["a"])({}, B["a"].options.props), l["a"].options.props), {}, {
                 disabled: Boolean,
                 ripple: {
                     type: Boolean,
@@ -39014,7 +40014,7 @@ object-assign
                   , r = (t.listeners,
                 []);
                 if (i.ripple && !i.disabled) {
-                    var s = e("div", L["a"].options.methods.setTextColor(i.color, {
+                    var s = e("div", B["a"].options.methods.setTextColor(i.color, {
                         staticClass: "v-input--selection-controls__ripple",
                         directives: [{
                             name: "ripple",
@@ -39027,7 +40027,7 @@ object-assign
                 }
                 var a = i.offIcon;
                 i.indeterminate ? a = i.indeterminateIcon : i.value && (a = i.onIcon),
-                r.push(e(B["a"], L["a"].options.methods.setTextColor(i.value && i.color, {
+                r.push(e(L["a"], B["a"].options.methods.setTextColor(i.value && i.color, {
                     props: {
                         disabled: i.disabled,
                         dark: i.dark,
@@ -39075,7 +40075,7 @@ object-assign
           , H = i("1800")
           , V = i("5d23")
           , X = i("8860")
-          , G = Object(f["a"])(L["a"], l["a"]).extend({
+          , G = Object(f["a"])(B["a"], l["a"]).extend({
             name: "v-select-list",
             directives: {
                 ripple: D["a"]
@@ -39237,7 +40237,7 @@ object-assign
                 },
                 genTileContent: function(e) {
                     var t = this.genFilteredText(this.getText(e));
-                    return this.$createElement(V["a"], [this.$createElement(V["c"], {
+                    return this.$createElement(V["a"], [this.$createElement(V["b"], {
                         domProps: {
                             innerHTML: t
                         }
@@ -39309,7 +40309,7 @@ object-assign
         t["a"] = Z.extend().extend({
             name: "v-select",
             directives: {
-                ClickOutside: k["a"]
+                ClickOutside: C["a"]
             },
             props: {
                 appendIcon: {
@@ -39921,12 +40921,7 @@ object-assign
         }
         e.exports = n
     },
-    c002: function(e, t, i) {
-        "use strict";
-        var n = i("2a13")
-          , r = i.n(n);
-        r.a
-    },
+    bf83: function(e, t, i) {},
     cb34: function(e, t, i) {
         "use strict";
         var n;
@@ -39938,7 +40933,8 @@ object-assign
             e["Christmas"] = "christmas",
             e["Halloween"] = "hallooween",
             e["Easter"] = "easter",
-            e["Valentines"] = "valentines"
+            e["Valentines"] = "valentines",
+            e["LunarNewYear"] = "lunar"
         }(n || (n = {}))
     },
     cc20: function(e, t, i) {
@@ -40114,6 +41110,18 @@ object-assign
         }(n || (n = {}))
     },
     cf36: function(e, t, i) {},
+    d13a: function(e, t, i) {
+        "use strict";
+        var n = i("a58b")
+          , r = i.n(n);
+        r.a
+    },
+    d1e4: function(e, t, i) {
+        "use strict";
+        var n = i("b55a")
+          , r = i.n(n);
+        r.a
+    },
     d5e4: function(e, t, i) {
         "use strict";
         Object.defineProperty(t, "__esModule", {
@@ -40416,7 +41424,6 @@ object-assign
             e
         }()
     },
-    ddfb: function(e, t, i) {},
     e099: function(e, t, i) {
         "use strict";
         var n = function(e) {
@@ -40673,7 +41680,7 @@ object-assign
                     label: "Account email or username",
                     rules: e.$rule("required"),
                     "persistent-hint": !!e.user,
-                    hint: e.user ? e.user.name + " (@" + e.user.username + ")" : "Type the user's email or username (not name)",
+                    hint: e.user ? e.user.username + " (@" + e.user.username + ")" : "Type the user's email or username (not name)",
                     outlined: "",
                     dense: ""
                 },
@@ -40952,32 +41959,32 @@ object-assign
         A = Object(u["a"])([c["a"]], A);
         var S = A
           , M = S
-          , E = i("2877")
-          , I = i("6544")
-          , k = i.n(I)
-          , C = i("8336")
+          , k = i("2877")
+          , E = i("6544")
+          , C = i.n(E)
+          , I = i("8336")
           , O = i("b0af")
           , P = i("99d9")
           , R = i("62ad")
           , D = i("0789")
-          , B = i("4bd4")
-          , L = i("132d")
+          , L = i("4bd4")
+          , B = i("132d")
           , F = i("490a")
           , j = i("0fd9")
           , N = i("b974")
           , U = i("8654")
-          , z = Object(E["a"])(M, y, b, !1, null, null, null)
+          , z = Object(k["a"])(M, y, b, !1, null, null, null)
           , W = z.exports;
-        k()(z, {
-            VBtn: C["a"],
+        C()(z, {
+            VBtn: I["a"],
             VCard: O["a"],
             VCardActions: P["a"],
             VCardText: P["c"],
             VCardTitle: P["d"],
             VCol: R["a"],
             VFadeTransition: D["d"],
-            VForm: B["a"],
-            VIcon: L["a"],
+            VForm: L["a"],
+            VIcon: B["a"],
             VProgressCircular: F["a"],
             VRow: j["a"],
             VSelect: N["a"],
@@ -41015,7 +42022,7 @@ object-assign
                 staticClass: "subtitle"
             }, [e._v("Proposed by "), i("span", {
                 staticClass: "username"
-            }, [e._v(e._s(e.motion.user.name))]), e._v(" (@" + e._s(e.motion.user.username) + ")")])])] : "relskins" === e.motion.type ? [i("v-icon", {
+            }, [e._v(e._s(e.motion.user.username))]), e._v(" (@" + e._s(e.motion.user.username) + ")")])])] : "relskins" === e.motion.type ? [i("v-icon", {
                 staticClass: "ml-6 mr-7",
                 attrs: {
                     "x-large": ""
@@ -41028,7 +42035,7 @@ object-assign
                 staticClass: "subtitle"
             }, [e._v("Proposed by "), i("span", {
                 staticClass: "username"
-            }, [e._v(e._s(e.motion.user.name))]), e._v(" (@" + e._s(e.motion.user.username) + ")")])])] : "addrole" === e.motion.type || "subrole" === e.motion.type ? [i("v-icon", {
+            }, [e._v(e._s(e.motion.user.username))]), e._v(" (@" + e._s(e.motion.user.username) + ")")])])] : "addrole" === e.motion.type || "subrole" === e.motion.type ? [i("v-icon", {
                 staticClass: "ml-6 mr-7",
                 attrs: {
                     "x-large": ""
@@ -41050,7 +42057,7 @@ object-assign
                 staticClass: "subtitle"
             }, [e._v("Proposed by "), i("span", {
                 staticClass: "username"
-            }, [e._v(e._s(e.motion.user.name))]), e._v(" (@" + e._s(e.motion.user.username) + ")")])])] : e._e(), e.motion.approve_votes + e.motion.reject_votes > 0 ? i("vote-meter", {
+            }, [e._v(e._s(e.motion.user.username))]), e._v(" (@" + e._s(e.motion.user.username) + ")")])])] : e._e(), e.motion.approve_votes + e.motion.reject_votes > 0 ? i("vote-meter", {
                 attrs: {
                     motion: e.motion,
                     "board-count": e.boardMembersCount
@@ -41249,17 +42256,17 @@ object-assign
         })], G);
         var Y = G
           , $ = Y
-          , q = (i("fe5d"),
+          , q = (i("8eae"),
         i("a609"))
           , Q = i("cc20")
           , K = i("adda")
-          , Z = Object(E["a"])($, H, V, !1, null, "261c9960", null)
+          , Z = Object(k["a"])($, H, V, !1, null, "f389719c", null)
           , J = Z.exports;
-        k()(Z, {
-            VBtn: C["a"],
+        C()(Z, {
+            VBtn: I["a"],
             VBtnToggle: q["a"],
             VChip: Q["a"],
-            VIcon: L["a"],
+            VIcon: B["a"],
             VImg: K["a"]
         });
         var ee = function(e) {
@@ -41460,23 +42467,29 @@ object-assign
           , se = i("3129")
           , ae = i("2fa4")
           , oe = i("b73d")
-          , le = Object(E["a"])(ie, n, r, !1, null, "61280c17", null);
+          , le = Object(k["a"])(ie, n, r, !1, null, "61280c17", null);
         t["default"] = le.exports;
-        k()(le, {
-            VBtn: C["a"],
+        C()(le, {
+            VBtn: I["a"],
             VCard: O["a"],
             VCardSubtitle: P["b"],
             VCardText: P["c"],
             VCardTitle: P["d"],
             VCol: R["a"],
             VContainer: ne["a"],
-            VIcon: L["a"],
+            VIcon: B["a"],
             VLayout: re["a"],
             VRow: j["a"],
             VSkeletonLoader: se["a"],
             VSpacer: ae["a"],
             VSwitch: oe["a"]
         })
+    },
+    e1ac: function(e, t, i) {
+        "use strict";
+        var n = i("a9ab")
+          , r = i.n(n);
+        r.a
     },
     e77f: function(e, t, i) {
         "use strict";
@@ -41883,7 +42896,7 @@ object-assign
                     }
                 }, [e._v(e._s(e.getAnimalName(t.fish_level)))]), e._v(" "), i("strong", [e._v(e._s(t.name))]), e._v(" (v" + e._s(t.version) + ")")], 1), i("span", {
                     staticClass: "subtitle"
-                }, [e._v("By " + e._s(t.user.name) + " (@"), i("span", {}, [e._v(e._s(t.user.username))]), e._v(")")])]), i("div", [i("v-btn", {
+                }, [e._v("By " + e._s(t.user.username) + " (@"), i("span", {}, [e._v(e._s(t.user.username))]), e._v(")")])]), i("div", [i("v-btn", {
                     staticClass: "ml-2",
                     attrs: {
                         color: "info",
@@ -42010,7 +43023,7 @@ object-assign
         m = Object(u["a"])([c["a"]], m);
         var g = m
           , v = g
-          , y = (i("343c"),
+          , y = (i("a156"),
         i("2877"))
           , b = i("6544")
           , x = i.n(b)
@@ -42020,12 +43033,12 @@ object-assign
           , A = i("cc20")
           , S = i("a523")
           , M = i("132d")
-          , E = i("adda")
-          , I = i("a722")
-          , k = i("3129")
-          , C = Object(y["a"])(v, n, r, !1, null, "b94111f8", null);
-        t["default"] = C.exports;
-        x()(C, {
+          , k = i("adda")
+          , E = i("a722")
+          , C = i("3129")
+          , I = Object(y["a"])(v, n, r, !1, null, "10f39eb6", null);
+        t["default"] = I.exports;
+        x()(I, {
             VBtn: w["a"],
             VCard: _["a"],
             VCardSubtitle: T["b"],
@@ -42034,9 +43047,9 @@ object-assign
             VChip: A["a"],
             VContainer: S["a"],
             VIcon: M["a"],
-            VImg: E["a"],
-            VLayout: I["a"],
-            VSkeletonLoader: k["a"]
+            VImg: k["a"],
+            VLayout: E["a"],
+            VSkeletonLoader: C["a"]
         })
     },
     f820: function(e, t, i) {
@@ -43058,12 +44071,5 @@ object-assign
                 }, [this.genBar(i, n), this.genItems(r, s)])
             }
         })
-    },
-    fe5d: function(e, t, i) {
-        "use strict";
-        var n = i("04bc")
-          , r = i.n(n);
-        r.a
     }
 }]);
-//# sourceMappingURL=about.a0a9e63a.js.map
