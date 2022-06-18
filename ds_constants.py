@@ -138,7 +138,7 @@ class DS_Constants:
     MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
     MAP_REGEX = '\A(?:(?:https?://)?(?:www\.)?mapmaker\.deeeep\.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
 
-    PENDING_SKINS_LIST_URL = 'https://api.deeeep.io/skins/pending' 
+    PENDING_SKINS_LIST_URL = 'https://apibeta.deeeep.io/skins/pending' 
     PENDING_MOTIONS_URL = 'https://api.deeeep.io/motions/pending?targetType=skin' 
     RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/recent?targetType=skin' 
 
