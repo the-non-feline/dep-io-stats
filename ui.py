@@ -30,7 +30,7 @@ class TrackedView(discord.ui.View):
             await view.close()
 
 class RestrictedView(TrackedView):
-    def __init__(self, original_user: discord.User | discord.Member, original_interaction: discord.Interaction, *, timeout=180.0):
+    def __init__(self, original_user: discord.User, original_interaction: discord.Interaction, *, timeout=180.0):
         super().__init__(timeout=timeout)
         
         self.original_user = original_user

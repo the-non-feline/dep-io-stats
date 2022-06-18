@@ -127,6 +127,8 @@ class DS_Constants:
         'HA': lambda num: habitat.Habitat(num), 
     }
 
+    DEEPCORD_ID = 273213133731135500
+
     SKIN_REVIEW_LIST_URL = 'https://api.deeeep.io/skins/pending?t=review' 
     STATS_UNBALANCE_BLACKLIST = ['OT', 'TT', 'PT', 'ST', 'SS', 'HA'] 
     FLOAT_CHECK_REGEX = '\A(?P<abs_val>[-+][0-9]+(?:\.[0-9]+)?)\Z' 
@@ -199,6 +201,6 @@ class DS_Constants:
     
     TIER_EMOJIS = chars.smirk_clownfish, chars.crab_rave, chars.shrug_jellyfish, chars.triggered_squid, chars.shut_seagull, \
         chars.cry_ray, chars.dance_penguin, chars.cooloctopus, chars.chain_breaker_hammerhead, chars.thonk_gsquid
-    TIER_COLORS = 0xffcb66, 0xff6565, 0xfa90b8, 0xffb8b8, 0xffffff, 0xffbdff, 0xffffff, 0xe87f21, 0xdedede, 0x932e2e
+    TIER_COLORS = 0xfdbe62, 0xff5959, 0xfc8ab4, 0xffabab, 0xffffff, 0xfdaffd, 0xf7931e, 0xe47918, 0xdbdbdb, 0x902a2a
     
     print(IconsEnum['dc'])

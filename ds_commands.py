@@ -349,6 +349,24 @@ server.')
         hab = habitat.Habitat(habitat_num) 
 
         await interaction.response.send_message(content=f'`{habitat_num}` translates to `{hab}`.')
+    
+    @ds_slash(tree, 'clear', 'Clear all commands from the tree')
+    @app_commands.check(owner_check)
+    async def clear_commands(interaction: discord.Interaction):
+        bot = interaction.client
+
+        await interaction.response.defer()
+
+        tree.clear_commands(guild=None)
+        tree.clear_commands(guild=discord.Object(bot.DEEPCORD_ID))
+
+        tree.add_command(shut_down, guild=discord.Object(bot.DEEPCORD_ID))
+        tree.add_command(clear_commands, guild=discord.Object(bot.DEEPCORD_ID))
+
+        await tree.sync()
+        await tree.sync(guild=discord.Object(bot.DEEPCORD_ID))
+
+        await interaction.followup.send('Cleared all commands')
 
     result = await tree.sync()
     
