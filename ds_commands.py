@@ -10,7 +10,7 @@ import chars
 import habitat
 
 def ds_slash(tree: app_commands.CommandTree, name: str, desc: str):
-    return tree.command(name=name, description=desc, guild=discord.Object(tree.client.DEEPCORD_ID))
+    return tree.command(name=name, description=desc)
 
 async def gen_commands(client: dep_io_stats.DS):
     tree = client.tree
