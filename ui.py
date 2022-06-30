@@ -70,8 +70,12 @@ class Page:
         self.embed = embed
         self.allowed_mentions = allowed_mentions
     
-    async def send_self(self, parent, interaction: discord.Interaction):
-        await interaction.response.send_message(content=self.content, embed=self.embed, 
+    async def send_self(self, parent, interaction: discord.Interaction, followup: bool):
+        if followup:
+            await interaction.followup.send(content=self.content, embed=self.embed, 
+        allowed_mentions=self.allowed_mentions, view=parent.view)
+        else:
+            await interaction.response.send_message(content=self.content, embed=self.embed, 
         allowed_mentions=self.allowed_mentions, view=parent.view)
     
     async def edit_self(self, parent, interaction: discord.Interaction):
@@ -82,13 +86,16 @@ class Book:
     pass
 
 class ScrollyBook:
-    def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=None):
+    def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=None, view=None):
         self.interaction = interaction
         self.pages = pages
         self.cur_index = 0
         self.timeout = timeout
 
-        self.view = RestrictedView(interaction.user, interaction, timeout=self.timeout)
+        if view:
+            self.view = view
+        else:
+            self.view = RestrictedView(interaction.user, interaction, timeout=self.timeout)
 
         self.left_button = CallbackButton(self.turn_page, self.interaction, -1, style=discord.ButtonStyle.primary, label='Previous',
         row=0)
@@ -124,10 +131,10 @@ class ScrollyBook:
         await self.close_book()
     '''
     
-    async def send_first(self):
+    async def send_first(self, followup=False):
         cur = self.pages[self.cur_index]
 
-        await cur.send_self(self, self.interaction)
+        await cur.send_self(self, self.interaction, followup)
     
     def update_buttons(self):
         self.left_button.disabled = self.cur_index <= 0

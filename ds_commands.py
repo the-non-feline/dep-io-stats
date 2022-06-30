@@ -10,7 +10,7 @@ import chars
 import habitat
 
 def ds_slash(tree: app_commands.CommandTree, name: str, desc: str):
-    return tree.command(name=name, description=desc)
+    return tree.command(name=name, description=desc, guild=discord.Object(tree.client.DEEPCORD_ID))
 
 async def gen_commands(client: dep_io_stats.DS):
     tree = client.tree
@@ -122,9 +122,7 @@ look up the skin. Defaults to `name` if unspecified')
     @ds_slash(tree, 'hackprofile', 'Displays the beta profile corresponding to the username')
     @app_commands.describe(username='The username of the account to display (e.g. not_a_cat)')
     async def display_profile(interaction: discord.Interaction, username: str):
-        await interaction.response.defer()
-
-        return await interaction.followup.send(embed=interaction.client.profile_embed_by_username(username))
+        await interaction.client.display_account_by_username(interaction, username)
     
     @ds_slash(tree, 'map', 'Displays information about the specified map.')
     @app_commands.describe(map='The "string ID" of the map (e.g. nac_ffa), \
@@ -369,5 +367,7 @@ server.')
         await interaction.followup.send('Cleared all commands')
 
     result = await tree.sync()
+    guild_result = await tree.sync(guild=discord.Object(client.DEEPCORD_ID))
     
-    print(f'synced: {result}')
+    print(f'global sync: {result}')
+    print(f'guild sync: {guild_result}')

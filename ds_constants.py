@@ -59,6 +59,7 @@ class DS_Constants:
     BETA_PFP_TEMPLATE = 'https://cdn.deeeep.io/uploads/avatars/{}'
     PROFILE_PAGE_TEMPLATE = 'https://beta.deeeep.io/u/{}'
     PROFILE_PAGE_REGEX = '\A(?:(?:https?:\/\/)beta\.deeeep\.io\/u\/)?(?P<username>[^\/.?]+)\Z'
+    RANKINGS_TEMPLATE = 'https://apibeta.deeeep.io/userStats/{}'
 
     DEFAULT_PFP = 'https://deeeep.io/new/assets/placeholder.png' 
     DEFAULT_BETA_PFP = 'https://beta.deeeep.io/img/avatar.png'

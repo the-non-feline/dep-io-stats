@@ -1,4 +1,5 @@
 from email import message
+from os import kill
 import grequests
 import discord
 import dataset
@@ -527,17 +528,23 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         acc_json = self.async_get(acc_url)[0]
 
         if acc_json:
-            socials = self.get_socials(acc_json['id'])
-        else:
-            socials = ()
+            acc_id = acc_json['id']
 
-        return acc_json, socials
+            socials_url = self.SOCIALS_URL_TEMPLATE.format(acc_id)
+            rankings_url = self.RANKINGS_TEMPLATE.format(acc_id)
+
+            socials, rankings = self.async_get(socials_url, rankings_url)
+        else:
+            socials = rankings = ()
+
+        return acc_json, socials, rankings
     
     def get_profile_by_id(self, id):
         acc_url = self.DATA_URL_TEMPLATE.format(id)
         social_url = self.SOCIALS_URL_TEMPLATE.format(id)
+        rankings_url = self.RANKINGS_TEMPLATE.format(id)
 
-        return self.async_get(acc_url, social_url)
+        return self.async_get(acc_url, social_url, rankings_url)
     
     @staticmethod
     def compile_ids_from_motions(motions_list, motion_filter=lambda motion: True): 
@@ -1538,93 +1545,146 @@ game is down, nothing you can do but wait.")
         
         return '\n'.join(mapped)
     
-    def profile_embed(self, acc: dict, socials: list[dict]): 
-        if acc: 
-            acc_id = acc['id']
-            real_username = acc['username']
-            verified = acc['verified']
+    def profile_error_embed(self):
+        color = discord.Color.random() 
 
-            public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
+        embed = trimmed_embed.TrimmedEmbed(title='Invalid account', type='rich', description="You have been trolled", color=color) 
 
-            title = real_username + (f" {chars.verified}" if verified else '')
-
-            desc = acc['about'] 
-
-            pfp = acc['picture'] 
-
-            #debug(pfp_url) 
-            
-            kills = acc['kill_count'] 
-            max_score = acc['highest_score'] 
-            coins = acc['coins'] 
-            plays = acc['play_count']
-            views = acc['profile_views']
-
-            xp = acc['xp']
-            tier = acc['tier']
-
-            color = self.TIER_COLORS[tier - 1]
-
-            death_message = acc['description']
-
-            #debug(hex(color)) 
-
-            embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', description=desc, color=color, url=public_page)
-            
-            if not pfp: 
-                pfp = self.DEFAULT_BETA_PFP
-            else: 
-                pfp = self.BETA_PFP_TEMPLATE.format(pfp) 
-            
-            pfp_url = tools.salt_url(pfp) 
-
-            debug(pfp_url) 
-            
-            embed.set_image(url=pfp_url) 
-
-            embed.add_field(name=f"Kills {chars.iseedeadfish}", value=f'{kills:,}') 
-            embed.add_field(name=f"Highscore {chars.first_place}", value=f'{max_score:,}') 
-            embed.add_field(name=f"Coins {chars.deeeepcoin}", value=f'{coins:,}') 
-
-            embed.add_field(name=f"Play count {chars.video_game}", value=f'{plays:,}')
-
-            tier_emoji = self.TIER_EMOJIS[tier - 1]
-
-            embed.add_field(name=f"XP {tier_emoji}", value=f'{xp:,} XP (Tier {tier})', inline=False)
-
-            when_created = acc['date_created'] 
-            when_last_played = acc['date_last_played'] 
-
-            if when_created: 
-                date_created = parser.isoparse(when_created) 
-
-                embed.add_field(name=f"Date created {chars.birthday_cake}", value=f'{tools.timestamp(date_created)}') 
-
-            if when_last_played: 
-                date_last_played = parser.isoparse(when_last_played) 
-
-                embed.add_field(name=f"Date last played {chars.video_game}", value=f'{tools.timestamp(date_last_played)}') 
-            
-            embed.add_field(name=f"Death message {chars.iseedeadfish}", value=f'*"{death_message}"*' or "None", inline=False)
-
-            if socials:
-                embed.add_field(name=f"Social links {chars.speech_bubble}", value=self.generate_socials(socials), inline=False)
-
-            embed.add_field(name=f"Profile views {chars.eyes}", value=f'{views:,}')
-            
-            embed.set_footer(text=f'ID: {acc_id}') 
-        else: 
-            color = discord.Color.random() 
-
-            embed = trimmed_embed.TrimmedEmbed(title='Invalid account', type='rich', description="You have been trolled", color=color) 
-
-            embed.add_field(name="Why?", value="""This usually happens when you have skill issue and entered an invalid user on \
+        embed.add_field(name="Why?", value="""This usually happens when you have skill issue and entered an invalid user on \
 the `hackprofile` command. 
 
 But it could also mean the game is down, especially if it happens on the `profile` command.""", inline=False) 
-            embed.add_field(name="What now?", value="If this is because you made a mistake, just git gud in the future. If the \
-game is down, nothing you can do but wait.", inline=False) 
+        embed.add_field(name="What now?", value="If this is because you made a mistake, just git gud in the future. If the \
+game is down, nothing you can do but wait.", inline=False)
 
+        return embed
+    
+    def profile_embed(self, acc: dict, socials: list[dict]):
+        acc_id = acc['id']
+        real_username = acc['username']
+        verified = acc['verified']
+
+        public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
+
+        title = real_username + (f" {chars.verified}" if verified else '')
+
+        desc = acc['about'] 
+
+        pfp = acc['picture'] 
+
+        #debug(pfp_url) 
+        
+        kills = acc['kill_count'] 
+        max_score = acc['highest_score'] 
+        coins = acc['coins'] 
+        plays = acc['play_count']
+        views = acc['profile_views']
+
+        xp = acc['xp']
+        tier = acc['tier']
+
+        color = self.TIER_COLORS[tier - 1]
+
+        death_message = acc['description']
+
+        #debug(hex(color)) 
+
+        embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', description=desc, color=color, url=public_page)
+        
+        if not pfp: 
+            pfp = self.DEFAULT_BETA_PFP
+        else: 
+            pfp = self.BETA_PFP_TEMPLATE.format(pfp) 
+        
+        pfp_url = tools.salt_url(pfp) 
+
+        debug(pfp_url) 
+        
+        embed.set_image(url=pfp_url) 
+
+        embed.add_field(name=f"Kills {chars.iseedeadfish}", value=f'{kills:,}') 
+        embed.add_field(name=f"Highscore {chars.first_place}", value=f'{max_score:,}') 
+        embed.add_field(name=f"Coins {chars.deeeepcoin}", value=f'{coins:,}') 
+
+        embed.add_field(name=f"Play count {chars.video_game}", value=f'{plays:,}')
+
+        tier_emoji = self.TIER_EMOJIS[tier - 1]
+
+        embed.add_field(name=f"XP {tier_emoji}", value=f'{xp:,} XP (Tier {tier})', inline=False)
+
+        when_created = acc['date_created'] 
+        when_last_played = acc['date_last_played'] 
+
+        if when_created: 
+            date_created = parser.isoparse(when_created) 
+
+            embed.add_field(name=f"Date created {chars.birthday_cake}", value=f'{tools.timestamp(date_created)}') 
+
+        if when_last_played: 
+            date_last_played = parser.isoparse(when_last_played) 
+
+            embed.add_field(name=f"Date last played {chars.video_game}", value=f'{tools.timestamp(date_last_played)}') 
+        
+        embed.add_field(name=f"Death message {chars.iseedeadfish}", value=f'*"{death_message}"*' or "None", inline=False)
+
+        if socials:
+            embed.add_field(name=f"Social links {chars.speech_bubble}", value=self.generate_socials(socials), inline=False)
+
+        embed.add_field(name=f"Profile views {chars.eyes}", value=f'{views:,}')
+        
+        embed.set_footer(text=f'ID: {acc_id}') 
+
+        return embed
+    
+    def rankings_embed(self, acc: dict, rankings: dict):
+        acc_id = acc['id']
+        real_username = acc['username']
+        verified = acc['verified']
+
+        public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
+
+        title = f'Rankings for {real_username}' + (f" {chars.verified}" if verified else '')
+
+        pfp = acc['picture'] 
+
+        #debug(pfp_url) 
+        
+        kills = acc['kill_count'] 
+        max_score = acc['highest_score'] 
+        plays = acc['play_count']
+
+        tier = acc['tier']
+
+        color = self.TIER_COLORS[tier - 1]
+
+        #debug(hex(color)) 
+
+        embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', color=color, url=public_page)
+
+        if not pfp: 
+            pfp = self.DEFAULT_BETA_PFP
+        else: 
+            pfp = self.BETA_PFP_TEMPLATE.format(pfp) 
+        
+        pfp_url = tools.salt_url(pfp) 
+
+        debug(pfp_url) 
+        
+        embed.set_image(url=pfp_url)
+
+        if rankings:
+            kill_rank_str = f" **(#{rankings['rank_kc']})**"
+            score_rank_str = f" **(#{rankings['rank_hs']})**"
+            plays_rank_str = f" **(#{rankings['rank_pc']})**"
+        else:
+            kill_rank_str = score_rank_str = plays_rank_str = ''
+        
+        embed.add_field(name=f"Kills {chars.iseedeadfish}", value=f'{kills:,}{kill_rank_str}') 
+        embed.add_field(name=f"Highscore {chars.first_place}", value=f'{max_score:,}{score_rank_str}') 
+        embed.add_field(name=f"Play count {chars.video_game}", value=f'{plays:,}{plays_rank_str}')
+
+        embed.set_footer(text=f'ID: {acc_id}')
+        
         return embed
     
     def profile_embed_by_username(self, username: str):
@@ -2176,41 +2236,56 @@ account. Well, it might still be, but that would just be due to random chance.')
 
         await self.update_mark_view(button, message_interaction, view, False)
     
-    def generate_profile_view(self, interaction: discord.Interaction, acc_id: int, acc_index: int, num_accs: int):
-        view = ui.RestrictedView(interaction.user, interaction, timeout=60)
-        
+    def generate_profile_view(self, interaction: discord.Interaction, view: ui.RestrictedView, acc_id: int, acc_index: int, 
+    num_accs: int):
         is_main = self.determine_main(interaction.user.id, acc_id)
 
-        toggle_main_button = ui.CallbackButton(None, interaction, view, acc_id, style=discord.ButtonStyle.primary)
+        toggle_main_button = ui.CallbackButton(None, interaction, view, acc_id, style=discord.ButtonStyle.primary, row=2)
 
         self.update_mark_button(toggle_main_button, is_main)
 
         unlink_button = ui.CallbackButton(self.unlink_account, interaction, view, acc_id, 
-        style=discord.ButtonStyle.danger, label='Unlink account')
+        style=discord.ButtonStyle.danger, label='Unlink account', row=2)
 
-        acc_number_indicator = discord.ui.Button(label=f'Account {acc_index + 1} / {num_accs}', disabled=True)
+        acc_number_indicator = discord.ui.Button(label=f'Account {acc_index + 1} / {num_accs}', disabled=True, row=2)
 
         view.add_item(acc_number_indicator)
         view.add_item(toggle_main_button)
         view.add_item(unlink_button)
+    
+    async def display_profile_book(self, interaction: discord.Interaction, acc: dict, socials: list, 
+    rankings: dict, user: discord.Member=None, acc_index: int=0, num_accs: int=0):
+        if acc:
+            if not self.blacklisted(interaction.guild_id, 'account', acc['id']): 
+                home_page = ui.Page(embed=self.profile_embed(acc, socials))
+                rankings_page = ui.Page(embed=self.rankings_embed(acc, rankings))
 
-        return view
+                profile_book = ui.ScrollyBook(interaction, home_page, rankings_page, timeout=300)
+
+                if user and interaction.user.id == user.id:
+                    self.generate_profile_view(interaction, profile_book.view, acc['id'], acc_index, num_accs)
+
+                await profile_book.send_first(followup=True)
+            else:
+                await interaction.followup.send(content=f"This account (ID {acc['id']}) is blacklisted from being displayed on this server.")
+        else:
+            await interaction.followup.send(embed=self.profile_error_embed())
 
     async def display_account(self, interaction: discord.Interaction, user: discord.Member, acc_id: int, acc_index: int,
     num_accs: int): 
-        if not self.blacklisted(interaction.guild_id, 'account', acc_id): 
-            await interaction.response.defer()
+        await interaction.response.defer()
 
-            embed = self.profile_embed_by_id(acc_id)
+        acc, socials, rankings = self.get_profile_by_id(acc_id)
+        
+        await self.display_profile_book(interaction, acc, socials, rankings, acc_index=acc_index, num_accs=num_accs, 
+        user=user)        
+    
+    async def display_account_by_username(self, interaction: discord.Interaction, username: str):
+        await interaction.response.defer()
 
-            if interaction.user.id == user.id:
-                view = self.generate_profile_view(interaction, acc_id, acc_index, num_accs)
+        acc, socials, rankings = self.get_profile_by_username(username)
 
-                await interaction.followup.send(embed=embed, view=view) 
-            else:
-                await interaction.followup.send(embed=embed)
-        else: 
-            await interaction.response.send_message(content=f'This account (ID {acc_id}) is blacklisted from being displayed on this server. ') 
+        await self.display_profile_book(interaction, acc, socials, rankings)
     
     @classmethod
     def format_stat(cls, animal, stat_key): 
