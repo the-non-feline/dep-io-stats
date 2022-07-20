@@ -82,8 +82,43 @@ class Page:
         await interaction.response.edit_message(content=self.content, embed=self.embed, 
         allowed_mentions=self.allowed_mentions, view=parent.view)
 
-class Book:
-    pass
+class IndexedBook:
+    def __init__(self, interaction: discord.Interaction, *pages, timeout=None, view=None):
+        self.interaction = interaction
+        self.timeout = timeout
+
+        if view:
+            self.view = view
+        else:
+            self.view = RestrictedView(interaction.user, interaction, timeout=self.timeout)
+        
+        # generate the buttons here
+        self.buttons = tuple((CallbackButton(self.jump_to_page, self.interaction, page, style=discord.ButtonStyle.primary, 
+        label=button_name, row=0) for button_name, page in pages))
+
+        for button in self.buttons:
+            self.view.add_item(button)
+
+        self.cur_button = self.buttons[0]
+        self.cur_page = pages[0][1]
+
+        self.cur_button.disabled = True
+    
+    async def send_first(self, followup=False):
+        cur = self.cur_page
+
+        await cur.send_self(self, self.interaction, followup)
+    
+    async def jump_to_page(self, button: CallbackButton, button_interaction: discord.Interaction, 
+    message_interaction: discord.Interaction, page: Page):
+        self.cur_button.disabled = False
+
+        self.cur_page = page
+        self.cur_button = button
+
+        self.cur_button.disabled = True
+
+        await self.cur_page.edit_self(self, button_interaction)
 
 class ScrollyBook:
     def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=None, view=None):

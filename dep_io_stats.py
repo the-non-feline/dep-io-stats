@@ -1559,7 +1559,7 @@ game is down, nothing you can do but wait.", inline=False)
 
         return embed
     
-    def profile_embed(self, acc: dict, socials: list[dict]):
+    def profile_embed(self, acc: dict, socials: list[dict], acc_index: int, num_accs: int):
         acc_id = acc['id']
         real_username = acc['username']
         verified = acc['verified']
@@ -1632,11 +1632,16 @@ game is down, nothing you can do but wait.", inline=False)
 
         embed.add_field(name=f"Profile views {chars.eyes}", value=f'{views:,}')
         
-        embed.set_footer(text=f'ID: {acc_id}') 
+        footer_text = f'ID: {acc_id}'
+
+        if acc_index is not None:
+            footer_text += f'\nAccount {acc_index + 1} / {num_accs}'
+
+        embed.set_footer(text=footer_text) 
 
         return embed
     
-    def rankings_embed(self, acc: dict, rankings: dict):
+    def rankings_embed(self, acc: dict, rankings: dict, acc_index: int, num_accs: int):
         acc_id = acc['id']
         real_username = acc['username']
         verified = acc['verified']
@@ -1683,7 +1688,12 @@ game is down, nothing you can do but wait.", inline=False)
         embed.add_field(name=f"Highscore {chars.first_place}", value=f'{max_score:,}{score_rank_str}') 
         embed.add_field(name=f"Play count {chars.video_game}", value=f'{plays:,}{plays_rank_str}')
 
-        embed.set_footer(text=f'ID: {acc_id}')
+        footer_text = f'ID: {acc_id}'
+
+        if acc_index is not None:
+            footer_text += f'\nAccount {acc_index + 1} / {num_accs}'
+
+        embed.set_footer(text=footer_text) 
         
         return embed
     
@@ -2236,34 +2246,31 @@ account. Well, it might still be, but that would just be due to random chance.')
 
         await self.update_mark_view(button, message_interaction, view, False)
     
-    def generate_profile_view(self, interaction: discord.Interaction, view: ui.RestrictedView, acc_id: int, acc_index: int, 
-    num_accs: int):
+    def generate_profile_view(self, interaction: discord.Interaction, view: ui.RestrictedView, user: discord.Member, 
+    acc_id: int):
         is_main = self.determine_main(interaction.user.id, acc_id)
 
-        toggle_main_button = ui.CallbackButton(None, interaction, view, acc_id, style=discord.ButtonStyle.primary, row=2)
+        toggle_main_button = ui.CallbackButton(None, interaction, view, acc_id, row=2)
 
         self.update_mark_button(toggle_main_button, is_main)
 
         unlink_button = ui.CallbackButton(self.unlink_account, interaction, view, acc_id, 
         style=discord.ButtonStyle.danger, label='Unlink account', row=2)
-
-        acc_number_indicator = discord.ui.Button(label=f'Account {acc_index + 1} / {num_accs}', disabled=True, row=2)
-
-        view.add_item(acc_number_indicator)
-        view.add_item(toggle_main_button)
-        view.add_item(unlink_button)
+        
+        if user and user.id == interaction.user.id:
+            view.add_item(toggle_main_button)
+            view.add_item(unlink_button)
     
     async def display_profile_book(self, interaction: discord.Interaction, acc: dict, socials: list, 
-    rankings: dict, user: discord.Member=None, acc_index: int=0, num_accs: int=0):
+    rankings: dict, user: discord.Member=None, acc_index: int=None, num_accs: int=None):
         if acc:
             if not self.blacklisted(interaction.guild_id, 'account', acc['id']): 
-                home_page = ui.Page(embed=self.profile_embed(acc, socials))
-                rankings_page = ui.Page(embed=self.rankings_embed(acc, rankings))
+                home_page = ui.Page(embed=self.profile_embed(acc, socials, acc_index, num_accs))
+                rankings_page = ui.Page(embed=self.rankings_embed(acc, rankings, acc_index, num_accs))
 
-                profile_book = ui.ScrollyBook(interaction, home_page, rankings_page, timeout=300)
+                profile_book = ui.IndexedBook(interaction, ('About', home_page), ('Rankings', rankings_page), timeout=300)
 
-                if user and interaction.user.id == user.id:
-                    self.generate_profile_view(interaction, profile_book.view, acc['id'], acc_index, num_accs)
+                self.generate_profile_view(interaction, profile_book.view, user, acc['id'])
 
                 await profile_book.send_first(followup=True)
             else:
