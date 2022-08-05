@@ -332,13 +332,15 @@ server.')
         else:
             await interaction.response.send_message(content=error)
     
-    @ds_slash(tree, 'tree', 'Displays the evolution tree (as of the Snow and Below Beta version)')
+    @ds_slash(tree, 'tree', 'Displays the evolution tree')
     async def evo_tree(interaction: discord.Interaction):
         with open(interaction.client.TREE, mode='rb') as tree_file:
             discord_file = discord.File(tree_file)
 
-            await interaction.response.send_message(content=f"""The current evolution tree as of Snow and Below beta:
-    {chars.void}""", file=discord_file)
+            await interaction.response.send_message(content=f"""The current evolution tree.
+
+If this is outdated, updated evolution trees are appreciated! 
+{chars.void}""", file=discord_file)
 
     @ds_slash(tree, 'habitat', 'Translates a habitat number into a set of habitat flags')
     @app_commands.describe(habitat_num=f'A number that represents a set of habitat requirements')

@@ -65,25 +65,32 @@ class RestrictedView(TrackedView):
         return await super().on_timeout()
 
 class Page:
-    def __init__(self, content=None, embed=None, allowed_mentions=None):
+    def __init__(self, content=None, embed=None, allowed_mentions=None, view=None):
         self.content = content
         self.embed = embed
         self.allowed_mentions = allowed_mentions
+        self.view = view
     
-    async def send_self(self, parent, interaction: discord.Interaction, followup: bool):
+    async def send_self(self, interaction: discord.Interaction, followup: bool):
         if followup:
             await interaction.followup.send(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, view=parent.view)
+        allowed_mentions=self.allowed_mentions, view=self.view)
         else:
             await interaction.response.send_message(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, view=parent.view)
+        allowed_mentions=self.allowed_mentions, view=self.view)
     
-    async def edit_self(self, parent, interaction: discord.Interaction):
+    async def edit_self(self, interaction: discord.Interaction):
         await interaction.response.edit_message(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, view=parent.view)
+        allowed_mentions=self.allowed_mentions, view=self.view)
+    
+    async def deregister_self(self, interaction: discord.Interaction):
+        pass
 
-class IndexedBook:
-    def __init__(self, interaction: discord.Interaction, *pages, timeout=None, view=None):
+    def set_view(self, view: RestrictedView):
+        self.view = view
+
+class Book(Page):
+    def __init__(self, interaction: discord.Interaction, timeout, view: RestrictedView, *pages: Page):
         self.interaction = interaction
         self.timeout = timeout
 
@@ -91,46 +98,64 @@ class IndexedBook:
             self.view = view
         else:
             self.view = RestrictedView(interaction.user, interaction, timeout=self.timeout)
+
+        self.pages = pages
         
+        self.set_view(self.view)
+    
+    def cur_page(self) -> Page:
+        pass
+
+    async def send_self(self, interaction: discord.Interaction, followup: bool):
+        return await self.cur_page().send_self(interaction, followup)
+    
+    async def edit_self(self, interaction: discord.Interaction):
+        return await self.cur_page().edit_self(interaction)
+    
+    async def send_first(self, followup=False):
+        return await self.send_self(self.interaction, followup)
+    
+    def set_view(self, view: RestrictedView):
+        super().set_view(view)
+
+        for page in self.pages:
+            page.set_view(view)
+
+class IndexedBook(Book):
+    def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=None, view=None):
+        super().__init__(interaction, timeout, view, *(page_tuple[1] for page_tuple in page_tuples))
+
         # generate the buttons here
         self.buttons = tuple((CallbackButton(self.jump_to_page, self.interaction, page, style=discord.ButtonStyle.primary, 
-        label=button_name, row=0) for button_name, page in pages))
+        label=button_name, row=0) for button_name, page in page_tuples))
 
         for button in self.buttons:
             self.view.add_item(button)
 
         self.cur_button = self.buttons[0]
-        self.cur_page = pages[0][1]
+        self.current_page = page_tuples[0][1]
 
         self.cur_button.disabled = True
     
-    async def send_first(self, followup=False):
-        cur = self.cur_page
-
-        await cur.send_self(self, self.interaction, followup)
+    def cur_page(self):
+        return self.current_page
     
     async def jump_to_page(self, button: CallbackButton, button_interaction: discord.Interaction, 
     message_interaction: discord.Interaction, page: Page):
         self.cur_button.disabled = False
 
-        self.cur_page = page
+        self.current_page = page
         self.cur_button = button
 
         self.cur_button.disabled = True
 
-        await self.cur_page.edit_self(self, button_interaction)
+        await self.edit_self(button_interaction)
 
-class ScrollyBook:
+class ScrollyBook(Book):
     def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=None, view=None):
-        self.interaction = interaction
-        self.pages = pages
+        super().__init__(interaction, timeout, view, *pages)
+        
         self.cur_index = 0
-        self.timeout = timeout
-
-        if view:
-            self.view = view
-        else:
-            self.view = RestrictedView(interaction.user, interaction, timeout=self.timeout)
 
         self.left_button = CallbackButton(self.turn_page, self.interaction, -1, style=discord.ButtonStyle.primary, label='Previous',
         row=0)
@@ -165,11 +190,9 @@ class ScrollyBook:
         await self.view.wait()
         await self.close_book()
     '''
-    
-    async def send_first(self, followup=False):
-        cur = self.pages[self.cur_index]
 
-        await cur.send_self(self, self.interaction, followup)
+    def cur_page(self) -> Page:
+        return self.pages[self.cur_index]
     
     def update_buttons(self):
         self.left_button.disabled = self.cur_index <= 0
@@ -178,8 +201,7 @@ class ScrollyBook:
     
     async def turn_page(self, button: CallbackButton, button_interaction: discord.Interaction, message_interaction: discord.Interaction, direction: int):
         self.cur_index += direction
-        cur = self.pages[self.cur_index]
         
         self.update_buttons()
 
-        await cur.edit_self(self, button_interaction)
+        await self.edit_self(self, button_interaction)
