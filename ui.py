@@ -1,5 +1,6 @@
 import discord.ui
 import discord
+from grpc import Call
 import logs
 from logs import debug
 
@@ -70,6 +71,7 @@ class Page:
         self.embed = embed
         self.allowed_mentions = allowed_mentions
         self.view = view
+        self.level = 0
     
     async def send_self(self, interaction: discord.Interaction, followup: bool):
         if followup:
@@ -83,14 +85,21 @@ class Page:
         await interaction.response.edit_message(content=self.content, embed=self.embed, 
         allowed_mentions=self.allowed_mentions, view=self.view)
     
-    async def deregister_self(self, interaction: discord.Interaction):
+    def register_self(self):
+        pass
+    
+    def deregister_self(self):
         pass
 
     def set_view(self, view: RestrictedView):
         self.view = view
+    
+    def set_level(self, level: int=0):
+        self.level = level
 
 class Book(Page):
-    def __init__(self, interaction: discord.Interaction, timeout, view: RestrictedView, *pages: Page):
+    def __init__(self, interaction: discord.Interaction, timeout, view: RestrictedView, pages: tuple[Page], 
+    buttons: tuple[CallbackButton]):
         self.interaction = interaction
         self.timeout = timeout
 
@@ -100,37 +109,62 @@ class Book(Page):
             self.view = RestrictedView(interaction.user, interaction, timeout=self.timeout)
 
         self.pages = pages
+        self.buttons = buttons
         
         self.set_view(self.view)
+
+        self.set_level()
     
     def cur_page(self) -> Page:
         pass
 
     async def send_self(self, interaction: discord.Interaction, followup: bool):
+        self.register_self()
+
         return await self.cur_page().send_self(interaction, followup)
     
     async def edit_self(self, interaction: discord.Interaction):
+        self.cur_page().register_self()
+
         return await self.cur_page().edit_self(interaction)
     
     async def send_first(self, followup=False):
         return await self.send_self(self.interaction, followup)
+    
+    def register_self(self):
+        for button in self.buttons:
+            self.view.add_item(button)
+        
+        self.cur_page().register_self()
+    
+    def deregister_self(self):
+        for button in self.buttons:
+            self.view.remove_item(button)
+        
+        self.cur_page().deregister_self()   
     
     def set_view(self, view: RestrictedView):
         super().set_view(view)
 
         for page in self.pages:
             page.set_view(view)
+    
+    def set_level(self, level: int = 0):
+        super().set_level(level)
+
+        for button in self.buttons:
+            button.row = self.level
+
+        for page in self.pages:
+            page.set_level(level=level + 1)
 
 class IndexedBook(Book):
     def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=None, view=None):
-        super().__init__(interaction, timeout, view, *(page_tuple[1] for page_tuple in page_tuples))
-
         # generate the buttons here
-        self.buttons = tuple((CallbackButton(self.jump_to_page, self.interaction, page, style=discord.ButtonStyle.primary, 
-        label=button_name, row=0) for button_name, page in page_tuples))
+        buttons = tuple(CallbackButton(self.jump_to_page, interaction, page, style=discord.ButtonStyle.primary, 
+        label=button_name, row=0) for button_name, page in page_tuples)
 
-        for button in self.buttons:
-            self.view.add_item(button)
+        super().__init__(interaction, timeout, view, tuple(page_tuple[1] for page_tuple in page_tuples), buttons)
 
         self.cur_button = self.buttons[0]
         self.current_page = page_tuples[0][1]
@@ -142,6 +176,8 @@ class IndexedBook(Book):
     
     async def jump_to_page(self, button: CallbackButton, button_interaction: discord.Interaction, 
     message_interaction: discord.Interaction, page: Page):
+        self.cur_page().deregister_self()
+
         self.cur_button.disabled = False
 
         self.current_page = page
@@ -153,23 +189,21 @@ class IndexedBook(Book):
 
 class ScrollyBook(Book):
     def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=None, view=None):
-        super().__init__(interaction, timeout, view, *pages)
-        
         self.cur_index = 0
 
-        self.left_button = CallbackButton(self.turn_page, self.interaction, -1, style=discord.ButtonStyle.primary, label='Previous',
+        self.left_button = CallbackButton(self.turn_page, interaction, -1, style=discord.ButtonStyle.primary, label='Previous',
         row=0)
-        self.page_number = discord.ui.Button(disabled=True, label=f'Page {self.cur_index + 1} / {len(self.pages)}',
+        self.page_number = discord.ui.Button(disabled=True, label=f'Page {self.cur_index + 1} / {len(pages)}',
         row=0)
-        self.right_button = CallbackButton(self.turn_page, self.interaction, 1, style=discord.ButtonStyle.primary, label='Next',
+        self.right_button = CallbackButton(self.turn_page, interaction, 1, style=discord.ButtonStyle.primary, label='Next',
         row=0)
         # self.close_button = CallbackButton(self.manual_close, self.interaction, style=discord.ButtonStyle.danger, label='Close',
         # row=1)
-
-        self.view.add_item(self.left_button)
-        self.view.add_item(self.page_number)
-        self.view.add_item(self.right_button)
         # self.view.add_item(self.close_button)
+
+        buttons_tuple = self.left_button, self.page_number, self.right_button
+        
+        super().__init__(interaction, timeout, view, pages, buttons_tuple)
 
         self.update_buttons()
     
@@ -200,8 +234,10 @@ class ScrollyBook(Book):
         self.page_number.label = f'Page {self.cur_index + 1} / {len(self.pages)}'
     
     async def turn_page(self, button: CallbackButton, button_interaction: discord.Interaction, message_interaction: discord.Interaction, direction: int):
+        self.cur_page().deregister_self()
+
         self.cur_index += direction
         
         self.update_buttons()
 
-        await self.edit_self(self, button_interaction)
+        await self.edit_self(button_interaction)

@@ -2067,10 +2067,17 @@ String ID: {string_id}''')
     
     async def link_help(self, interaction: discord.Interaction): 
         p1 = ui.Page(content='le test')
-        p2 = ui.Page(content='le trol')
-        p3 = ui.Page(content='le E')
 
-        book = ui.ScrollyBook(interaction, p1, p2, p3)
+        p2_1 = ui.Page(content='E')
+        p2_2 = ui.Page(content='F')
+
+        p3_1 = ui.Page(content='le trol')
+        p3_2 = ui.Page(content='tro')
+
+        p2 = ui.ScrollyBook(interaction, p2_1, p2_2)
+        p3 = ui.IndexedBook(interaction, ('thing', p3_1), ('other thing', p3_2))
+
+        book = ui.ScrollyBook(interaction, p1, p2, p3, timeout=20)
 
         await book.send_first()
     
