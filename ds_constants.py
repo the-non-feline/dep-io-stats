@@ -70,6 +70,11 @@ class DS_Constants:
     SKIN_REVIEW_TEMPLATE = 'https://api.deeeep.io/skins/{}/review' 
     SKIN_STORE_PAGE_TEMPLATE = 'https://beta.deeeep.io/store/skins/{}'
 
+    SKIN_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/skins/creator/{}'
+    MAP_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/maps/u/{}}?page=1&orderBy=updated_at&direction=DESC&period=0'
+    EMOTE_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/emotes/creator/{}'
+    PET_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/pets/creator/{}'
+
     STONKS_THRESHOLD = 150
 
     STAT_CHANGE_TRANSLATIONS = {

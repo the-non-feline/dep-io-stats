@@ -44,3 +44,9 @@ class TrimmedEmbed(discord.Embed):
         name = self.trim_maybe(name, self.MAX_AUTHOR) 
 
         return super().set_author(name=name, url=url, icon_url=icon_url) 
+    
+    @classmethod
+    def too_long(cls, limit: int, *vals):
+        for val in vals:
+            if len(val) > limit:
+                return True

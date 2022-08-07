@@ -101,7 +101,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
         print('set animal stats') 
     
-    def find_animal(self, animal_id): 
+    def find_animal(self, animal_id: int): 
         stats = self.temp_animal_stats
 
         return stats[animal_id] 
@@ -532,19 +532,21 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
             socials_url = self.SOCIALS_URL_TEMPLATE.format(acc_id)
             rankings_url = self.RANKINGS_TEMPLATE.format(acc_id)
+            skin_contribs_url = self.SKIN_CONTRIBS_TEMPLATE.format(acc_id)
 
-            socials, rankings = self.async_get(socials_url, rankings_url)
+            socials, rankings, skin_contribs = self.async_get(socials_url, rankings_url, skin_contribs_url)
         else:
-            socials = rankings = ()
+            socials = rankings = skin_contribs = ()
 
-        return acc_json, socials, rankings
+        return acc_json, socials, rankings, skin_contribs
     
     def get_profile_by_id(self, id):
         acc_url = self.DATA_URL_TEMPLATE.format(id)
         social_url = self.SOCIALS_URL_TEMPLATE.format(id)
         rankings_url = self.RANKINGS_TEMPLATE.format(id)
+        skin_contribs_url = self.SKIN_CONTRIBS_TEMPLATE.format(id)
 
-        return self.async_get(acc_url, social_url, rankings_url)
+        return self.async_get(acc_url, social_url, rankings_url, skin_contribs_url)
     
     @staticmethod
     def compile_ids_from_motions(motions_list, motion_filter=lambda motion: True): 
@@ -1559,20 +1561,49 @@ game is down, nothing you can do but wait.", inline=False)
 
         return embed
     
-    def profile_embed(self, acc: dict, socials: list[dict], acc_index: int, num_accs: int):
+    def base_profile_embed(self, acc: dict, acc_index: int, num_accs: int, specific_page: str=''):
         acc_id = acc['id']
         real_username = acc['username']
         verified = acc['verified']
 
         public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
 
-        title = real_username + (f" {chars.verified}" if verified else '')
-
-        desc = acc['about'] 
+        title = f'{specific_page}{" " if specific_page else ""}{real_username}{f" {chars.verified}" if verified else ""}'
 
         pfp = acc['picture'] 
 
-        #debug(pfp_url) 
+        #debug(pfp_url)
+
+        tier = acc['tier']
+
+        color = self.TIER_COLORS[tier - 1]
+
+        #debug(hex(color)) 
+
+        embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', color=color, url=public_page)
+
+        if not pfp: 
+            pfp = self.DEFAULT_BETA_PFP
+        else: 
+            pfp = self.BETA_PFP_TEMPLATE.format(pfp) 
+        
+        pfp_url = tools.salt_url(pfp) 
+
+        debug(pfp_url) 
+        
+        embed.set_image(url=pfp_url)
+
+        footer_text = f'ID: {acc_id}'
+
+        if acc_index is not None:
+            footer_text += f'\nAccount {acc_index + 1} / {num_accs}'
+
+        embed.set_footer(text=footer_text) 
+
+        return embed
+    
+    def profile_embed(self, acc: dict, socials: list[dict], acc_index: int, num_accs: int):
+        desc = acc['about']
         
         kills = acc['kill_count'] 
         max_score = acc['highest_score'] 
@@ -1583,24 +1614,11 @@ game is down, nothing you can do but wait.", inline=False)
         xp = acc['xp']
         tier = acc['tier']
 
-        color = self.TIER_COLORS[tier - 1]
-
         death_message = acc['description']
 
-        #debug(hex(color)) 
+        embed = self.base_profile_embed(acc, acc_index, num_accs)
 
-        embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', description=desc, color=color, url=public_page)
-        
-        if not pfp: 
-            pfp = self.DEFAULT_BETA_PFP
-        else: 
-            pfp = self.BETA_PFP_TEMPLATE.format(pfp) 
-        
-        pfp_url = tools.salt_url(pfp) 
-
-        debug(pfp_url) 
-        
-        embed.set_image(url=pfp_url) 
+        embed.description = desc
 
         embed.add_field(name=f"Kills {chars.iseedeadfish}", value=f'{kills:,}') 
         embed.add_field(name=f"Highscore {chars.first_place}", value=f'{max_score:,}') 
@@ -1631,51 +1649,15 @@ game is down, nothing you can do but wait.", inline=False)
             embed.add_field(name=f"Social links {chars.speech_bubble}", value=self.generate_socials(socials), inline=False)
 
         embed.add_field(name=f"Profile views {chars.eyes}", value=f'{views:,}')
-        
-        footer_text = f'ID: {acc_id}'
-
-        if acc_index is not None:
-            footer_text += f'\nAccount {acc_index + 1} / {num_accs}'
-
-        embed.set_footer(text=footer_text) 
 
         return embed
     
     def rankings_embed(self, acc: dict, rankings: dict, acc_index: int, num_accs: int):
-        acc_id = acc['id']
-        real_username = acc['username']
-        verified = acc['verified']
-
-        public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
-
-        title = f'Rankings for {real_username}' + (f" {chars.verified}" if verified else '')
-
-        pfp = acc['picture'] 
-
-        #debug(pfp_url) 
-        
         kills = acc['kill_count'] 
         max_score = acc['highest_score'] 
         plays = acc['play_count']
 
-        tier = acc['tier']
-
-        color = self.TIER_COLORS[tier - 1]
-
-        #debug(hex(color)) 
-
-        embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', color=color, url=public_page)
-
-        if not pfp: 
-            pfp = self.DEFAULT_BETA_PFP
-        else: 
-            pfp = self.BETA_PFP_TEMPLATE.format(pfp) 
-        
-        pfp_url = tools.salt_url(pfp) 
-
-        debug(pfp_url) 
-        
-        embed.set_image(url=pfp_url)
+        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page='Rankings for')
 
         if rankings:
             kill_rank_str = f" **(#{rankings['rank_kc']})**"
@@ -1687,15 +1669,85 @@ game is down, nothing you can do but wait.", inline=False)
         embed.add_field(name=f"Kills {chars.iseedeadfish}", value=f'{kills:,}{kill_rank_str}') 
         embed.add_field(name=f"Highscore {chars.first_place}", value=f'{max_score:,}{score_rank_str}') 
         embed.add_field(name=f"Play count {chars.video_game}", value=f'{plays:,}{plays_rank_str}')
-
-        footer_text = f'ID: {acc_id}'
-
-        if acc_index is not None:
-            footer_text += f'\nAccount {acc_index + 1} / {num_accs}'
-
-        embed.set_footer(text=footer_text) 
         
         return embed
+    
+    def gen_skin_creations_embed(self, acc: dict, acc_index: int, num_accs: int, titles: list[str], prices: list[str]) -> \
+        trimmed_embed.TrimmedEmbed:
+        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page = 'Skins by')
+
+        titles_str = tools.format_iterable(titles, sep='\n')
+        # animal_names_str = tools.format_iterable(animal_names, sep='\n') or 'N/A'
+        prices_str = tools.format_iterable(prices, sep='\n')
+
+        embed.add_field(name=f'Skin {chars.palette}', value=titles_str)
+        # embed.add_field(name=f'Animal {chars.fish}', value=animal_names_str)
+        embed.add_field(name=f'Price {chars.deeeepcoin}', value=prices_str)
+
+        return embed
+    
+    def build_skin_contrib(self, acc: dict, acc_index: int, num_accs: int, skin: dict, embeds: list[trimmed_embed.TrimmedEmbed], titles: list[str], prices: list[str]):
+        ID = skin['id']
+        name = skin['name']
+        animal_id = skin['fish_level']
+        price = skin['price']
+
+        store_page = self.SKIN_STORE_PAGE_TEMPLATE.format(ID)
+        animal_name = self.find_animal(animal_id)
+        
+        # generate the names and links array
+        name_and_link = f'[{name}]({store_page})'
+
+        titles.append(name_and_link)
+
+        # generate the animal names array
+        # animal_names.append(animal_name)
+
+        # generate the prices array
+        prices.append(price)
+
+        tentative_titles_str = tools.format_iterable(titles, sep='\n')
+        tentative_prices_str = tools.format_iterable(prices, sep='\n')
+
+        if trimmed_embed.TrimmedEmbed.too_long(trimmed_embed.TrimmedEmbed.MAX_FIELD_VAL, 
+        tentative_titles_str, tentative_prices_str):
+            titles.pop()
+            prices.pop()
+
+            new_embed = self.gen_skin_creations_embed(acc, acc_index, num_accs, titles, prices)
+
+            embeds.append(new_embed)
+
+            titles.clear()
+            prices.clear()
+
+            titles.append(name_and_link)
+            prices.append(price)
+    
+    def skin_contribs_embeds(self, interaction: discord.Interaction, acc: dict, skins: list[dict], acc_index: int, num_accs: int) -> ui.ScrollyBook | ui.Page:
+        if skins:
+            embeds = []
+            titles = []
+            prices = []
+
+            for skin in skins:
+                self.build_skin_contrib(acc, acc_index, num_accs, skin, embeds, titles, prices)
+
+            last_embed = self.gen_skin_creations_embed(acc, acc_index, num_accs, titles, prices)
+
+            embeds.append(last_embed)
+
+            pages = (ui.Page(embed=embed) for embed in embeds)
+
+            return ui.ScrollyBook(interaction, *pages)
+        else:
+            embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page='Skins by')
+
+            username = acc['username']
+
+            embed.description = f'{username} does not have any skins added to the game.'
+
+            return ui.Page(embed=embed)
     
     def profile_embed_by_username(self, username: str):
         return self.profile_embed(*self.get_profile_by_username(username))
@@ -2253,31 +2305,36 @@ account. Well, it might still be, but that would just be due to random chance.')
 
         await self.update_mark_view(button, message_interaction, view, False)
     
-    def generate_profile_view(self, interaction: discord.Interaction, view: ui.RestrictedView, user: discord.Member, 
-    acc_id: int):
-        is_main = self.determine_main(interaction.user.id, acc_id)
-
-        toggle_main_button = ui.CallbackButton(None, interaction, view, acc_id, row=2)
-
-        self.update_mark_button(toggle_main_button, is_main)
-
-        unlink_button = ui.CallbackButton(self.unlink_account, interaction, view, acc_id, 
-        style=discord.ButtonStyle.danger, label='Unlink account', row=2)
-        
+    def generate_profile_buttons(self, interaction: discord.Interaction, book: ui.IndexedBook, view: ui.RestrictedView, 
+    user: discord.Member, acc_id: int):
         if user and user.id == interaction.user.id:
-            view.add_item(toggle_main_button)
-            view.add_item(unlink_button)
+            is_main = self.determine_main(interaction.user.id, acc_id)
+
+            toggle_main_button = ui.CallbackButton(None, interaction, view, acc_id)
+
+            self.update_mark_button(toggle_main_button, is_main)
+
+            unlink_button = ui.CallbackButton(self.unlink_account, interaction, view, acc_id, 
+            style=discord.ButtonStyle.danger, label='Unlink account')
+            
+            book.add_button(toggle_main_button)
+            book.add_button(unlink_button)
     
     async def display_profile_book(self, interaction: discord.Interaction, acc: dict, socials: list, 
-    rankings: dict, user: discord.Member=None, acc_index: int=None, num_accs: int=None):
+    rankings: dict, skin_contribs: list[dict], user: discord.Member=None, acc_index: int=None, num_accs: int=None):
         if acc:
             if not self.blacklisted(interaction.guild_id, 'account', acc['id']): 
                 home_page = ui.Page(embed=self.profile_embed(acc, socials, acc_index, num_accs))
                 rankings_page = ui.Page(embed=self.rankings_embed(acc, rankings, acc_index, num_accs))
 
-                profile_book = ui.IndexedBook(interaction, ('About', home_page), ('Rankings', rankings_page), timeout=300)
+                skin_contribs_page = self.skin_contribs_embeds(interaction, acc, skin_contribs, acc_index, num_accs)
 
-                self.generate_profile_view(interaction, profile_book.view, user, acc['id'])
+                contribs_page = ui.IndexedBook(interaction, ('Skins', skin_contribs_page))
+
+                profile_book = ui.IndexedBook(interaction, ('About', home_page), ('Rankings', rankings_page), 
+                ('Creations', contribs_page), timeout=300)
+                
+                self.generate_profile_buttons(interaction, profile_book, profile_book.view, user, acc['id'])
 
                 await profile_book.send_first(followup=True)
             else:
@@ -2289,17 +2346,17 @@ account. Well, it might still be, but that would just be due to random chance.')
     num_accs: int): 
         await interaction.response.defer()
 
-        acc, socials, rankings = self.get_profile_by_id(acc_id)
+        acc, socials, rankings, skin_contribs = self.get_profile_by_id(acc_id)
         
-        await self.display_profile_book(interaction, acc, socials, rankings, acc_index=acc_index, num_accs=num_accs, 
+        await self.display_profile_book(interaction, acc, socials, rankings, skin_contribs, acc_index=acc_index, num_accs=num_accs, 
         user=user)        
     
     async def display_account_by_username(self, interaction: discord.Interaction, username: str):
         await interaction.response.defer()
 
-        acc, socials, rankings = self.get_profile_by_username(username)
+        acc, socials, rankings, skin_contribs = self.get_profile_by_username(username)
 
-        await self.display_profile_book(interaction, acc, socials, rankings)
+        await self.display_profile_book(interaction, acc, socials, rankings, skin_contribs)
     
     @classmethod
     def format_stat(cls, animal, stat_key): 
