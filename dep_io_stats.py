@@ -1561,7 +1561,7 @@ game is down, nothing you can do but wait.", inline=False)
 
         return embed
     
-    def base_profile_embed(self, acc: dict, acc_index: int, num_accs: int, specific_page: str=''):
+    def base_profile_embed(self, acc: dict, acc_index: int, num_accs: int, specific_page: str='', big_image=True):
         acc_id = acc['id']
         real_username = acc['username']
         verified = acc['verified']
@@ -1591,7 +1591,10 @@ game is down, nothing you can do but wait.", inline=False)
 
         debug(pfp_url) 
         
-        embed.set_image(url=pfp_url)
+        if big_image:
+            embed.set_image(url=pfp_url)
+        else:
+            embed.set_thumbnail(url=pfp_url)
 
         footer_text = f'ID: {acc_id}'
 
@@ -1643,7 +1646,7 @@ game is down, nothing you can do but wait.", inline=False)
 
             embed.add_field(name=f"Date last played {chars.video_game}", value=f'{tools.timestamp(date_last_played)}') 
         
-        embed.add_field(name=f"Death message {chars.iseedeadfish}", value=f'*"{death_message}"*' or "None", inline=False)
+        embed.add_field(name=f"Death message {chars.iseedeadfish}", value=f'*"{death_message}"*', inline=False)
 
         if socials:
             embed.add_field(name=f"Social links {chars.speech_bubble}", value=self.generate_socials(socials), inline=False)
@@ -1657,7 +1660,7 @@ game is down, nothing you can do but wait.", inline=False)
         max_score = acc['highest_score'] 
         plays = acc['play_count']
 
-        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page='Rankings for')
+        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page='Rankings for', big_image=False)
 
         if rankings:
             kill_rank_str = f" **(#{rankings['rank_kc']})**"
@@ -1672,25 +1675,29 @@ game is down, nothing you can do but wait.", inline=False)
         
         return embed
     
-    def gen_skin_creations_embed(self, acc: dict, acc_index: int, num_accs: int, titles: list[str], prices: list[str]) -> \
-        trimmed_embed.TrimmedEmbed:
-        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page = 'Skins by')
+    def gen_skin_creations_embed(self, acc: dict, acc_index: int, num_accs: int, titles: list[str], sales: list[str],
+    total_skins: int, total_sales: int) -> trimmed_embed.TrimmedEmbed:
+        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page = 'Skins by', big_image=False)
 
         titles_str = tools.format_iterable(titles, sep='\n')
         # animal_names_str = tools.format_iterable(animal_names, sep='\n') or 'N/A'
-        prices_str = tools.format_iterable(prices, sep='\n')
+        sales_str = tools.format_iterable(sales, formatter='{:,}', sep='\n')
 
         embed.add_field(name=f'Skin {chars.palette}', value=titles_str)
         # embed.add_field(name=f'Animal {chars.fish}', value=animal_names_str)
-        embed.add_field(name=f'Price {chars.deeeepcoin}', value=prices_str)
+        embed.add_field(name=f'Sales {chars.stonkalot}', value=sales_str)
+
+        embed.add_field(name=f'Totals {chars.money_bag}', value=f'{total_skins:,} skins, {total_sales:,} sales',
+        inline=False)
 
         return embed
     
-    def build_skin_contrib(self, acc: dict, acc_index: int, num_accs: int, skin: dict, embeds: list[trimmed_embed.TrimmedEmbed], titles: list[str], prices: list[str]):
+    def build_skin_contrib(self, acc: dict, acc_index: int, num_accs: int, skin: dict, embeds: list[trimmed_embed.TrimmedEmbed], 
+    titles: list[str], sales: list[str], total_skins: int, total_sales: int):
         ID = skin['id']
         name = skin['name']
         animal_id = skin['fish_level']
-        price = skin['price']
+        sale_count = skin['sales']
 
         store_page = self.SKIN_STORE_PAGE_TEMPLATE.format(ID)
         animal_name = self.find_animal(animal_id)
@@ -1703,37 +1710,45 @@ game is down, nothing you can do but wait.", inline=False)
         # generate the animal names array
         # animal_names.append(animal_name)
 
-        # generate the prices array
-        prices.append(price)
+        # generate the sales array
+        sales.append(sale_count)
 
         tentative_titles_str = tools.format_iterable(titles, sep='\n')
-        tentative_prices_str = tools.format_iterable(prices, sep='\n')
+        tentative_sales_str = tools.format_iterable(sales, sep='\n')
 
         if trimmed_embed.TrimmedEmbed.too_long(trimmed_embed.TrimmedEmbed.MAX_FIELD_VAL, 
-        tentative_titles_str, tentative_prices_str):
+        tentative_titles_str, tentative_sales_str):
             titles.pop()
-            prices.pop()
+            sales.pop()
 
-            new_embed = self.gen_skin_creations_embed(acc, acc_index, num_accs, titles, prices)
+            new_embed = self.gen_skin_creations_embed(acc, acc_index, num_accs, titles, sales, total_skins, total_sales)
 
             embeds.append(new_embed)
 
             titles.clear()
-            prices.clear()
+            sales.clear()
 
             titles.append(name_and_link)
-            prices.append(price)
+            sales.append(sale_count)
+    
+    @staticmethod
+    def gen_skin_totals(skins: list[dict]):
+        total_sales = sum(map(lambda skin: skin['sales'], skins))
+
+        return len(skins), total_sales
     
     def skin_contribs_embeds(self, interaction: discord.Interaction, acc: dict, skins: list[dict], acc_index: int, num_accs: int) -> ui.ScrollyBook | ui.Page:
         if skins:
             embeds = []
             titles = []
-            prices = []
+            sales = []
+
+            total_skins, total_sales = self.gen_skin_totals(skins)
 
             for skin in skins:
-                self.build_skin_contrib(acc, acc_index, num_accs, skin, embeds, titles, prices)
+                self.build_skin_contrib(acc, acc_index, num_accs, skin, embeds, titles, sales, total_skins, total_sales)
 
-            last_embed = self.gen_skin_creations_embed(acc, acc_index, num_accs, titles, prices)
+            last_embed = self.gen_skin_creations_embed(acc, acc_index, num_accs, titles, sales, total_skins, total_sales)
 
             embeds.append(last_embed)
 
@@ -1741,7 +1756,7 @@ game is down, nothing you can do but wait.", inline=False)
 
             return ui.ScrollyBook(interaction, *pages)
         else:
-            embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page='Skins by')
+            embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page='Skins by', big_image=False)
 
             username = acc['username']
 
@@ -2324,6 +2339,8 @@ account. Well, it might still be, but that would just be due to random chance.')
     rankings: dict, skin_contribs: list[dict], user: discord.Member=None, acc_index: int=None, num_accs: int=None):
         if acc:
             if not self.blacklisted(interaction.guild_id, 'account', acc['id']): 
+                skin_contribs.sort(key=lambda skin: skin['sales'], reverse=True)
+
                 home_page = ui.Page(embed=self.profile_embed(acc, socials, acc_index, num_accs))
                 rankings_page = ui.Page(embed=self.rankings_embed(acc, rankings, acc_index, num_accs))
 

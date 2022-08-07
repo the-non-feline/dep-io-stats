@@ -76,6 +76,8 @@ class RestrictedView(TrackedView):
         return super().remove_item(item)
 
 class Page:
+    MAX_ROW = 4
+
     def __init__(self, content=None, embed=None, allowed_mentions=None, view=None):
         self.content = content
         self.embed = embed
@@ -104,7 +106,7 @@ class Page:
     def set_view(self, view: RestrictedView):
         self.view = view
     
-    def set_level(self, level: int=0):
+    def set_level(self, level: int=MAX_ROW):
         self.level = level
 
 class Book(Page):
@@ -112,6 +114,7 @@ class Book(Page):
     buttons: tuple[CallbackButton]):
         self.interaction = interaction
         self.timeout = timeout
+        self.level = 0
 
         if view:
             self.view = view
@@ -120,10 +123,6 @@ class Book(Page):
 
         self.pages = pages
         self.buttons = list(buttons)
-        
-        self.set_view(self.view)
-
-        self.set_level()
     
     def cur_page(self) -> Page:
         pass
@@ -131,24 +130,25 @@ class Book(Page):
     def add_button(self, button: CallbackButton):
         self.buttons.append(button)
 
-        button.row = self.level
-
     async def send_self(self, interaction: discord.Interaction, followup: bool):
-        self.register_self()
-
         return await self.cur_page().send_self(interaction, followup)
     
     async def edit_self(self, interaction: discord.Interaction):
-        self.cur_page().register_self()
-
         return await self.cur_page().edit_self(interaction)
     
     async def send_first(self, followup=False):
+        self.set_view(self.view)
+        self.set_level()
+
+        self.register_self()
+
         return await self.send_self(self.interaction, followup)
     
     def register_self(self):
         for button in self.buttons:
             self.view.add_item(button)
+        
+        self.cur_page().register_self() 
     
     def deregister_self(self):
         for button in self.buttons:
@@ -162,16 +162,22 @@ class Book(Page):
         for page in self.pages:
             page.set_view(view)
     
-    def set_level(self, level: int = 0):
+    def set_level(self, level: int=Page.MAX_ROW):
         super().set_level(level)
 
         for button in self.buttons:
             button.row = self.level
 
         for page in self.pages:
-            page.set_level(level=level + 1)
+            page.set_level(level=level - 1)
 
 class IndexedBook(Book):
+    def __new__(cls, interaction: discord.Interaction, *page_tuples: tuple, timeout=None, view=None, extra_buttons=()):
+        if len(page_tuples) > 1:
+            return super().__new__(cls)
+        else:
+            return page_tuples[0][1]
+
     def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=None, view=None, extra_buttons=()):
         # generate the buttons here
         buttons = tuple(CallbackButton(self.jump_to_page, interaction, page, style=discord.ButtonStyle.primary, 
@@ -198,9 +204,17 @@ class IndexedBook(Book):
 
         self.cur_button.disabled = True
 
+        self.cur_page().register_self()
+
         await self.edit_self(button_interaction)
 
 class ScrollyBook(Book):
+    def __new__(cls, interaction: discord.Interaction, *pages: Page, timeout=None, view=None, extra_buttons=()):
+        if len(pages) > 1:
+            return super().__new__(cls)
+        else:
+            return pages[0]
+    
     def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=None, view=None, extra_buttons=()):
         self.cur_index = 0
 
@@ -253,4 +267,5 @@ class ScrollyBook(Book):
         
         self.update_buttons()
 
+        self.cur_page().register_self()
         await self.edit_self(button_interaction)
