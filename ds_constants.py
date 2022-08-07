@@ -68,7 +68,8 @@ class DS_Constants:
     CUSTOM_SKIN_ASSET_URL_TEMPLATE = 'https://cdn.deeeep.io/custom/skins/{}'
     SKIN_URL_TEMPLATE = 'https://apibeta.deeeep.io/skins/{}' 
     SKIN_REVIEW_TEMPLATE = 'https://api.deeeep.io/skins/{}/review' 
-    SKIN_STORE_PAGE_TEMPLATE = 'https://beta.deeeep.io/store/skins/{}'
+    SKIN_STORE_PAGE_PREFIX = 'https://beta.deeeep.io/store/skins/'
+    SKIN_STORE_PAGE_TEMPLATE = SKIN_STORE_PAGE_PREFIX + '{}'
 
     SKIN_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/skins/creator/{}'
     MAP_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/maps/u/{}}?page=1&orderBy=updated_at&direction=DESC&period=0'

@@ -1696,11 +1696,9 @@ game is down, nothing you can do but wait.", inline=False)
     titles: list[str], sales: list[str], total_skins: int, total_sales: int):
         ID = skin['id']
         name = skin['name']
-        animal_id = skin['fish_level']
         sale_count = skin['sales']
 
         store_page = self.SKIN_STORE_PAGE_TEMPLATE.format(ID)
-        animal_name = self.find_animal(animal_id)
         
         # generate the names and links array
         name_and_link = f'[{name}]({store_page})'
@@ -1737,6 +1735,103 @@ game is down, nothing you can do but wait.", inline=False)
 
         return len(skins), total_sales
     
+    def gen_generic_creations_embed(self, creation_type: str, acc: dict, acc_index: int, num_accs: int, column_titles: tuple[str], 
+    column_strs: tuple[str], totals_str: str, description: str):
+        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page = f'{creation_type.capitalize()} by',
+        big_image=False)
+
+        embed.description = description
+
+        for column_title, column_str in zip(column_titles, column_strs):
+            embed.add_field(name=column_title, value=column_str)
+
+        embed.add_field(name=f'Totals {chars.money_bag}', value=totals_str, inline=False)
+
+        return embed
+    
+    def build_generic_creation(self, creation_type: str, acc: dict, acc_index: int, num_accs: int, creation: dict, 
+    embeds: list[trimmed_embed.TrimmedEmbed], titles: tuple[str], formatters: tuple[str], destinations: tuple[list], 
+    destination_lengths: list[int], totals_str: str, description: str):
+        for index in range(len(destinations)):
+            formatted = formatters[index].format(creation)
+            
+            destination_lengths[index] += len(formatted) + int(destination_lengths[index] > 0)
+
+        too_long = False
+
+        for destination_length in destination_lengths:
+            if destination_length > trimmed_embed.TrimmedEmbed.MAX_FIELD_VAL:
+                too_long = True
+
+                break
+        
+        if too_long:
+            column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
+
+            new_embed = self.gen_generic_creations_embed(creation_type, acc, acc_index, num_accs, titles, column_strs,
+            totals_str, description)
+
+            embeds.append(new_embed)
+
+            for index in range(len(destinations)):
+                formatted = formatters[index].format(creation)
+
+                destination_lengths[index] = len(formatted)
+                destinations[index].clear()
+        
+        for index in range(len(destinations)):
+            formatted = formatters[index].format(creation)
+            
+            destinations[index].append(formatted)
+    
+    @staticmethod
+    def generic_creations_aggregate(creation_type: str, creations: list[dict], aggregate_names: tuple[str], aggregate_attrs: tuple[str]):
+        aggregates = [f'{len(creations):,} {creation_type}']
+        
+        for aggregate_name, aggregate_attr in zip(aggregate_names, aggregate_attrs):
+            total = sum(map(lambda creation: creation[aggregate_attr], creations))
+
+            formatted = f'{total:,} {aggregate_name}'
+
+            aggregates.append(formatted)
+        
+        return tools.format_iterable(aggregates)
+    
+    def generic_contribs_embeds(self, interaction: discord.Interaction, creation_type: str, acc: dict, creations: list[dict], 
+    acc_index: int, num_accs: int, titles: tuple[str], formatters: tuple[str], aggregate_names: tuple[str],
+    aggregate_attrs: tuple[str], description: str):
+        if creations:
+            embeds = []
+            destinations = tuple([] for title in titles)
+            destination_lengths = [0] * len(titles)
+            
+            totals_str = self.generic_creations_aggregate(creation_type, creations, aggregate_names, aggregate_attrs)
+
+            for creation in creations:
+                self.build_generic_creation(creation_type, acc, acc_index, num_accs, creation, embeds, titles, formatters,
+                destinations, destination_lengths, totals_str, description)
+            
+            column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
+
+            last_embed = self.gen_generic_creations_embed(creation_type, acc, acc_index, num_accs, titles, column_strs,
+            totals_str, description)
+
+            embeds.append(last_embed)
+
+            pages = (ui.Page(embed=embed) for embed in embeds)
+
+            return ui.ScrollyBook(interaction, *pages)
+        else:
+            embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page = f'{creation_type.capitalize()} by',
+            big_image=False)
+
+            username = acc['username']
+
+            embed.description = f'{username} does not have any skins added to the game.'
+
+            return ui.Page(embed=embed)
+    
+    '''
     def skin_contribs_embeds(self, interaction: discord.Interaction, acc: dict, skins: list[dict], acc_index: int, num_accs: int) -> ui.ScrollyBook | ui.Page:
         if skins:
             embeds = []
@@ -1763,6 +1858,15 @@ game is down, nothing you can do but wait.", inline=False)
             embed.description = f'{username} does not have any skins added to the game.'
 
             return ui.Page(embed=embed)
+    '''
+
+    def skin_contribs_embeds(self, interaction: discord.Interaction, acc: dict, skins: list[dict], acc_index: int, num_accs: int):
+        titles = f'Skin {chars.palette}', f'Sales {chars.stonkalot}'
+        formatters = '[{0[name]}](' + self.SKIN_STORE_PAGE_PREFIX + '{0[id]})', '{[sales]:,}'
+        description = 'This list only includes **officlally added** skins (skins approved for the Store)'
+
+        return self.generic_contribs_embeds(interaction, 'skins', acc, skins, acc_index, num_accs, titles, formatters,
+        ('sales',), ('sales',), description)
     
     def profile_embed_by_username(self, username: str):
         return self.profile_embed(*self.get_profile_by_username(username))
