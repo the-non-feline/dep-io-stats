@@ -1,6 +1,5 @@
 import discord.ui
 import discord
-from grpc import Call
 import logs
 from logs import debug
 
@@ -189,7 +188,7 @@ class IndexedBook(Book):
             return super().__new__(cls)
         else:
             page_tuples[0][1].interaction = interaction
-            
+
             return page_tuples[0][1]
 
     def __init__(self, interaction: discord.Interaction, *page_tuples: tuple | list, timeout=180.0, view=None, extra_buttons=()):
