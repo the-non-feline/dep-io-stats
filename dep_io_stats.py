@@ -533,20 +533,22 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             socials_url = self.SOCIALS_URL_TEMPLATE.format(acc_id)
             rankings_url = self.RANKINGS_TEMPLATE.format(acc_id)
             skin_contribs_url = self.SKIN_CONTRIBS_TEMPLATE.format(acc_id)
+            map_creations_url = self.MAP_CONTRIBS_TEMPLATE.format(acc_id)
 
-            socials, rankings, skin_contribs = self.async_get(socials_url, rankings_url, skin_contribs_url)
+            socials, rankings, skin_contribs, map_creations = self.async_get(socials_url, rankings_url, skin_contribs_url, map_creations_url)
         else:
-            socials = rankings = skin_contribs = ()
+            socials = rankings = skin_contribs = map_creations = ()
 
-        return acc_json, socials, rankings, skin_contribs
+        return acc_json, socials, rankings, skin_contribs, map_creations
     
     def get_profile_by_id(self, id):
         acc_url = self.DATA_URL_TEMPLATE.format(id)
         social_url = self.SOCIALS_URL_TEMPLATE.format(id)
         rankings_url = self.RANKINGS_TEMPLATE.format(id)
         skin_contribs_url = self.SKIN_CONTRIBS_TEMPLATE.format(id)
+        map_creations_url = self.MAP_CONTRIBS_TEMPLATE.format(id)
 
-        return self.async_get(acc_url, social_url, rankings_url, skin_contribs_url)
+        return self.async_get(acc_url, social_url, rankings_url, skin_contribs_url, map_creations_url)
     
     @staticmethod
     def compile_ids_from_motions(motions_list, motion_filter=lambda motion: True): 
@@ -1785,11 +1787,15 @@ game is down, nothing you can do but wait.", inline=False)
             destinations[index].append(formatted)
     
     @staticmethod
-    def generic_creations_aggregate(creation_type: str, creations: list[dict], aggregate_names: tuple[str], aggregate_attrs: tuple[str]):
+    def generic_creations_aggregate(creation_type: str, creations: list[dict], aggregate_names: tuple[str], 
+    aggregate_attrs: tuple[str | int]) -> str:
         aggregates = [f'{len(creations):,} {creation_type}']
         
         for aggregate_name, aggregate_attr in zip(aggregate_names, aggregate_attrs):
-            total = sum(map(lambda creation: creation[aggregate_attr], creations))
+            if type(aggregate_attr) is int:
+                total = aggregate_attr
+            else:
+                total = sum(map(lambda creation: creation[aggregate_attr], creations))
 
             formatted = f'{total:,} {aggregate_name}'
 
@@ -1798,8 +1804,8 @@ game is down, nothing you can do but wait.", inline=False)
         return tools.format_iterable(aggregates)
     
     def generic_contribs_embeds(self, interaction: discord.Interaction, creation_type: str, acc: dict, creations: list[dict], 
-    acc_index: int, num_accs: int, titles: tuple[str], formatters: tuple[str], aggregate_names: tuple[str],
-    aggregate_attrs: tuple[str], description: str):
+    acc_index: int, num_accs: int, titles: tuple[str], formatters: tuple[str], description: str, aggregate_names: tuple[str]=(),
+    aggregate_attrs: tuple[str]=()):
         if creations:
             embeds = []
             destinations = tuple([] for title in titles)
@@ -1827,7 +1833,7 @@ game is down, nothing you can do but wait.", inline=False)
 
             username = acc['username']
 
-            embed.description = f'{username} does not have any skins added to the game.'
+            embed.description = f'{username} does not have any {creation_type} added to the game.'
 
             return ui.Page(embed=embed)
     
@@ -1865,8 +1871,22 @@ game is down, nothing you can do but wait.", inline=False)
         formatters = '[{0[name]}](' + self.SKIN_STORE_PAGE_PREFIX + '{0[id]})', '{[sales]:,}'
         description = 'This list only includes **officlally added** skins (skins approved for the Store)'
 
-        return self.generic_contribs_embeds(interaction, 'skins', acc, skins, acc_index, num_accs, titles, formatters,
-        ('sales',), ('sales',), description)
+        skins.sort(key=lambda skin: skin['sales'], reverse=True)
+
+        return self.generic_contribs_embeds(interaction, 'skins', acc, skins, acc_index, num_accs, titles, formatters, 
+        description, aggregate_names=('sales',), aggregate_attrs=('sales',))
+    
+    def map_creations_embeds(self, interaction: discord.Interaction, acc: dict, maps: dict, acc_index: int, num_accs: int):
+        public_maps = list(filter(lambda map: map['public'], maps['items']))
+
+        public_maps.sort(key=lambda map: map['likes'], reverse=True)
+
+        titles = f'Map {chars.world_map}', f'Likes {chars.thumbsup}'
+        formatters = '[{0[title]}](' + self.MAPMAKER_URL_PREFIX + '{0[string_id]})', '{[likes]:,}'
+        description = 'This list includes all maps marked **public**, including those not added as official maps'
+
+        return self.generic_contribs_embeds(interaction, 'maps', acc, public_maps, acc_index, num_accs, titles, formatters,
+        description)
     
     def profile_embed_by_username(self, username: str):
         return self.profile_embed(*self.get_profile_by_username(username))
@@ -2440,17 +2460,16 @@ account. Well, it might still be, but that would just be due to random chance.')
             book.add_button(unlink_button)
     
     async def display_profile_book(self, interaction: discord.Interaction, acc: dict, socials: list, 
-    rankings: dict, skin_contribs: list[dict], user: discord.Member=None, acc_index: int=None, num_accs: int=None):
+    rankings: dict, skin_contribs: list[dict], map_creations: dict, user: discord.Member=None, acc_index: int=None, num_accs: int=None):
         if acc:
-            if not self.blacklisted(interaction.guild_id, 'account', acc['id']): 
-                skin_contribs.sort(key=lambda skin: skin['sales'], reverse=True)
-
+            if not self.blacklisted(interaction.guild_id, 'account', acc['id']):
                 home_page = ui.Page(embed=self.profile_embed(acc, socials, acc_index, num_accs))
                 rankings_page = ui.Page(embed=self.rankings_embed(acc, rankings, acc_index, num_accs))
 
                 skin_contribs_page = self.skin_contribs_embeds(interaction, acc, skin_contribs, acc_index, num_accs)
+                map_creations_page = self.map_creations_embeds(interaction, acc, map_creations, acc_index, num_accs)
 
-                contribs_page = ui.IndexedBook(interaction, ('Skins', skin_contribs_page))
+                contribs_page = ui.IndexedBook(interaction, ('Skins', skin_contribs_page), ('Maps', map_creations_page))
 
                 profile_book = ui.IndexedBook(interaction, ('About', home_page), ('Rankings', rankings_page), 
                 ('Creations', contribs_page), timeout=300)
@@ -2467,17 +2486,17 @@ account. Well, it might still be, but that would just be due to random chance.')
     num_accs: int): 
         await interaction.response.defer()
 
-        acc, socials, rankings, skin_contribs = self.get_profile_by_id(acc_id)
+        acc, socials, rankings, skin_contribs, map_creations = self.get_profile_by_id(acc_id)
         
-        await self.display_profile_book(interaction, acc, socials, rankings, skin_contribs, acc_index=acc_index, num_accs=num_accs, 
-        user=user)        
+        await self.display_profile_book(interaction, acc, socials, rankings, skin_contribs, map_creations, acc_index=acc_index, 
+        num_accs=num_accs, user=user)        
     
     async def display_account_by_username(self, interaction: discord.Interaction, username: str):
         await interaction.response.defer()
 
-        acc, socials, rankings, skin_contribs = self.get_profile_by_username(username)
+        acc, socials, rankings, skin_contribs, map_creations = self.get_profile_by_username(username)
 
-        await self.display_profile_book(interaction, acc, socials, rankings, skin_contribs)
+        await self.display_profile_book(interaction, acc, socials, rankings, skin_contribs, map_creations)
     
     @classmethod
     def format_stat(cls, animal, stat_key): 

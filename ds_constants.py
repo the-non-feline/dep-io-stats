@@ -47,7 +47,7 @@ class DS_Constants:
     SOCIALS_URL_TEMPLATE = 'https://apibeta.deeeep.io/socialNetworks/u/{}'
     PFP_URL_TEMPLATE = 'https://cdn.deeeep.io/uploads/avatars/{}' 
     SERVER_LIST_URL = 'http://apibeta.deeeep.io/hosts?beta=1' 
-    MAP_URL_TEMPLATE = 'https://apibeta.deeeep.io/maps/{}' 
+    MAP_URL_TEMPLATE = 'https://apibeta.deeeep.io/maps/{}'
     SKINS_LIST_URL = 'https://apibeta.deeeep.io/skins?cat=all' 
     LOGIN_URL = 'https://api.deeeep.io/auth/local/signin' 
     SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
@@ -72,7 +72,7 @@ class DS_Constants:
     SKIN_STORE_PAGE_TEMPLATE = SKIN_STORE_PAGE_PREFIX + '{}'
 
     SKIN_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/skins/creator/{}'
-    MAP_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/maps/u/{}}?page=1&orderBy=updated_at&direction=DESC&period=0'
+    MAP_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/maps/u/{}?page=1&orderBy=updated_at&direction=DESC&period=0'
     EMOTE_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/emotes/creator/{}'
     PET_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/pets/creator/{}'
 
@@ -142,7 +142,8 @@ class DS_Constants:
     REDDIT_LINK_REGEX = '\A(?:https?://)?(?:www\.)?reddit\.com/(?:r|u|(?:user))/[0-9a-zA-Z_]+/comments/[0-9a-zA-Z]+/.+/?(?:\?.*)?\Z' 
 
     MAP_URL_ADDITION = 's/' 
-    MAPMAKER_URL_TEMPLATE = 'https://mapmaker.deeeep.io/map/{}' 
+    MAPMAKER_URL_PREFIX = 'https://mapmaker.deeeep.io/map/'
+    MAPMAKER_URL_TEMPLATE = MAPMAKER_URL_PREFIX + '{}'
     MAP_REGEX = '\A(?:(?:https?://)?(?:www\.)?mapmaker\.deeeep\.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
 
     PENDING_SKINS_LIST_URL = 'https://apibeta.deeeep.io/skins/pending' 
