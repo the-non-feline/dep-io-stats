@@ -1234,7 +1234,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             if self.is_sb_channel(interaction.channel.id) or safe: 
                 book = self.skin_embed(interaction, skin_json)
                 
-                await book.send_first(followup=True)
+                await book.send_first()
             else: 
                 await interaction.followup.send(content=f"You can only view approved or pending skins in this channel. Use this in a Skin Board channel to bypass this restriction.") 
         else: 
@@ -1275,7 +1275,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             if skin_json: 
                 book = self.skin_embed(interaction, skin_json)
                 
-                await book.send_first(followup=True)
+                await book.send_first()
             else: 
                 text = "That's not a valid skin name. " + suggestions_str
 
@@ -1579,14 +1579,19 @@ game is down, nothing you can do but wait.", inline=False)
 
         return embed
     
-    def base_profile_embed(self, acc: dict, acc_index: int, num_accs: int, specific_page: str='', big_image=True):
+    def base_profile_embed(self, acc: dict, specific_page: str='', big_image=True, blacklist=False):
         acc_id = acc['id']
         real_username = acc['username']
         verified = acc['verified']
 
         public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
+        
+        if blacklist:
+            display_username = '(Blacklisted account)'
+        else:
+            display_username = real_username
 
-        title = f'{specific_page}{" " if specific_page else ""}{real_username}{f" {chars.verified}" if verified else ""}'
+        title = f'{specific_page}{" " if specific_page else ""}{display_username}{f" {chars.verified}" if verified else ""}'
 
         pfp = acc['picture'] 
 
@@ -1600,30 +1605,28 @@ game is down, nothing you can do but wait.", inline=False)
 
         embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', color=color, url=public_page)
 
-        if not pfp: 
-            pfp = self.DEFAULT_BETA_PFP
-        else: 
-            pfp = self.BETA_PFP_TEMPLATE.format(pfp) 
-        
-        pfp_url = tools.salt_url(pfp) 
+        if not blacklist:
+            if not pfp: 
+                pfp = self.DEFAULT_BETA_PFP
+            else: 
+                pfp = self.BETA_PFP_TEMPLATE.format(pfp) 
+            
+            pfp_url = tools.salt_url(pfp) 
 
-        debug(pfp_url) 
-        
-        if big_image:
-            embed.set_image(url=pfp_url)
-        else:
-            embed.set_thumbnail(url=pfp_url)
+            debug(pfp_url) 
+            
+            if big_image:
+                embed.set_image(url=pfp_url)
+            else:
+                embed.set_thumbnail(url=pfp_url)
 
         footer_text = f'ID: {acc_id}'
-
-        if acc_index is not None:
-            footer_text += f'\nAccount {acc_index + 1} / {num_accs}'
 
         embed.set_footer(text=footer_text) 
 
         return embed
     
-    def profile_embed(self, acc: dict, socials: list[dict], acc_index: int, num_accs: int):
+    def profile_embed(self, acc: dict, socials: list[dict]):
         desc = acc['about']
         
         kills = acc['kill_count'] 
@@ -1637,7 +1640,7 @@ game is down, nothing you can do but wait.", inline=False)
 
         death_message = acc['description']
 
-        embed = self.base_profile_embed(acc, acc_index, num_accs)
+        embed = self.base_profile_embed(acc)
 
         embed.description = desc
 
@@ -1673,12 +1676,12 @@ game is down, nothing you can do but wait.", inline=False)
 
         return embed
     
-    def rankings_embed(self, acc: dict, rankings: dict, acc_index: int, num_accs: int):
+    def rankings_embed(self, acc: dict, rankings: dict):
         kills = acc['kill_count'] 
         max_score = acc['highest_score'] 
         plays = acc['play_count']
 
-        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page='Rankings for', big_image=False)
+        embed = self.base_profile_embed(acc, specific_page='Rankings for', big_image=False)
 
         if rankings:
             kill_rank_str = f" **(#{rankings['rank_kc']})**"
@@ -1693,69 +1696,9 @@ game is down, nothing you can do but wait.", inline=False)
         
         return embed
     
-    def gen_skin_creations_embed(self, acc: dict, acc_index: int, num_accs: int, titles: list[str], sales: list[str],
-    total_skins: int, total_sales: int) -> trimmed_embed.TrimmedEmbed:
-        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page = 'Skins by', big_image=False)
-
-        titles_str = tools.format_iterable(titles, sep='\n')
-        # animal_names_str = tools.format_iterable(animal_names, sep='\n') or 'N/A'
-        sales_str = tools.format_iterable(sales, formatter='{:,}', sep='\n')
-
-        embed.add_field(name=f'Skin {chars.palette}', value=titles_str)
-        # embed.add_field(name=f'Animal {chars.fish}', value=animal_names_str)
-        embed.add_field(name=f'Sales {chars.stonkalot}', value=sales_str)
-
-        embed.add_field(name=f'Totals {chars.money_bag}', value=f'{total_skins:,} skins, {total_sales:,} sales',
-        inline=False)
-
-        return embed
-    
-    def build_skin_contrib(self, acc: dict, acc_index: int, num_accs: int, skin: dict, embeds: list[trimmed_embed.TrimmedEmbed], 
-    titles: list[str], sales: list[str], total_skins: int, total_sales: int):
-        ID = skin['id']
-        name = skin['name']
-        sale_count = skin['sales']
-
-        store_page = self.SKIN_STORE_PAGE_TEMPLATE.format(ID)
-        
-        # generate the names and links array
-        name_and_link = f'[{name}]({store_page})'
-
-        titles.append(name_and_link)
-
-        # generate the animal names array
-        # animal_names.append(animal_name)
-
-        # generate the sales array
-        sales.append(sale_count)
-
-        tentative_titles_str = tools.format_iterable(titles, sep='\n')
-        tentative_sales_str = tools.format_iterable(sales, sep='\n')
-
-        if trimmed_embed.TrimmedEmbed.too_long(trimmed_embed.TrimmedEmbed.MAX_FIELD_VAL, 
-        tentative_titles_str, tentative_sales_str):
-            titles.pop()
-            sales.pop()
-
-            new_embed = self.gen_skin_creations_embed(acc, acc_index, num_accs, titles, sales, total_skins, total_sales)
-
-            embeds.append(new_embed)
-
-            titles.clear()
-            sales.clear()
-
-            titles.append(name_and_link)
-            sales.append(sale_count)
-    
-    @staticmethod
-    def gen_skin_totals(skins: list[dict]):
-        total_sales = sum(map(lambda skin: skin['sales'], skins))
-
-        return len(skins), total_sales
-    
-    def gen_generic_creations_embed(self, creation_type: str, acc: dict, acc_index: int, num_accs: int, column_titles: tuple[str], 
+    def gen_generic_creations_embed(self, creation_type: str, acc: dict, column_titles: tuple[str], 
     column_strs: tuple[str], totals_str: str, description: str):
-        embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page = f'{creation_type.capitalize()} by',
+        embed = self.base_profile_embed(acc, specific_page = f'{creation_type.capitalize()} by',
         big_image=False)
 
         embed.description = description
@@ -1767,7 +1710,7 @@ game is down, nothing you can do but wait.", inline=False)
 
         return embed
     
-    def build_generic_creation(self, creation_type: str, acc: dict, acc_index: int, num_accs: int, creation: dict, 
+    def build_generic_creation(self, creation_type: str, acc: dict, creation: dict, 
     embeds: list[trimmed_embed.TrimmedEmbed], titles: tuple[str], formatters: tuple[str], destinations: tuple[list], 
     destination_lengths: list[int], totals_str: str, description: str):
         for index in range(len(destinations)):
@@ -1786,7 +1729,7 @@ game is down, nothing you can do but wait.", inline=False)
         if too_long:
             column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
 
-            new_embed = self.gen_generic_creations_embed(creation_type, acc, acc_index, num_accs, titles, column_strs,
+            new_embed = self.gen_generic_creations_embed(creation_type, acc, titles, column_strs,
             totals_str, description)
 
             embeds.append(new_embed)
@@ -1820,7 +1763,7 @@ game is down, nothing you can do but wait.", inline=False)
         return tools.format_iterable(aggregates)
     
     def generic_contribs_embeds(self, interaction: discord.Interaction, creation_type: str, acc: dict, creations: list[dict], 
-    acc_index: int, num_accs: int, titles: tuple[str], formatters: tuple[str], description: str, aggregate_names: tuple[str]=(),
+    titles: tuple[str], formatters: tuple[str], description: str, aggregate_names: tuple[str]=(),
     aggregate_attrs: tuple[str]=()):
         if creations:
             embeds = []
@@ -1830,12 +1773,12 @@ game is down, nothing you can do but wait.", inline=False)
             totals_str = self.generic_creations_aggregate(creation_type, creations, aggregate_names, aggregate_attrs)
 
             for creation in creations:
-                self.build_generic_creation(creation_type, acc, acc_index, num_accs, creation, embeds, titles, formatters,
+                self.build_generic_creation(creation_type, acc, creation, embeds, titles, formatters,
                 destinations, destination_lengths, totals_str, description)
             
             column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
 
-            last_embed = self.gen_generic_creations_embed(creation_type, acc, acc_index, num_accs, titles, column_strs,
+            last_embed = self.gen_generic_creations_embed(creation_type, acc, titles, column_strs,
             totals_str, description)
 
             embeds.append(last_embed)
@@ -1844,7 +1787,7 @@ game is down, nothing you can do but wait.", inline=False)
 
             return ui.ScrollyBook(interaction, *pages)
         else:
-            embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page = f'{creation_type.capitalize()} by',
+            embed = self.base_profile_embed(acc, specific_page = f'{creation_type.capitalize()} by',
             big_image=False)
 
             username = acc['username']
@@ -1855,47 +1798,18 @@ game is down, nothing you can do but wait.", inline=False)
             value=f'Nothing to see here, move along.')
 
             return ui.Page(embed=embed)
-    
-    '''
-    def skin_contribs_embeds(self, interaction: discord.Interaction, acc: dict, skins: list[dict], acc_index: int, num_accs: int) -> ui.ScrollyBook | ui.Page:
-        if skins:
-            embeds = []
-            titles = []
-            sales = []
 
-            total_skins, total_sales = self.gen_skin_totals(skins)
-
-            for skin in skins:
-                self.build_skin_contrib(acc, acc_index, num_accs, skin, embeds, titles, sales, total_skins, total_sales)
-
-            last_embed = self.gen_skin_creations_embed(acc, acc_index, num_accs, titles, sales, total_skins, total_sales)
-
-            embeds.append(last_embed)
-
-            pages = (ui.Page(embed=embed) for embed in embeds)
-
-            return ui.ScrollyBook(interaction, *pages)
-        else:
-            embed = self.base_profile_embed(acc, acc_index, num_accs, specific_page='Skins by', big_image=False)
-
-            username = acc['username']
-
-            embed.description = f'{username} does not have any skins added to the game.'
-
-            return ui.Page(embed=embed)
-    '''
-
-    def skin_contribs_embeds(self, interaction: discord.Interaction, acc: dict, skins: list[dict], acc_index: int, num_accs: int):
+    def skin_contribs_embeds(self, interaction: discord.Interaction, acc: dict, skins: list[dict]):
         titles = f'Skin {chars.palette}', f'Sales {chars.stonkalot}'
         formatters = '[{0[name]}](' + self.SKIN_STORE_PAGE_PREFIX + '{0[id]})', '{[sales]:,}'
         description = 'This list only includes **officlally added** skins (skins approved for the Store)'
 
         skins.sort(key=lambda skin: skin['sales'], reverse=True)
 
-        return self.generic_contribs_embeds(interaction, 'skins', acc, skins, acc_index, num_accs, titles, formatters, 
+        return self.generic_contribs_embeds(interaction, 'skins', acc, skins, titles, formatters, 
         description, aggregate_names=('sales',), aggregate_attrs=('sales',))
     
-    def map_creations_embeds(self, interaction: discord.Interaction, acc: dict, maps: dict, acc_index: int, num_accs: int):
+    def map_creations_embeds(self, interaction: discord.Interaction, acc: dict, maps: dict):
         public_maps = list(filter(lambda map: map['public'], maps['items']))
 
         public_maps.sort(key=lambda map: map['likes'], reverse=True)
@@ -1904,7 +1818,7 @@ game is down, nothing you can do but wait.", inline=False)
         formatters = '[{0[title]}](' + self.MAPMAKER_URL_PREFIX + '{0[string_id]})', '{[likes]:,}'
         description = 'This list includes all maps marked **public**, including those not added as official maps'
 
-        return self.generic_contribs_embeds(interaction, 'maps', acc, public_maps, acc_index, num_accs, titles, formatters,
+        return self.generic_contribs_embeds(interaction, 'maps', acc, public_maps, titles, formatters,
         description)
     
     def profile_embed_by_username(self, username: str):
@@ -2410,7 +2324,7 @@ to connect it.")
             await interaction.followup.send(content="That doesn't seem like a valid profile.")
     
     async def unlink_account(self, button: ui.CallbackButton, button_interaction: discord.Interaction, 
-    message_interaction: discord.Interaction, view: ui.RestrictedView, acc_id: int, *affected_buttons: ui.CallbackButton):
+    message_interaction: discord.Interaction, acc_id: int, *affected_buttons: ui.CallbackButton):
         user = button_interaction.user
 
         self.links_table.delete(user_id=user.id, acc_id=acc_id)
@@ -2422,7 +2336,7 @@ to connect it.")
             button.disabled = True
 
         await button_interaction.response.send_message(content=f'Unlinked account with ID {acc_id}.')
-        await message_interaction.edit_original_message(view=view)
+        await message_interaction.edit_original_message(view=button.view)
     
     def determine_main(self, user_id: int, acc_id: int) -> bool:
         return self.mains_table.find_one(acc_id=acc_id, user_id=user_id)
@@ -2438,84 +2352,90 @@ to connect it.")
         button.label = label
         button.stored_callback = callback
     
-    async def update_mark_view(self, button: ui.CallbackButton, message_interaction: discord.Interaction, view: ui.RestrictedView,
+    async def update_mark_view(self, button: ui.CallbackButton, message_interaction: discord.Interaction, 
     is_main: bool):
         self.update_mark_button(button, is_main)
 
-        await message_interaction.edit_original_message(view=view)
+        await message_interaction.edit_original_message(view=button.view)
     
     async def mark_main(self, button: ui.CallbackButton, button_interaction: discord.Interaction,
-    message_interaction: discord.Interaction, view: ui.RestrictedView, acc_id: int):
+    message_interaction: discord.Interaction, acc_id: int):
         row = dict(user_id=button_interaction.user.id, acc_id=acc_id)
 
         self.mains_table.upsert(row, ['user_id'], ensure=True)
 
         await button_interaction.response.send_message(content=f'This account (ID {acc_id}) will now be your first account.')
 
-        await self.update_mark_view(button, message_interaction, view, True)
+        await self.update_mark_view(button, message_interaction, True)
     
     async def unmark_main(self, button: ui.CallbackButton, button_interaction: discord.Interaction,
-    message_interaction: discord.Interaction, view: ui.RestrictedView, acc_id: int):
+    message_interaction: discord.Interaction, acc_id: int):
         self.mains_table.delete(user_id=button_interaction.user.id, acc_id=acc_id)
 
         await button_interaction.response.send_message(content=f'This account (ID {acc_id}) will no longer be your first \
 account. Well, it might still be, but that would just be due to random chance.')
 
-        await self.update_mark_view(button, message_interaction, view, False)
+        await self.update_mark_view(button, message_interaction, False)
     
-    def generate_profile_buttons(self, interaction: discord.Interaction, book: ui.IndexedBook, view: ui.RestrictedView, 
-    user: discord.Member, acc_id: int):
+    def generate_profile_buttons(self, interaction: discord.Interaction, user: discord.Member, acc_id: int):
         if user and user.id == interaction.user.id:
             is_main = self.determine_main(interaction.user.id, acc_id)
 
-            toggle_main_button = ui.CallbackButton(None, interaction, view, acc_id)
+            toggle_main_button = ui.CallbackButton(None, interaction, acc_id)
 
             self.update_mark_button(toggle_main_button, is_main)
 
-            unlink_button = ui.CallbackButton(self.unlink_account, interaction, view, acc_id, 
+            unlink_button = ui.CallbackButton(self.unlink_account, interaction, acc_id, 
             style=discord.ButtonStyle.danger, label='Unlink account')
-            
-            book.add_button(toggle_main_button)
-            book.add_button(unlink_button)
-    
-    async def display_profile_book(self, interaction: discord.Interaction, acc: dict, socials: list, 
-    rankings: dict, skin_contribs: list[dict], map_creations: dict, user: discord.Member=None, acc_index: int=None, num_accs: int=None):
-        if acc:
-            if not self.blacklisted(interaction.guild_id, 'account', acc['id']):
-                home_page = ui.Page(embed=self.profile_embed(acc, socials, acc_index, num_accs))
-                rankings_page = ui.Page(embed=self.rankings_embed(acc, rankings, acc_index, num_accs))
 
-                skin_contribs_page = self.skin_contribs_embeds(interaction, acc, skin_contribs, acc_index, num_accs)
-                map_creations_page = self.map_creations_embeds(interaction, acc, map_creations, acc_index, num_accs)
+            return toggle_main_button, unlink_button
+    
+    def profile_book(self, interaction: discord.Interaction, acc: dict, socials: list, 
+    rankings: dict, skin_contribs: list[dict], map_creations: dict, user: discord.Member=None, user_blacklist=False) -> ui.Page:
+        if acc:
+            if not user_blacklist and not self.blacklisted(interaction.guild_id, 'account', acc['id']):
+                home_page = ui.Page(embed=self.profile_embed(acc, socials))
+                rankings_page = ui.Page(embed=self.rankings_embed(acc, rankings))
+
+                skin_contribs_page = self.skin_contribs_embeds(interaction, acc, skin_contribs)
+                map_creations_page = self.map_creations_embeds(interaction, acc, map_creations)
 
                 contribs_page = ui.IndexedBook(interaction, ('Skins', skin_contribs_page), ('Maps', map_creations_page))
 
+                buttons = self.generate_profile_buttons(interaction, user, acc['id'])
+
                 profile_book = ui.IndexedBook(interaction, ('About', home_page), ('Rankings', rankings_page), 
-                ('Creations', contribs_page))
-                
-                self.generate_profile_buttons(interaction, profile_book, profile_book.view, user, acc['id'])
+                ('Creations', contribs_page), extra_buttons=buttons)
 
-                await profile_book.send_first(followup=True)
+                return profile_book
             else:
-                await interaction.followup.send(content=f"This account (ID {acc['id']}) is blacklisted from being displayed on this server.")
+                return ui.Page(embed=self.base_profile_embed(acc, blacklist=True))
         else:
-            await interaction.followup.send(embed=self.profile_error_embed())
+            return ui.Page(embed=self.profile_error_embed())
 
-    async def display_account(self, interaction: discord.Interaction, user: discord.Member, acc_id: int, acc_index: int,
-    num_accs: int): 
-        await interaction.response.defer()
-
+    def delayed_profile_book(self, interaction: discord.Interaction, user: discord.Member, acc_id: int, blacklist: bool): 
         acc, socials, rankings, skin_contribs, map_creations = self.get_profile_by_id(acc_id)
         
-        await self.display_profile_book(interaction, acc, socials, rankings, skin_contribs, map_creations, acc_index=acc_index, 
-        num_accs=num_accs, user=user)        
+        return self.profile_book(interaction, acc, socials, rankings, skin_contribs, map_creations, user=user, 
+        user_blacklist=blacklist)
+    
+    async def full_profile_book(self, interaction: discord.Interaction, user: discord.Member, *acc_ids: int,
+    blacklist: bool):
+        pages = map(lambda acc_id: ui.Promise(interaction, self.delayed_profile_book, interaction, user, acc_id, blacklist), 
+        acc_ids)
+
+        full_book = ui.ScrollyBook(interaction, *pages)
+
+        await full_book.send_first()
     
     async def display_account_by_username(self, interaction: discord.Interaction, username: str):
         await interaction.response.defer()
 
         acc, socials, rankings, skin_contribs, map_creations = self.get_profile_by_username(username)
 
-        await self.display_profile_book(interaction, acc, socials, rankings, skin_contribs, map_creations)
+        book = self.profile_book(interaction, acc, socials, rankings, skin_contribs, map_creations)
+
+        await book.send_first()
     
     @classmethod
     def format_stat(cls, animal, stat_key): 

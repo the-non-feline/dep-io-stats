@@ -30,51 +30,38 @@ async def gen_commands(client: dep_io_stats.DS):
     def owner_check(interaction: discord.Interaction):
         return interaction.user.id == interaction.client.OWNER_ID
 
-    async def check_stats(interaction: discord.Interaction, user: discord.User, acc_num: int): 
+    async def check_stats(interaction: discord.Interaction, user: discord.User): 
         bot = interaction.client
         user_id = user.id
+
+        await interaction.response.defer()
         
         #debug(user_id) 
 
         link = None
 
-        if not bot.blacklisted(interaction.guild_id, 'user', user_id): 
-            links = bot.links_table.find(user_id=user_id)
-            main = bot.mains_table.find_one(user_id=user_id)
+        blacklisted = bot.blacklisted(interaction.guild_id, 'user', user_id)
 
-            sorted_links = sorted(links, key=lambda link: -1 if main and main['acc_id'] == link['acc_id'] else \
-                int(link['acc_id']))
+        links = bot.links_table.find(user_id=user_id)
+        main = bot.mains_table.find_one(user_id=user_id)
 
-            if sorted_links:
-                acc_index = acc_num - 1
+        sorted_links = sorted(links, key=lambda link: -1 if main and main['acc_id'] == link['acc_id'] else \
+            int(link['acc_id']))
 
-                if acc_index < len(sorted_links):
-                    link = sorted_links[acc_index] 
-                    acc_id = link['acc_id'] 
+        if sorted_links:
+            acc_ids = map(lambda link: link['acc_id'], sorted_links)
 
-                    await bot.display_account(interaction, user, acc_id, acc_index, len(sorted_links))
-                elif user_id == interaction.user.id:
-                    await interaction.response.send_message(content=f"You asked for your account #{acc_num}, \
-but you only have {len(sorted_links)} accounts.")
-                else:
-                    await interaction.response.send_message(content=f"You asked for {user.mention}'s account #{acc_num}, \
-but they only have {len(sorted_links)} accounts.", allowed_mentions=discord.AllowedMentions.none())
-                    
-            elif user_id == interaction.user.id: 
-                await interaction.response.send_message(content=f"You're not linked to an account. Use the `connecthelp` \
-command to learn how to connect an account.") 
-            else: 
-                await interaction.response.send_message(content=f"This user isn't linked.") 
+            await bot.full_profile_book(interaction, user, *acc_ids, blacklist=blacklisted)
         elif user_id == interaction.user.id: 
-            await interaction.response.send_message(content=f"You're blacklisted from displaying your account on this server.") 
+            await interaction.followup.send(content=f"You're not connected to any accounts. Use the `connecthelp` \
+command to learn how to connect accounts.") 
         else: 
-            await interaction.response.send_message(content='This user is blacklisted from displaying their account on this server.')
+            await interaction.followup.send(content=f"This user isn't connected to any accounts.")
 
     @ds_slash(tree, 'profile', "Displays the Deeeep.io profile of the specified user, or yourself")
     @app_commands.describe(user='The member whose stats to check. Defaults to yourself if unspecified')
-    async def other_profile(interaction: discord.Interaction, user: discord.User=None, 
-    acc_num: discord.app_commands.Range[int, 1]=1):
-        return await check_stats(interaction, user or interaction.user, acc_num)
+    async def other_profile(interaction: discord.Interaction, user: discord.User=None):
+        return await check_stats(interaction, user or interaction.user)
     
     @ds_slash(tree, 'skin', 'Displays the stats of a skin')
     @app_commands.describe(skin_query='The name of the skin if looking up by name, or ID if by ID', search_type='How I should \
