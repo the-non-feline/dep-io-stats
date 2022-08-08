@@ -191,7 +191,7 @@ class IndexedBook(Book):
 
             return page_tuples[0][1]
 
-    def __init__(self, interaction: discord.Interaction, *page_tuples: tuple | list, timeout=180.0, view=None, extra_buttons=()):
+    def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=180.0, view=None, extra_buttons=()):
         # generate the buttons here
         buttons = tuple(CallbackButton(self.jump_to_page, interaction, page, style=discord.ButtonStyle.primary, 
         label=button_name, row=0) for button_name, page in page_tuples) + extra_buttons

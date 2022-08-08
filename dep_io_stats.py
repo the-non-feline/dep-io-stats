@@ -1804,7 +1804,7 @@ game is down, nothing you can do but wait.", inline=False)
     
     @staticmethod
     def generic_creations_aggregate(creation_type: str, creations: list[dict], aggregate_names: tuple[str], 
-    aggregate_attrs: tuple[str | int]) -> str:
+    aggregate_attrs: tuple) -> str:
         aggregates = [f'{len(creations):,} {creation_type}']
         
         for aggregate_name, aggregate_attr in zip(aggregate_names, aggregate_attrs):
