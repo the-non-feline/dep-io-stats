@@ -8,7 +8,7 @@ def format_iterable(iterable, formatter='{}', sep=', '):
 def make_list(iterable, bullet_point='• '): 
     return format_iterable(iterable, formatter=bullet_point + '{}', sep='\n')
 
-def salt_url(url): 
+def salt_url(url: str): 
     if '?' in url: 
         border = '&' 
     else: 

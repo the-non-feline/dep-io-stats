@@ -79,6 +79,7 @@ class Page:
     MAX_ROW = 4
 
     def __init__(self, content=None, embed=None, allowed_mentions=None, view=None):
+        self.interaction = None
         self.content = content
         self.embed = embed
         self.allowed_mentions = allowed_mentions
@@ -87,15 +88,26 @@ class Page:
     
     async def send_self(self, interaction: discord.Interaction, followup: bool):
         if followup:
-            await interaction.followup.send(content=self.content, embed=self.embed, 
+            if self.view:
+                await interaction.followup.send(content=self.content, embed=self.embed, 
         allowed_mentions=self.allowed_mentions, view=self.view)
+            else:
+                await interaction.followup.send(content=self.content, embed=self.embed, 
+        allowed_mentions=self.allowed_mentions)
         else:
-            await interaction.response.send_message(content=self.content, embed=self.embed, 
+            if self.view:
+                await interaction.response.send_message(content=self.content, embed=self.embed, 
         allowed_mentions=self.allowed_mentions, view=self.view)
+            else:
+                await interaction.response.send_message(content=self.content, embed=self.embed, 
+        allowed_mentions=self.allowed_mentions)
     
     async def edit_self(self, interaction: discord.Interaction):
         await interaction.response.edit_message(content=self.content, embed=self.embed, 
         allowed_mentions=self.allowed_mentions, view=self.view)
+    
+    async def send_first(self, followup=False):
+        return await self.send_self(self.interaction, followup=followup)
     
     def register_self(self):
         pass
@@ -172,13 +184,15 @@ class Book(Page):
             page.set_level(level=level - 1)
 
 class IndexedBook(Book):
-    def __new__(cls, interaction: discord.Interaction, *page_tuples: tuple, timeout=None, view=None, extra_buttons=()):
+    def __new__(cls, interaction: discord.Interaction, *page_tuples: tuple, timeout=180.0, view=None, extra_buttons=()):
         if len(page_tuples) > 1:
             return super().__new__(cls)
         else:
+            page_tuples[0][1].interaction = interaction
+            
             return page_tuples[0][1]
 
-    def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=None, view=None, extra_buttons=()):
+    def __init__(self, interaction: discord.Interaction, *page_tuples: tuple | list, timeout=180.0, view=None, extra_buttons=()):
         # generate the buttons here
         buttons = tuple(CallbackButton(self.jump_to_page, interaction, page, style=discord.ButtonStyle.primary, 
         label=button_name, row=0) for button_name, page in page_tuples) + extra_buttons
@@ -209,13 +223,15 @@ class IndexedBook(Book):
         await self.edit_self(button_interaction)
 
 class ScrollyBook(Book):
-    def __new__(cls, interaction: discord.Interaction, *pages: Page, timeout=None, view=None, extra_buttons=()):
+    def __new__(cls, interaction: discord.Interaction, *pages: Page, timeout=180.0, view=None, extra_buttons=()):
         if len(pages) > 1:
             return super().__new__(cls)
         else:
+            pages[0].interaction = interaction
+            
             return pages[0]
     
-    def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=None, view=None, extra_buttons=()):
+    def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=180.0, view=None, extra_buttons=()):
         self.cur_index = 0
 
         self.left_button = CallbackButton(self.turn_page, interaction, -1, style=discord.ButtonStyle.primary, label='Previous',
@@ -231,6 +247,8 @@ class ScrollyBook(Book):
         buttons_tuple = (self.left_button, self.page_number, self.right_button) + extra_buttons
         
         super().__init__(interaction, timeout, view, pages, buttons_tuple)
+
+        self.current_page = self.pages[self.cur_index]
 
         self.update_buttons()
     
@@ -253,7 +271,7 @@ class ScrollyBook(Book):
     '''
 
     def cur_page(self) -> Page:
-        return self.pages[self.cur_index]
+        return self.current_page
     
     def update_buttons(self):
         self.left_button.disabled = self.cur_index <= 0
@@ -264,6 +282,7 @@ class ScrollyBook(Book):
         self.cur_page().deregister_self()
 
         self.cur_index += direction
+        self.current_page = self.pages[self.cur_index]
         
         self.update_buttons()
 

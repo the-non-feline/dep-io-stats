@@ -1232,7 +1232,9 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             safe = skin_json['approved'] or skin_json['reviewed'] and not skin_json['rejected'] 
 
             if self.is_sb_channel(interaction.channel.id) or safe: 
-                await interaction.followup.send(embed=self.skin_embed(skin_json)) 
+                book = self.skin_embed(interaction, skin_json)
+                
+                await book.send_first(followup=True)
             else: 
                 await interaction.followup.send(content=f"You can only view approved or pending skins in this channel. Use this in a Skin Board channel to bypass this restriction.") 
         else: 
@@ -1271,15 +1273,46 @@ class DS(ds_constants.DS_Constants, commands.Bot):
                 debug('limit exceeded') 
 
             if skin_json: 
-                await interaction.followup.send(embed=self.skin_embed(skin_json)) 
+                book = self.skin_embed(interaction, skin_json)
+                
+                await book.send_first(followup=True)
             else: 
                 text = "That's not a valid skin name. " + suggestions_str
 
                 await interaction.followup.send(content=text) 
         else: 
-            await interaction.followup.send(content=f"Can't fetch skins. Most likely the game is down and you'll need to wait until it's fixed. ") 
+            await interaction.followup.send(content=f"Can't fetch skins. Most likely the game is down and you'll need to wait \
+until it's fixed. ") 
+
+    def skin_embed_pages(self, interaction: discord.Interaction, skin_embed: trimmed_embed.TrimmedEmbed, 
+    extra_assets: dict[str, str]) -> ui.Page:
+        pages = [('Main asset', ui.Page(embed=skin_embed))]
         
-    def skin_embed(self, skin, direct_api=False): 
+        if extra_assets:
+            for asset_type, asset_data in extra_assets.items(): 
+                asset_filename = asset_data['asset'] 
+
+                if asset_filename[0].isnumeric(): 
+                    template = self.CUSTOM_SKIN_ASSET_URL_TEMPLATE
+                else:
+                    template = self.SKIN_ASSET_URL_TEMPLATE
+                
+                extra_asset_url = template.format(asset_filename)
+                salted_url = tools.salt_url(extra_asset_url)
+
+                copied = skin_embed.copy()
+
+                copied.set_image(url=salted_url)
+
+                new_entry = asset_type, ui.Page(embed=copied)
+
+                pages.append(new_entry)
+        
+        book = ui.IndexedBook(interaction, *pages)
+
+        return book
+        
+    def skin_embed(self, interaction: discord.Interaction, skin, direct_api=False) -> ui.Page: 
         color = discord.Color.random() 
 
         stat_changes = skin['attributes'] 
@@ -1402,7 +1435,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             elif status_value == False: 
                 emoji = chars.x
             else: 
-                emoji =chars.question_mark
+                emoji = chars.question_mark
             
             status_str = f'`{emoji}` {status_attr.capitalize()}' 
 
@@ -1411,25 +1444,6 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         status_list_str = tools.make_list(status_strs, bullet_point='') 
 
         embed.add_field(name=f"Creators Center status {chars.magnifying_glass}", value=status_list_str, inline=False)
-        
-        if extra_assets: 
-            urls_list = [] 
-
-            for asset_type, asset_data in extra_assets.items(): 
-                asset_filename = asset_data['asset'] 
-
-                if asset_filename[0].isnumeric(): 
-                    template = self.CUSTOM_SKIN_ASSET_URL_TEMPLATE
-                else:
-                    template = self.SKIN_ASSET_URL_TEMPLATE
-                
-                extra_asset_url = template.format(asset_filename)
-
-                urls_list.append(f'[{asset_type}]({extra_asset_url})') 
-            
-            extra_assets_str = tools.make_list(urls_list) 
-
-            embed.add_field(name=f"Additional assets {chars.palette}", value=extra_assets_str, inline=False) 
 
         if user: 
             user_username = user['username'] 
@@ -1448,9 +1462,11 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
             embed.set_author(name=creator, icon_url=pfp_url) 
 
-        embed.set_footer(text=f"ID: {ID}") 
+        embed.set_footer(text=f"ID: {ID}")
 
-        return embed
+        pages = self.skin_embed_pages(interaction, embed, extra_assets)
+
+        return pages
     
     def acc_embed(self, acc_id): 
         acc, contribs, roles = self.get_all_acc_data(acc_id) 
@@ -1747,7 +1763,7 @@ game is down, nothing you can do but wait.", inline=False)
         for column_title, column_str in zip(column_titles, column_strs):
             embed.add_field(name=column_title, value=column_str)
 
-        embed.add_field(name=f'Totals {chars.money_bag}', value=totals_str, inline=False)
+        embed.add_field(name=f'Totals {chars.abacus}', value=totals_str, inline=False)
 
         return embed
     
@@ -1833,7 +1849,10 @@ game is down, nothing you can do but wait.", inline=False)
 
             username = acc['username']
 
-            embed.description = f'{username} does not have any {creation_type} added to the game.'
+            embed.description = description
+            
+            embed.add_field(name=f'No {creation_type} {chars.funwaa_eleseal}', 
+            value=f'Nothing to see here, move along.')
 
             return ui.Page(embed=embed)
     
@@ -2336,7 +2355,7 @@ String ID: {string_id}''')
         connect_embed.set_image(url=self.CONNECT_COMMAND)
         connect_page = ui.Page(embed=connect_embed)
 
-        help_book = ui.ScrollyBook(interaction, signin_page, profile_open_page, discord_page, connect_page, timeout=300)
+        help_book = ui.ScrollyBook(interaction, signin_page, profile_open_page, discord_page, connect_page)
 
         return help_book
     
@@ -2472,7 +2491,7 @@ account. Well, it might still be, but that would just be due to random chance.')
                 contribs_page = ui.IndexedBook(interaction, ('Skins', skin_contribs_page), ('Maps', map_creations_page))
 
                 profile_book = ui.IndexedBook(interaction, ('About', home_page), ('Rankings', rankings_page), 
-                ('Creations', contribs_page), timeout=300)
+                ('Creations', contribs_page))
                 
                 self.generate_profile_buttons(interaction, profile_book, profile_book.view, user, acc['id'])
 
