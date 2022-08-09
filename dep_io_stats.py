@@ -2395,6 +2395,8 @@ account. Well, it might still be, but that would just be due to random chance.')
     def profile_book(self, interaction: discord.Interaction, acc: dict, socials: list, 
     rankings: dict, skin_contribs: list[dict], map_creations: dict, user: discord.Member=None, user_blacklist=False) -> ui.Page:
         if acc:
+            buttons = self.generate_profile_buttons(interaction, user, acc['id'])
+
             if not user_blacklist and not self.blacklisted(interaction.guild_id, 'account', acc['id']):
                 home_page = ui.Page(interaction, embed=self.profile_embed(acc, socials))
                 rankings_page = ui.Page(interaction, embed=self.rankings_embed(acc, rankings))
@@ -2404,14 +2406,12 @@ account. Well, it might still be, but that would just be due to random chance.')
 
                 contribs_page = ui.IndexedBook(interaction, ('Skins', skin_contribs_page), ('Maps', map_creations_page))
 
-                buttons = self.generate_profile_buttons(interaction, user, acc['id'])
-
                 profile_book = ui.IndexedBook(interaction, ('About', home_page), ('Rankings', rankings_page), 
                 ('Creations', contribs_page), extra_buttons=buttons)
 
                 return profile_book
             else:
-                return ui.Page(interaction, embed=self.base_profile_embed(acc, blacklist=True))
+                return ui.Page(interaction, embed=self.base_profile_embed(acc, blacklist=True), buttons=buttons)
         else:
             return ui.Page(interaction, embed=self.profile_error_embed())
 
