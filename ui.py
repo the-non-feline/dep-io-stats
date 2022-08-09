@@ -53,7 +53,7 @@ class RestrictedView(TrackedView):
         self.add_item(closed_button)
 
         try:
-            await self.original_interaction.edit_original_message(view=self)
+            await self.original_interaction.edit_original_response(view=self)
         except discord.errors.NotFound:
             debug(f"View {self}'s original message couldn't be found")
 
@@ -108,7 +108,7 @@ class Page:
     
     async def edit_self(self, interaction: discord.Interaction):
         if interaction.response.is_done():
-            await interaction.edit_original_message(content=self.content, embed=self.embed, 
+            await interaction.edit_original_response(content=self.content, embed=self.embed, 
             allowed_mentions=self.allowed_mentions, view=self.view)
         else:
             await interaction.response.edit_message(content=self.content, embed=self.embed, 
@@ -297,7 +297,7 @@ class ScrollyBook(Book):
         
         self.view.add_item(closed_button)
 
-        await self.interaction.edit_original_message(view=self.view)
+        await self.interaction.edit_original_response(view=self.view)
     
     async def manual_close(self, button_interaction: discord.Interaction, message_interaction: discord.Interaction):
         self.view.stop()

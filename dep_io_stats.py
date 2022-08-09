@@ -2336,7 +2336,7 @@ to connect it.")
             button.disabled = True
 
         await button_interaction.response.send_message(content=f'Unlinked account with ID {acc_id}.')
-        await message_interaction.edit_original_message(view=button.view)
+        await message_interaction.edit_original_response(view=button.view)
     
     def determine_main(self, user_id: int, acc_id: int) -> bool:
         return self.mains_table.find_one(acc_id=acc_id, user_id=user_id)
@@ -2356,7 +2356,7 @@ to connect it.")
     is_main: bool):
         self.update_mark_button(button, is_main)
 
-        await message_interaction.edit_original_message(view=button.view)
+        await message_interaction.edit_original_response(view=button.view)
     
     async def mark_main(self, button: ui.CallbackButton, button_interaction: discord.Interaction,
     message_interaction: discord.Interaction, acc_id: int):
