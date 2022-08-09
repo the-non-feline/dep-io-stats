@@ -1286,7 +1286,7 @@ until it's fixed. ")
 
     def skin_embed_pages(self, interaction: discord.Interaction, skin_embed: trimmed_embed.TrimmedEmbed, 
     extra_assets: dict[str, str]) -> ui.Page:
-        pages = [('Main asset', ui.Page(embed=skin_embed))]
+        pages = [('Main asset', ui.Page(interaction, embed=skin_embed))]
         
         if extra_assets:
             for asset_type, asset_data in extra_assets.items(): 
@@ -1304,7 +1304,7 @@ until it's fixed. ")
 
                 copied.set_image(url=salted_url)
 
-                new_entry = asset_type, ui.Page(embed=copied)
+                new_entry = asset_type, ui.Page(interaction, embed=copied)
 
                 pages.append(new_entry)
         
@@ -1783,7 +1783,7 @@ game is down, nothing you can do but wait.", inline=False)
 
             embeds.append(last_embed)
 
-            pages = (ui.Page(embed=embed) for embed in embeds)
+            pages = (ui.Page(interaction, embed=embed) for embed in embeds)
 
             return ui.ScrollyBook(interaction, *pages)
         else:
@@ -1797,7 +1797,7 @@ game is down, nothing you can do but wait.", inline=False)
             embed.add_field(name=f'No {creation_type} {chars.funwaa_eleseal}', 
             value=f'Nothing to see here, move along.')
 
-            return ui.Page(embed=embed)
+            return ui.Page(interaction, embed=embed)
 
     def skin_contribs_embeds(self, interaction: discord.Interaction, acc: dict, skins: list[dict]):
         titles = f'Skin {chars.palette}', f'Sales {chars.stonkalot}'
@@ -2190,13 +2190,13 @@ String ID: {string_id}''')
         #debug(map_id)
     
     async def link_help(self, interaction: discord.Interaction): 
-        p1 = ui.Page(content='le test')
+        p1 = ui.Page(interaction, content='le test')
 
-        p2_1 = ui.Page(content='E')
-        p2_2 = ui.Page(content='F')
+        p2_1 = ui.Page(interaction, content='E')
+        p2_2 = ui.Page(interaction, content='F')
 
-        p3_1 = ui.Page(content='le trol')
-        p3_2 = ui.Page(content='tro')
+        p3_1 = ui.Page(interaction, content='le trol')
+        p3_2 = ui.Page(interaction, content='tro')
 
         p2 = ui.ScrollyBook(interaction, p2_1, p2_2)
         p3 = ui.IndexedBook(interaction, ('thing', p3_1), ('other thing', p3_2))
@@ -2255,19 +2255,19 @@ String ID: {string_id}''')
     def connect_help_book(self, interaction: discord.Interaction) -> ui.ScrollyBook:
         signin_embed = discord.Embed(title='Sign in to your Deeeep.io account on Beta')
         signin_embed.set_image(url=self.SIGNING_IN)
-        signin_page = ui.Page(embed=signin_embed)
+        signin_page = ui.Page(interaction, embed=signin_embed)
 
         profile_open_embed = discord.Embed(title='Open your Deeeep.io profile by clicking your profile picture')
         profile_open_embed.set_image(url=self.OPENING_PROFILE)
-        profile_open_page = ui.Page(embed=profile_open_embed)
+        profile_open_page = ui.Page(interaction, embed=profile_open_embed)
 
         discord_embed = discord.Embed(title='Add your Discord tag as a social link on your Deeeep.io account')
         discord_embed.set_image(url=self.ADDING_DISCORD)
-        discord_page = ui.Page(embed=discord_embed)
+        discord_page = ui.Page(interaction, embed=discord_embed)
 
         connect_embed = discord.Embed(title="Copy your profile page's URL, then paste that URL into the \"connect\" command")
         connect_embed.set_image(url=self.CONNECT_COMMAND)
-        connect_page = ui.Page(embed=connect_embed)
+        connect_page = ui.Page(interaction, embed=connect_embed)
 
         help_book = ui.ScrollyBook(interaction, signin_page, profile_open_page, discord_page, connect_page)
 
@@ -2389,13 +2389,15 @@ account. Well, it might still be, but that would just be due to random chance.')
             style=discord.ButtonStyle.danger, label='Unlink account')
 
             return toggle_main_button, unlink_button
+        else:
+            return ()
     
     def profile_book(self, interaction: discord.Interaction, acc: dict, socials: list, 
     rankings: dict, skin_contribs: list[dict], map_creations: dict, user: discord.Member=None, user_blacklist=False) -> ui.Page:
         if acc:
             if not user_blacklist and not self.blacklisted(interaction.guild_id, 'account', acc['id']):
-                home_page = ui.Page(embed=self.profile_embed(acc, socials))
-                rankings_page = ui.Page(embed=self.rankings_embed(acc, rankings))
+                home_page = ui.Page(interaction, embed=self.profile_embed(acc, socials))
+                rankings_page = ui.Page(interaction, embed=self.rankings_embed(acc, rankings))
 
                 skin_contribs_page = self.skin_contribs_embeds(interaction, acc, skin_contribs)
                 map_creations_page = self.map_creations_embeds(interaction, acc, map_creations)
@@ -2409,9 +2411,9 @@ account. Well, it might still be, but that would just be due to random chance.')
 
                 return profile_book
             else:
-                return ui.Page(embed=self.base_profile_embed(acc, blacklist=True))
+                return ui.Page(interaction, embed=self.base_profile_embed(acc, blacklist=True))
         else:
-            return ui.Page(embed=self.profile_error_embed())
+            return ui.Page(interaction, embed=self.profile_error_embed())
 
     def delayed_profile_book(self, interaction: discord.Interaction, user: discord.Member, acc_id: int, blacklist: bool): 
         acc, socials, rankings, skin_contribs, map_creations = self.get_profile_by_id(acc_id)
@@ -2421,7 +2423,7 @@ account. Well, it might still be, but that would just be due to random chance.')
     
     async def full_profile_book(self, interaction: discord.Interaction, user: discord.Member, *acc_ids: int,
     blacklist: bool):
-        pages = map(lambda acc_id: ui.Promise(interaction, self.delayed_profile_book, interaction, user, acc_id, blacklist), 
+        pages = map(lambda acc_id: ui.Promise(self.delayed_profile_book, interaction, user, acc_id, blacklist), 
         acc_ids)
 
         full_book = ui.ScrollyBook(interaction, *pages)
