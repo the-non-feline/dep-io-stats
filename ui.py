@@ -3,6 +3,8 @@ import discord
 import logs
 from logs import debug
 
+DEFAULT_TIMEOUT = 600.0
+
 class CallbackButton(discord.ui.Button):
     def __init__(self, callback, message_interaction, *args, style=discord.ButtonStyle.secondary, label=None, disabled=False, 
     custom_id=None, url=None, emoji=None, row=None, **kwargs):
@@ -19,7 +21,7 @@ class CallbackButton(discord.ui.Button):
 class TrackedView(discord.ui.View):
     active_views = set()
 
-    def __init__(self, *, timeout=180.0):
+    def __init__(self, *, timeout=DEFAULT_TIMEOUT):
         super().__init__(timeout=timeout)
 
         self.active_views.add(self)
@@ -30,7 +32,7 @@ class TrackedView(discord.ui.View):
             await view.close()
 
 class RestrictedView(TrackedView):
-    def __init__(self, original_user: discord.User, original_interaction: discord.Interaction, *, timeout=180.0):
+    def __init__(self, original_user: discord.User, original_interaction: discord.Interaction, *, timeout=DEFAULT_TIMEOUT):
         super().__init__(timeout=timeout)
         
         self.original_user = original_user
@@ -77,7 +79,7 @@ class RestrictedView(TrackedView):
 class Page:
     MAX_ROW = 4
 
-    def __init__(self, interaction: discord.Interaction, content=None, embed=None, allowed_mentions=None, timeout=180.0, 
+    def __init__(self, interaction: discord.Interaction, content=None, embed=None, allowed_mentions=None, timeout=DEFAULT_TIMEOUT, 
     buttons: tuple[CallbackButton]=()):
         self.interaction = interaction
         self.buttons = buttons
@@ -224,7 +226,7 @@ class Book(Page):
             page.set_level(level=level - 1)
 
 class IndexedBook(Book):
-    def __new__(cls, interaction: discord.Interaction, *page_tuples: tuple, timeout=180.0, 
+    def __new__(cls, interaction: discord.Interaction, *page_tuples: tuple, timeout=DEFAULT_TIMEOUT, 
     extra_buttons: tuple[CallbackButton]=()):
         if len(page_tuples) > 1:
             return super().__new__(cls)
@@ -233,7 +235,7 @@ class IndexedBook(Book):
 
             return page_tuples[0][1]
 
-    def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=180.0, 
+    def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=DEFAULT_TIMEOUT, 
     extra_buttons: tuple[CallbackButton]=()):
         # generate the buttons here
         buttons = [CallbackButton(self.jump_to_page, interaction, index, style=discord.ButtonStyle.primary, 
@@ -261,7 +263,8 @@ class IndexedBook(Book):
         await self.edit_self(button_interaction)
 
 class ScrollyBook(Book):
-    def __new__(cls, interaction: discord.Interaction, *pages: Page, timeout=180.0, extra_buttons: tuple[CallbackButton]=()):
+    def __new__(cls, interaction: discord.Interaction, *pages: Page, timeout=DEFAULT_TIMEOUT, extra_buttons: tuple[CallbackButton]=(),
+    page_title='Page'):
         if len(pages) > 1:
             return super().__new__(cls)
         else:
@@ -269,13 +272,16 @@ class ScrollyBook(Book):
             
             return pages[0]
     
-    def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=180.0, extra_buttons: tuple[CallbackButton]=()):
+    def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=DEFAULT_TIMEOUT, extra_buttons: tuple[CallbackButton]=(),
+    page_title='Page'):
         self.left_button = CallbackButton(self.turn_page, interaction, -1, style=discord.ButtonStyle.primary, label='Previous')
         self.page_number = discord.ui.Button(disabled=True)
         self.right_button = CallbackButton(self.turn_page, interaction, 1, style=discord.ButtonStyle.primary, label='Next')
         # self.close_button = CallbackButton(self.manual_close, self.interaction, style=discord.ButtonStyle.danger, label='Close',
         # row=1)
         # self.view.add_item(self.close_button)
+
+        self.page_title = page_title
 
         buttons_list = [self.left_button, self.page_number, self.right_button] + list(extra_buttons)
         
@@ -304,7 +310,7 @@ class ScrollyBook(Book):
     def update_buttons(self):
         self.left_button.disabled = self.current_index <= 0
         self.right_button.disabled = self.current_index >= len(self.pages) - 1
-        self.page_number.label = f'Page {self.current_index + 1} / {len(self.pages)}'
+        self.page_number.label = f'{self.page_title} {self.current_index + 1} / {len(self.pages)}'
     
     async def turn_page(self, button: CallbackButton, button_interaction: discord.Interaction, 
     message_interaction: discord.Interaction, direction: int):

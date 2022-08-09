@@ -2426,7 +2426,7 @@ account. Well, it might still be, but that would just be due to random chance.')
         pages = map(lambda acc_id: ui.Promise(self.delayed_profile_book, interaction, user, acc_id, blacklist), 
         acc_ids)
 
-        full_book = ui.ScrollyBook(interaction, *pages)
+        full_book = ui.ScrollyBook(interaction, *pages, page_title='Account')
 
         await full_book.send_first()
     
