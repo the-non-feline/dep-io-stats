@@ -1,6 +1,8 @@
 from datetime import datetime
 import time
 import math
+import discord
+from discord import app_commands
 
 def format_iterable(iterable, formatter='{}', sep=', '):
     return sep.join((formatter.format(item) for item in iterable)) 
@@ -49,4 +51,4 @@ def decamelcase(string):
 def timestamp(t: datetime): 
     secs = int(t.timestamp()) 
 
-    return f'<t:{secs}>' 
+    return f'<t:{secs}>'

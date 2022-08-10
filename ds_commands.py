@@ -8,6 +8,7 @@ import reports
 import tools
 import chars
 import habitat
+from logs import debug
 
 def ds_slash(tree: app_commands.CommandTree, name: str, desc: str):
     return tree.command(name=name, description=desc)
@@ -145,22 +146,6 @@ or its link')
         bot = interaction.client
 
         await interaction.response.send_message(embed=await bot.self_embed()) 
-    
-    def convert_filters(bot, filters_dict, *filter_strs): 
-        filters = set() 
-        filter_strs = set(map(str.lower, filter_strs)) 
-
-        total_filters = {**filters_dict, **bot.ANIMAL_FILTERS} 
-
-        for lowered in filter_strs: 
-            if lowered in total_filters: 
-                skin_filter = total_filters[lowered] 
-
-                filters.add(skin_filter) 
-            else: 
-                return None
-        else: 
-            return filters
 
     async def pending_search(bot, report: reports.Report, filters_str, filters): 
         channel = report.interaction.channel
@@ -175,73 +160,82 @@ or its link')
     async def approved_search(bot, report: reports.Report, filters_str, filters): 
         await bot.approved_display(report, 'approved', filters_str, filters)
     
-    async def filters_autocomplete(interaction: discord.Interaction, current: str):
+    async def animal_autocomplete(interaction: discord.Interaction, current: str):
         bot = interaction.client
 
-        assert type(current) is str
+        possibilities = []
 
-        indiv_args = current.split(' ')
-        last_arg = indiv_args[-1]
-        prev_string = current[:len(current) - len(last_arg)]
-        
-        bot.set_animal_stats()
+        lowered = current.lower()
 
-        possibilities = [filter for filter in bot.ALL_FILTERS if last_arg.lower() in filter]
-        possibilities = possibilities[:25]
+        for animal in bot.animal_stats:
+            if lowered in animal['name']:
+                possibilities.append(animal['name'])
 
-        choices = [app_commands.Choice(name=prev_string + poss, value=prev_string + poss) for poss in possibilities]
+                if len(possibilities) == 25:
+                    break
 
-        print(choices)
+        choices = [app_commands.Choice(name=poss, value=poss) for poss in possibilities]
 
         return choices
     
     @ds_slash(tree, 'skins', 'Displays the list of all skins that fit the given criteria')
-    @app_commands.autocomplete(filters=filters_autocomplete)
-    async def skin_search(interaction: discord.Interaction, list_name: typing.Literal["approved", "pending"], 
-    filters: str):
+    @app_commands.autocomplete(animal=animal_autocomplete)
+    async def skin_search(interaction: discord.Interaction, list_name: typing.Literal["approved", "pending"]='approved',
+    availability: ds_constants.DS_Constants.AVAILABILITY_FILTERS=None, 
+    acceptability: ds_constants.DS_Constants.ACCEPTABILITY_FILTERS=None,
+    stat_change: ds_constants.DS_Constants.STAT_CHANGE_FILTERS=None,
+    price: ds_constants.DS_Constants.PRICE_FILTERS=None,
+    reskin: ds_constants.DS_Constants.PENDING_FILTERS=None,
+    animal: str=None):
         await interaction.response.defer()
         
         bot = interaction.client
 
-        filters = filters.split(' ')
+        filters = availability, acceptability, stat_change, price, reskin
         
-        '''
-        if len(filters) == 0: 
-            return True
-        '''
+        # debug(filters)
+
+        mapped_filters = filter(None, filters)
+        mapped_filters_2 = filter(None, filters)
+
+        filter_strs = list(map(lambda filter_obj: filter_obj.name, mapped_filters))
+        filter_funcs = list(map(lambda filter_obj: filter_obj.value, mapped_filters_2))
+
+        # debug(filter_funcs)
+
+        if animal:
+            animal_obj = bot.find_animal_by_name(animal)
+
+            if not animal_obj:
+                await interaction.followup.send(content="You gave an invalid animal.")
+
+                return
+            else:
+                filter_strs.append(animal)
+                filter_funcs.append(lambda self, skin: skin['fish_level'] == animal_obj['fishLevel'])
 
         if list_name == 'approved': 
             displayer = approved_search
-            filters_dict = bot.APPROVED_FILTERS_MAP
 
             # filters = filters[1:] 
         elif list_name == 'pending': 
             displayer = pending_search
-            filters_dict = bot.PENDING_FILTERS_MAP
 
             # filters = filters[1:] 
         else: 
             displayer = approved_search
-            filters_dict = bot.APPROVED_FILTERS_MAP
 
-        converted_filters = convert_filters(bot, filters_dict, *filters) 
+        report = reports.Report(interaction)
 
-        if converted_filters is not None: 
-            report = reports.Report(interaction)
-
-            if filter: 
-                filter_names_str = tools.format_iterable(filters, formatter='`{}`') 
-                # filter_names_str = filter
-            else: 
-                filter_names_str = '(none)' 
-
-            print(converted_filters)
-            
-            await displayer(bot, report, filter_names_str, converted_filters) 
-
-            await report.send_self()
+        if filter: 
+            filter_names_str = tools.format_iterable(filter_strs, formatter='`{}`') 
+            # filter_names_str = filter
         else: 
-            await interaction.followup.send(content="Those were not valid filters.")
+            filter_names_str = '(none)' 
+        
+        await displayer(bot, report, filter_names_str, filter_funcs) 
+
+        await report.send_self()
     
     @ds_slash(tree, 'test', 'test command')
     async def test_command(interaction: discord.Interaction):

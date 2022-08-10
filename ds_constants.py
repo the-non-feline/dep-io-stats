@@ -2,6 +2,7 @@ import habitat
 import tools
 import enum
 import chars
+from functools import partial
 
 class DS_Constants: 
     REV_CHANNEL_SENTINEL = 'none' 
@@ -157,28 +158,33 @@ class DS_Constants:
         'pelican': 'https://deeeep.io/new/assets/characters/pelican.png', 
     }
 
-    APPROVED_FILTERS_MAP = {
-        'acceptable': lambda self, skin: not self.reject_reasons(skin, check_reddit=False), 
-        'unacceptable': lambda self, skin: self.reject_reasons(skin, check_reddit=False), 
-        'stat-changing': lambda self, skin: skin['attributes'], 
-        'non-stat-changing': lambda self, skin: not skin['attributes'], 
-        'free': lambda self, skin: skin['price'] == 0, 
-        'not-free': lambda self, skin: skin['price'] != 0, 
-        'halloween': lambda self, skin: skin['season'] == 'hallooween', 
-        'christmas': lambda self, skin: skin['season'] == 'christmas', 
-        'valentines': lambda self, skin: skin['season'] == 'valentines', 
-        'easter': lambda self, skin: skin['season'] == 'easter', 
-        'lunar-new-year': lambda self, skin: skin['season'] == 'lunar', 
-        'realistic': lambda self, skin: skin['category'] == 'real', 
-        'unrealistic': lambda self, skin: skin['category'] == 'unrealistic', 
-        'seasonal': lambda self, skin: skin['category'] == 'season', 
-    }
-    
-    PENDING_FILTERS_MAP = {
-        'reskin': lambda self, skin: skin['parent'] if 'parent' in skin else False, 
-    } 
+    class AVAILABILITY_FILTERS(enum.Enum):
+        hallooween = partial(lambda self, skin: skin['season'] == 'hallooween')
+        christmas = partial(lambda self, skin: skin['season'] == 'christmas')
+        valentines = partial(lambda self, skin: skin['season'] == 'valentines')
+        easter = partial(lambda self, skin: skin['season'] == 'easter')
+        lunar = partial(lambda self, skin: skin['season'] == 'lunar')
+        real = partial(lambda self, skin: skin['category'] == 'real')
+        unrealistic = partial(lambda self, skin: skin['category'] == 'unrealistic')
+        season = partial(lambda self, skin: skin['category'] == 'season')
 
-    PENDING_FILTERS_MAP.update(APPROVED_FILTERS_MAP)
+    class ACCEPTABILITY_FILTERS(enum.Enum):
+        acceptable = partial(lambda self, skin: not self.reject_reasons(skin, check_reddit=False))
+        unacceptable = partial(lambda self, skin: self.reject_reasons(skin, check_reddit=False))
+
+    class STAT_CHANGE_FILTERS(enum.Enum):
+        statchanging = partial(lambda self, skin: skin['attributes'])
+        nonstatchanging = partial(lambda self, skin: not skin['attributes'])
+
+    class PRICE_FILTERS(enum.Enum):
+        free = partial(lambda self, skin: skin['price'] == 0)
+        notfree = partial(lambda self, skin: skin['price'] != 0)
+    
+    class PENDING_FILTERS(enum.Enum):
+        reskin = partial(lambda self, skin: skin['parent'] if 'parent' in skin else False)
+        notreskin = partial(lambda self, skin: 'parent' not in skin or not skin['parent'])
+    
+    print(PENDING_FILTERS.reskin.value)
 
     # print(PENDING_FILTERS_MAP)
 
@@ -210,5 +216,3 @@ class DS_Constants:
     TIER_EMOJIS = chars.smirk_clownfish, chars.crab_rave, chars.shrug_jellyfish, chars.triggered_squid, chars.shut_seagull, \
         chars.cry_ray, chars.dance_penguin, chars.cooloctopus, chars.chain_breaker_hammerhead, chars.thonk_gsquid
     TIER_COLORS = 0xfdbe62, 0xff5959, 0xfc8ab4, 0xffabab, 0xffffff, 0xfdaffd, 0xf7931e, 0xe47918, 0xdbdbdb, 0x902a2a
-    
-    print(IconsEnum['dc'])

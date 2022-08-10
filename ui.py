@@ -46,11 +46,8 @@ class RestrictedView(TrackedView):
             return True
     
     async def close(self):
-        self.clear_items()
-
-        closed_button = discord.ui.Button(disabled=True, label=f'No longer accepting button presses', row=0)
-        
-        self.add_item(closed_button)
+        for item in self.children:
+            item.disabled = True
 
         try:
             await self.original_interaction.edit_original_response(view=self)

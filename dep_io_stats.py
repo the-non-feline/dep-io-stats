@@ -49,6 +49,8 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
         self.ANIMAL_FILTERS = {} 
 
+        self.animal_stats = []
+
         self.set_animal_stats() 
 
         handler = logging.StreamHandler(self.logs_file) 
@@ -67,7 +69,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
         super().__init__(',', intents=discord.Intents(), activity=discord.Game(name='starting up'), status=discord.Status.dnd) 
     
-    def animal_stats(self): 
+    def get_animal_stats(self) -> list[dict]: 
         with open(self.animals_file_name, mode='r') as file: 
             return json.load(file) 
     
@@ -80,31 +82,24 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         
         return check
     
-    def set_animal_stats(self): 
-        self.temp_animal_stats = self.animal_stats() 
-
-        self.ANIMAL_FILTERS.clear() 
-
-        for index in range(len(self.temp_animal_stats)): 
-            stats = self.temp_animal_stats[index] 
-
-            name = stats['name'] 
-            animal_id = index
-
-            self.ANIMAL_FILTERS[name] = self.animal_check(animal_id) 
-        
-        self.ALL_FILTERS = {**self.PENDING_FILTERS_MAP, **self.ANIMAL_FILTERS}
-
-        # print(self.ALL_FILTERS)
-        
-        self.SKIN_FILTERS = enum.Enum("SKIN_FILTERS", tuple(self.ALL_FILTERS.keys()), module=__name__)
+    def set_animal_stats(self):
+        self.animal_stats = self.get_animal_stats()
 
         print('set animal stats') 
     
-    def find_animal(self, animal_id: int): 
-        stats = self.temp_animal_stats
+    def find_animal_by_id(self, animal_id: int): 
+        stats = self.animal_stats
 
-        return stats[animal_id] 
+        return stats[animal_id]
+    
+    def find_animal_by_name(self, animal_name: str):
+        stats = self.animal_stats
+
+        for animal in stats:
+            if animal['name'] == animal_name.lower():
+                return animal
+        
+        return None
     
     def prefix(self, c): 
         p = self.prefixes_table.find_one(guild_id=c.guild.id) 
@@ -586,7 +581,9 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
             # print(filters)
             
-            for skin_filter in filters: 
+            for skin_filter in filters:
+                # debug(skin_filter)
+
                 if not skin_filter(self, skin): 
                     break
             else: 
@@ -1160,9 +1157,11 @@ class DS(ds_constants.DS_Constants, commands.Bot):
                         old_value *= multiplier
                     
                     if converter is not None:
-                        old_value = converter(old_value) 
+                        old_value_converted = converter(old_value)
+                    else:
+                        old_value_converted = old_value
 
-                    old_value_str = formatter.format(old_value) 
+                    old_value_str = formatter.format(old_value_converted) 
 
                     m = re.compile(self.FLOAT_CHECK_REGEX).match(diff) 
 
@@ -1190,7 +1189,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         embed.add_field(name=f"Stat changes {chars.change}", value=stat_changes_str, inline=False) 
     
     async def display_animal(self, interaction: discord.Interaction, animal_query):
-        animal_data = self.search_with_suggestions(self.temp_animal_stats, lambda animal: animal['name'], animal_query)
+        animal_data = self.search_with_suggestions(self.animal_stats, lambda animal: animal['name'], animal_query)
 
         animal_json = None
         suggestions_str = '' 
@@ -1329,7 +1328,7 @@ until it's fixed. ")
 
         asset_name = skin['asset'] 
 
-        animal = self.find_animal(animal_id) 
+        animal = self.find_animal_by_id(animal_id) 
 
         animal_name = animal['name'] 
 
@@ -1696,12 +1695,9 @@ game is down, nothing you can do but wait.", inline=False)
         
         return embed
     
-    def gen_generic_creations_embed(self, creation_type: str, acc: dict, column_titles: tuple[str], 
-    column_strs: tuple[str], totals_str: str, description: str):
-        embed = self.base_profile_embed(acc, specific_page = f'{creation_type.capitalize()} by',
-        big_image=False)
-
-        embed.description = description
+    def gen_generic_compilation_embed(self, embed_template: trimmed_embed.TrimmedEmbed, 
+    column_titles: tuple[str], column_strs: tuple[str], totals_str: str):
+        embed = embed_template.copy()
 
         for column_title, column_str in zip(column_titles, column_strs):
             embed.add_field(name=column_title, value=column_str)
@@ -1710,11 +1706,11 @@ game is down, nothing you can do but wait.", inline=False)
 
         return embed
     
-    def build_generic_creation(self, creation_type: str, acc: dict, creation: dict, 
+    def build_generic_compilation(self, embed_template: trimmed_embed.TrimmedEmbed, comp_item: dict, 
     embeds: list[trimmed_embed.TrimmedEmbed], titles: tuple[str], formatters: tuple[str], destinations: tuple[list], 
-    destination_lengths: list[int], totals_str: str, description: str):
+    destination_lengths: list[int], totals_str: str):
         for index in range(len(destinations)):
-            formatted = formatters[index].format(creation)
+            formatted = formatters[index].format(comp_item)
             
             destination_lengths[index] += len(formatted) + int(destination_lengths[index] > 0)
 
@@ -1729,32 +1725,32 @@ game is down, nothing you can do but wait.", inline=False)
         if too_long:
             column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
 
-            new_embed = self.gen_generic_creations_embed(creation_type, acc, titles, column_strs,
-            totals_str, description)
+            new_embed = self.gen_generic_compilation_embed(embed_template, titles, column_strs,
+            totals_str)
 
             embeds.append(new_embed)
 
             for index in range(len(destinations)):
-                formatted = formatters[index].format(creation)
+                formatted = formatters[index].format(comp_item)
 
                 destination_lengths[index] = len(formatted)
                 destinations[index].clear()
         
         for index in range(len(destinations)):
-            formatted = formatters[index].format(creation)
+            formatted = formatters[index].format(comp_item)
             
             destinations[index].append(formatted)
     
     @staticmethod
-    def generic_creations_aggregate(creation_type: str, creations: list[dict], aggregate_names: tuple[str], 
+    def generic_compilation_aggregate(compilation_type: str, comp_items: list[dict], aggregate_names: tuple[str], 
     aggregate_attrs: tuple) -> str:
-        aggregates = [f'{len(creations):,} {creation_type}']
+        aggregates = [f'{len(comp_items):,} {compilation_type}']
         
         for aggregate_name, aggregate_attr in zip(aggregate_names, aggregate_attrs):
             if type(aggregate_attr) is int:
                 total = aggregate_attr
             else:
-                total = sum(map(lambda creation: creation[aggregate_attr], creations))
+                total = sum(map(lambda creation: creation[aggregate_attr], comp_items))
 
             formatted = f'{total:,} {aggregate_name}'
 
@@ -1762,24 +1758,25 @@ game is down, nothing you can do but wait.", inline=False)
         
         return tools.format_iterable(aggregates)
     
-    def generic_contribs_embeds(self, interaction: discord.Interaction, creation_type: str, acc: dict, creations: list[dict], 
-    titles: tuple[str], formatters: tuple[str], description: str, aggregate_names: tuple[str]=(),
+    def generic_compilation_embeds(self, interaction: discord.Interaction, embed_template: trimmed_embed.TrimmedEmbed, 
+    compilation_type: str, comp_items: list[dict],
+    titles: tuple[str], formatters: tuple[str], aggregate_names: tuple[str]=(),
     aggregate_attrs: tuple[str]=()):
-        if creations:
+        if comp_items:
             embeds = []
             destinations = tuple([] for title in titles)
             destination_lengths = [0] * len(titles)
             
-            totals_str = self.generic_creations_aggregate(creation_type, creations, aggregate_names, aggregate_attrs)
+            totals_str = self.generic_compilation_aggregate(compilation_type, comp_items, aggregate_names, aggregate_attrs)
 
-            for creation in creations:
-                self.build_generic_creation(creation_type, acc, creation, embeds, titles, formatters,
-                destinations, destination_lengths, totals_str, description)
+            for comp_item in comp_items:
+                self.build_generic_compilation(embed_template, comp_item, embeds, titles, formatters,
+                destinations, destination_lengths, totals_str)
             
             column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
 
-            last_embed = self.gen_generic_creations_embed(creation_type, acc, titles, column_strs,
-            totals_str, description)
+            last_embed = self.gen_generic_compilation_embed(embed_template, titles, column_strs,
+            totals_str)
 
             embeds.append(last_embed)
 
@@ -1787,39 +1784,39 @@ game is down, nothing you can do but wait.", inline=False)
 
             return ui.ScrollyBook(interaction, *pages)
         else:
-            embed = self.base_profile_embed(acc, specific_page = f'{creation_type.capitalize()} by',
-            big_image=False)
-
-            username = acc['username']
-
-            embed.description = description
+            embed = embed_template.copy()
             
-            embed.add_field(name=f'No {creation_type} {chars.funwaa_eleseal}', 
+            embed.add_field(name=f'No {compilation_type} {chars.funwaa_eleseal}', 
             value=f'Nothing to see here, move along.')
 
             return ui.Page(interaction, embed=embed)
 
     def skin_contribs_embeds(self, interaction: discord.Interaction, acc: dict, skins: list[dict]):
+        embed_template = self.base_profile_embed(acc, specific_page='Skins by', big_image=False)
+
+        embed_template.description = 'This list only includes **officlally added** skins (skins approved for the Store)'
+
         titles = f'Skin {chars.palette}', f'Sales {chars.stonkalot}'
         formatters = '[{0[name]}](' + self.SKIN_STORE_PAGE_PREFIX + '{0[id]})', '{[sales]:,}'
-        description = 'This list only includes **officlally added** skins (skins approved for the Store)'
 
         skins.sort(key=lambda skin: skin['sales'], reverse=True)
 
-        return self.generic_contribs_embeds(interaction, 'skins', acc, skins, titles, formatters, 
-        description, aggregate_names=('sales',), aggregate_attrs=('sales',))
+        return self.generic_compilation_embeds(interaction, embed_template, 'skins', skins, titles, formatters, 
+        aggregate_names=('sales',), aggregate_attrs=('sales',))
     
     def map_creations_embeds(self, interaction: discord.Interaction, acc: dict, maps: dict):
+        embed_template = self.base_profile_embed(acc, specific_page='Maps by', big_image=False)
+
+        embed_template.description = 'This list includes all maps marked **public**, including those not added as official maps'
+
         public_maps = list(filter(lambda map: map['public'], maps['items']))
 
         public_maps.sort(key=lambda map: map['likes'], reverse=True)
 
         titles = f'Map {chars.world_map}', f'Likes {chars.thumbsup}'
         formatters = '[{0[title]}](' + self.MAPMAKER_URL_PREFIX + '{0[string_id]})', '{[likes]:,}'
-        description = 'This list includes all maps marked **public**, including those not added as official maps'
 
-        return self.generic_contribs_embeds(interaction, 'maps', acc, public_maps, titles, formatters,
-        description)
+        return self.generic_compilation_embeds(interaction, embed_template, 'maps', public_maps, titles, formatters)
     
     def profile_embed_by_username(self, username: str):
         return self.profile_embed(*self.get_profile_by_username(username))
@@ -1984,7 +1981,7 @@ String ID: {string_id}''')
             ID = skin['id'] 
             version = skin['version'] 
             animal_id = skin['fish_level'] 
-            animal = self.find_animal(animal_id) 
+            animal = self.find_animal_by_id(animal_id) 
             animal_name = animal['name'] 
 
             skin_str = f"• {name} (v{version}) | (ID: {ID}) | {animal_name}" 
@@ -2026,8 +2023,6 @@ String ID: {string_id}''')
             r.add(trimmed_str) 
     
     async def approved_display(self, r, actual_type, filter_names_str, filters): 
-        print(filters)
-
         if actual_type == 'approved': 
             url = self.SKINS_LIST_URL
         elif actual_type == 'pending': 
