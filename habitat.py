@@ -1,12 +1,12 @@
 import math
 import tools
 
-class Habitat(int): 
+class Habitat(float): 
     NAMES = ['Cold', 'Warm', 'Shallow', 'Deep', 'Fresh', 'Salt', 'Reef'] 
     MAX = 2**len(NAMES) - 1
 
     @staticmethod
-    def convert_to_base(num, base): 
+    def convert_to_base(num, base) -> list[int]: 
         assert num >= 0
 
         if num == 0: 
@@ -26,7 +26,7 @@ class Habitat(int):
         return conversion
 
     def convert_to_list(self): 
-        conversion = self.convert_to_base(self, 2) 
+        conversion = self.convert_to_base(int(self), 2) 
 
         #print(conversion) 
 
@@ -67,16 +67,25 @@ class Habitat(int):
     
     def has_reef(self):
         return self >= 2**(len(self.NAMES) - 1)
+    
+    def valid_and_liveable(self):
+        if self.valid():
+            converted = self.convert_to_list()
+
+            return len(converted) == 4 or not self.has_reef() and len(converted) == 3
+        else:
+            return False
 
     def __str__(self): 
-        len_flags = len(self.NAMES) 
-
-        if 0 <= self < 2**len_flags: 
+        if self.valid(): 
             display = tools.format_iterable(self.convert_to_list()) 
         else: 
             display = f'invalid habitat ({self!r})' 
 
         return display
+    
+    def valid(self):
+        return math.isfinite(self) and int(self) == self and 0 <= self <= self.MAX
 
 num = 0
 

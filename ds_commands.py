@@ -78,7 +78,7 @@ look up the skin. Defaults to `name` if unspecified')
         elif search_type == 'name': 
             displayer = bot.skin_by_name
 
-        print(skin_query)
+        # print(skin_query)
         
         if skin_query: 
             return await displayer(interaction, skin_query) 
@@ -97,7 +97,7 @@ look up the skin. Defaults to `name` if unspecified')
 
         choices = [app_commands.Choice(name=choice, value=choice) for choice in possibilities]
 
-        print(choices)
+        # print(choices)
 
         return choices
     

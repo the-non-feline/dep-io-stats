@@ -119,8 +119,16 @@ class DS_Constants:
         'secondaryAbilityLoadTime': ('charged boost load time', '{} ms'), 
     }
 
+    TYPE_REQUIREMENTS = {
+        'HA': int,
+    }
+
     EXTRA_VALIDITY_REQUIREMENTS = {
-        'HA': lambda num, animal: type(num) is int and animal['habitat'] + num <= habitat.Habitat.MAX,
+        'HA': habitat.Habitat.valid_and_liveable,
+        'DB': cap_at_100,
+        'DR': cap_at_100,
+        'BR': cap_at_100,
+        'AP': cap_at_100,
     }
     
     NORMAL_STATS = 'level', 'healthMultiplier', 'damageMultiplier', 'speedMultiplier', 'sizeMultiplier', 'sizeScale', \

@@ -796,40 +796,30 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         if stat_changes: 
             unbalanced = True
 
-            split_changes = stat_changes.split(';') 
+            animal_id = skin['fish_level']
+            animal = self.find_animal_by_id(animal_id)
+
+            changes_array = self.generate_stat_changes(stat_changes, animal)
 
             prev_sign = None
 
-            for change_str in split_changes: 
-                split = change_str.split('=') 
+            for change in changes_array:
+                local_broken = type(change) is str or change[3]
 
-                if len(split) == 2: 
-                    stat, value = split
+                broken = broken or local_broken
 
-                    sign = value[0] 
-                    abs_value = value[1:] 
+                if not local_broken:
+                    attribute, old_val, new_val, waste = change
 
-                    m = re.compile(self.FLOAT_CHECK_REGEX).match(value) 
+                    if attribute not in self.STATS_UNBALANCE_BLACKLIST and old_val != new_val:
+                        sign = '-' if new_val < old_val else '+'
 
-                    if not m: 
-                        broken = True
-
-                        debug(f'{value} failed regex') 
-
-                    if stat not in self.STATS_UNBALANCE_BLACKLIST: 
-                        if prev_sign and prev_sign != sign: 
+                        if prev_sign and prev_sign != sign:
                             unbalanced = False
                         
                         prev_sign = sign
-                else: 
-                    broken = True
-
-                    debug(f'{change_str} is invalid')
         
         unbalance_sign = prev_sign if unbalanced else None
-
-        debug(broken) 
-        debug(unbalance_sign) 
 
         return broken, unbalance_sign
     
@@ -859,7 +849,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         broken, unbalance_sign = self.unbalanced_stats(skin) 
 
         if broken: 
-            reasons.append(f'undefined stat changes') 
+            reasons.append(f'invalid/malformed stat changes') 
         
         if unbalance_sign: 
             reasons.append(f'unbalanced stat changes ({unbalance_sign})') 
@@ -1122,11 +1112,35 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         
         return display_name, formatter, converter, multiplier
     
-    def add_stat_changes(self, embed, stat_changes, animal): 
+    def calc_change_result(self, converter, attr_name: str, old_value: float, diff: str):
+        broken = False
+
+        try:
+            float_diff = float(diff)
+        except ValueError:
+            new_value_converted = f'Non-number ({diff})'
+            broken = True
+        else:
+            new_value = old_value + float_diff
+            
+            new_value_converted = converter(new_value)
+
+            if not math.isfinite(new_value) or new_value < 0:
+                broken = True
+            elif attr_name in self.EXTRA_VALIDITY_REQUIREMENTS:
+                extra_requirement = self.EXTRA_VALIDITY_REQUIREMENTS[attr_name]
+
+                broken = not extra_requirement(new_value_converted)
+
+                debug(broken)
+        
+        return new_value_converted, broken
+    
+    def generate_stat_changes(self, stat_changes, animal) -> list[tuple]: 
         stat_changes_list = [] 
 
-        for change in stat_changes.split(';'): 
-            split = change.split('=') 
+        for change in stat_changes.split(';'):
+            split = change.split('=')
 
             if len(split) == 2: 
                 attribute, diff = split
@@ -1145,33 +1159,51 @@ class DS(ds_constants.DS_Constants, commands.Bot):
                         old_value_converted = converter(old_value)
                     else:
                         old_value_converted = old_value
+                    
+                    new_value_converted, broken = self.calc_change_result(converter, attribute, old_value, diff)
 
-                    old_value_str = formatter.format(old_value_converted) 
-
-                    m = re.compile(self.FLOAT_CHECK_REGEX).match(diff) 
-
-                    if m: 
-                        float_diff = float(diff) 
-
-                        new_value = old_value + float_diff
-
-                        new_value_converted = converter(new_value) 
-                        
-                        new_value_str = formatter.format(new_value_converted) 
-                    else: 
-                        new_value_str = f'invalid ({diff})' 
-
-                    change_str = f'**{display_name}:** {old_value_str} **->** {new_value_str}' 
+                    change = attribute, old_value_converted, new_value_converted, broken
+                    # '**{display_name}:** {old_value_str} **->** {new_value_str}' 
                 else: 
-                    change_str = f'Untranslated change: {change}' 
+                    change = f'Untranslated change: {change}' 
             else: 
-                change_str = f'Invalid change: {change}' 
+                change = f'Malformed change: {change}' 
             
-            stat_changes_list.append(change_str) 
+            stat_changes_list.append(change)
         
-        stat_changes_str = tools.make_list(stat_changes_list)  
+        return stat_changes_list
+    
+    def add_stat_changes(self, embed: embed_utils.TrimmedEmbed, stat_changes: str, animal: dict):
+        stat_changes_array = self.generate_stat_changes(stat_changes, animal)
+        display_list = []
 
-        embed.add_field(name=f"Stat changes {chars.change}", value=stat_changes_str, inline=False) 
+        for change in stat_changes_array:
+            if type(change) is tuple:
+                attribute, old_val, new_val, broken = change
+
+                key = self.STAT_CHANGE_TRANSLATIONS[attribute]
+
+                display_name, formatter, converter, multiplier = self.parse_translation_format(key)
+
+                old_val_str = formatter.format(old_val)
+
+                if type(new_val) is str:
+                    new_val_str = new_val
+                else:
+                    new_val_str = formatter.format(new_val)
+                
+                line = f'**{display_name}:** {old_val_str} **->** {new_val_str}'
+
+                if broken:
+                    line += f' `{chars.x}`'
+            else:
+                line = f'{change} `{chars.x}`'
+            
+            display_list.append(line)
+        
+        display = tools.make_list(display_list)
+
+        embed.add_field(name=f'Stat changes {chars.change}', value=display, inline=False)
     
     async def display_animal(self, interaction: discord.Interaction, animal_query):
         animal_data = self.search_with_suggestions(self.animal_stats, lambda animal: animal['name'], animal_query)
@@ -1428,6 +1460,13 @@ until it's fixed. ")
         status_list_str = tools.make_list(status_strs, bullet_point='') 
 
         embed.add_field(name=f"Creators Center status {chars.magnifying_glass}", value=status_list_str, inline=False)
+
+        reject_reaons = self.reject_reasons(skin, check_reddit=False)
+
+        if reject_reaons:
+            reasons_str = tools.make_list(reject_reaons)
+
+            embed.add_field(name=f'Problems {chars.sarcastic_fringehead_out}', value=reasons_str)
 
         if user: 
             user_username = user['username'] 
@@ -2290,7 +2329,7 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
 
         username = self.get_true_username(query)
 
-        print(username)
+        # print(username)
 
         if username:
             acc_data = self.search_by_username(username) 
