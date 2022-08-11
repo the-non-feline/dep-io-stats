@@ -172,13 +172,14 @@ or its link')
     @app_commands.describe(price="Filter by whether they're free or not")
     @app_commands.describe(reskin="Filter by whether they're edits to existing approved skins")
     @app_commands.describe(animal="Show only skins for a specific animal")
+    @app_commands.describe(name_contains='Show only skins whose name contains certain words')
     async def skin_search(interaction: discord.Interaction, list_name: typing.Literal["approved", "pending"]='approved',
     category: ds_constants.DS_Constants.AVAILABILITY_FILTERS=None, 
     acceptability: ds_constants.DS_Constants.ACCEPTABILITY_FILTERS=None,
     stat_change: ds_constants.DS_Constants.STAT_CHANGE_FILTERS=None,
     price: ds_constants.DS_Constants.PRICE_FILTERS=None,
     reskin: ds_constants.DS_Constants.PENDING_FILTERS=None,
-    animal: str=None):
+    animal: str=None, name_contains: str=None):
         await interaction.response.defer()
         
         bot = interaction.client
@@ -205,6 +206,13 @@ or its link')
             else:
                 filter_strs.append(animal)
                 filter_funcs.append(lambda self, skin: skin['fish_level'] == animal_obj['fishLevel'])
+        
+        if name_contains:
+            filter_strs.append(name_contains)
+
+            lowered = name_contains.lower()
+
+            filter_funcs.append(lambda self, skin: lowered in skin['name'].lower())
 
         if list_name == 'approved': 
             displayer = approved_search

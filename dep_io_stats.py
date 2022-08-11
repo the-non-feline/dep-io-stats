@@ -668,6 +668,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         color = discord.Color.random()
         description = f'Did you mean one of these?'
         empty_description = "Never mind I have no suggestions. Sorry m8."
+        formatter = f'• {formatter}'
 
         embed_template = embed_utils.TrimmedEmbed(title=f"Possible {search_type} results", color=color, description=description)
 
@@ -693,7 +694,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
                 if no_duplicates:
                     break
-            elif not perfect_matches and (lowered_query in lowered_name or lowered_query in lowered_name): 
+            elif not perfect_matches and (lowered_query in lowered_name or lowered_name in lowered_query): 
                 suggestions.append(item) 
         
         if perfect_matches:
@@ -1482,6 +1483,7 @@ until it's fixed. ")
         if user: 
             user_username = user['username'] 
             user_pfp = user['picture'] 
+            user_page = self.PROFILE_PAGE_TEMPLATE.format(user_username)
 
             creator = user_username
 
@@ -1494,7 +1496,7 @@ until it's fixed. ")
 
             debug(pfp_url) 
 
-            embed.set_author(name=creator, icon_url=pfp_url) 
+            embed.set_author(name=creator, icon_url=pfp_url, url=user_page) 
 
         embed.set_footer(text=f"ID: {ID}")
 
@@ -1942,6 +1944,7 @@ game is down, nothing you can do but wait.", inline=False)
         tags_list = [tag['id'] for tag in tags] 
         creator_username = creator['username'] 
         creator_pfp = creator['picture'] 
+        creator_page = self.PROFILE_PAGE_TEMPLATE.format(creator_username)
 
         world_size = map_data['worldSize'] 
         width = world_size['width'] 
@@ -1980,7 +1983,7 @@ game is down, nothing you can do but wait.", inline=False)
 
         debug(pfp_url) 
 
-        embed.set_author(name=creator_str, icon_url=pfp_url) 
+        embed.set_author(name=creator_str, icon_url=pfp_url, url=creator_page) 
 
         if clone_of: 
             clone_url = self.MAP_URL_TEMPLATE.format(clone_of) 
@@ -2520,6 +2523,7 @@ account. Well, it might still be, but that would just be due to random chance.')
     @classmethod
     def animal_embed(cls, animal): 
         animal_name = animal['name'] 
+        animal_id = animal['fishLevel']
 
         title = f'Animal stats - {animal_name.capitalize()}' 
         color = discord.Color.random() 
@@ -2605,7 +2609,9 @@ account. Well, it might still be, but that would just be due to random chance.')
         if passives: 
             passives_string = tools.make_list(passives) 
 
-            embed.add_field(name='Passive abilities', value=passives_string, inline=False) 
+            embed.add_field(name='Passive abilities', value=passives_string, inline=False)
+        
+        embed.set_footer(text=f'ID: {animal_id}')
         
         return embed
     
