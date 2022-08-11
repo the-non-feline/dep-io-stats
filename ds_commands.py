@@ -26,7 +26,10 @@ async def gen_commands(client: dep_io_stats.DS):
         elif type(error) is app_commands.CheckFailure:
             await interaction.response.send_message(content='I cringe at your lack of skill, peasant.')
         else:
-            raise error
+            try:
+                raise error
+            except:
+                debug('', exc_info=True)
     
     def owner_check(interaction: discord.Interaction):
         return interaction.user.id == interaction.client.OWNER_ID
@@ -147,18 +150,20 @@ or its link')
 
         await interaction.response.send_message(embed=await bot.self_embed()) 
 
-    async def pending_search(bot, report: reports.Report, filters_str, filters): 
-        channel = report.interaction.channel
+    async def pending_search(bot, interaction: discord.Interaction, filters_str, filters): 
+        channel = interaction.channel
 
+        '''
         if bot.is_sb_channel(channel.id): 
-            await bot.pending_display(report, filters_str, filters) 
+            # await bot.pending_display(report, filters_str, filters) 
+            pass
         else: 
-            await bot.approved_display(report, 'pending', filters_str, filters) 
+        '''
+        
+        await bot.approved_display(interaction, 'pending', filters_str, filters)
 
-            report.add(f'***Use this command in a Skin Board channel to get more detailed information.***')
-
-    async def approved_search(bot, report: reports.Report, filters_str, filters): 
-        await bot.approved_display(report, 'approved', filters_str, filters)
+    async def approved_search(bot, interaction: discord.Interaction, filters_str, filters): 
+        await bot.approved_display(interaction, 'approved', filters_str, filters)
     
     async def animal_autocomplete(interaction: discord.Interaction, current: str):
         bot = interaction.client
@@ -178,10 +183,17 @@ or its link')
 
         return choices
     
-    @ds_slash(tree, 'skins', 'Displays the list of all skins that fit the given criteria')
+    @ds_slash(tree, 'skins', 'Find all skins that fit the given criteria. You can specify multiple filters.')
     @app_commands.autocomplete(animal=animal_autocomplete)
+    @app_commands.describe(list_name='What section of the Creators Center to search. Defaults to "approved".')
+    @app_commands.describe(category='Show only realistic, seasonal, etc.')
+    @app_commands.describe(acceptability="Filter by whether or not they have problems")
+    @app_commands.describe(stat_change="Filter by whether they change their animal's stats")
+    @app_commands.describe(price="Filter by whether they're free or not")
+    @app_commands.describe(reskin="Filter by whether they're edits to existing approved skins")
+    @app_commands.describe(animal="Show only skins for a specific animal")
     async def skin_search(interaction: discord.Interaction, list_name: typing.Literal["approved", "pending"]='approved',
-    availability: ds_constants.DS_Constants.AVAILABILITY_FILTERS=None, 
+    category: ds_constants.DS_Constants.AVAILABILITY_FILTERS=None, 
     acceptability: ds_constants.DS_Constants.ACCEPTABILITY_FILTERS=None,
     stat_change: ds_constants.DS_Constants.STAT_CHANGE_FILTERS=None,
     price: ds_constants.DS_Constants.PRICE_FILTERS=None,
@@ -191,7 +203,7 @@ or its link')
         
         bot = interaction.client
 
-        filters = availability, acceptability, stat_change, price, reskin
+        filters = category, acceptability, stat_change, price, reskin
         
         # debug(filters)
 
@@ -225,17 +237,10 @@ or its link')
         else: 
             displayer = approved_search
 
-        report = reports.Report(interaction)
-
-        if filter: 
-            filter_names_str = tools.format_iterable(filter_strs, formatter='`{}`') 
-            # filter_names_str = filter
-        else: 
-            filter_names_str = '(none)' 
+        filter_names_str = tools.format_iterable(filter_strs, formatter='`{}`') 
+        # filter_names_str = filter
         
-        await displayer(bot, report, filter_names_str, filter_funcs) 
-
-        await report.send_self()
+        await displayer(bot, interaction, filter_names_str, filter_funcs) 
     
     @ds_slash(tree, 'test', 'test command')
     async def test_command(interaction: discord.Interaction):

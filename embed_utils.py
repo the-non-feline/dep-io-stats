@@ -1,4 +1,5 @@
 import discord
+import logs
 
 class TrimmedEmbed(discord.Embed): 
     MAX_AUTHOR = 256
@@ -50,3 +51,16 @@ class TrimmedEmbed(discord.Embed):
         for val in vals:
             if len(val) > limit:
                 return True
+
+class Field:
+    def __init__(self, *, name, value, inline: bool=True):
+        self.name = name
+        self.value = value
+        self.inline = inline
+    
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'value': self.value,
+            'inline': self.inline,
+        }

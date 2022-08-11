@@ -64,3 +64,6 @@ money_bag = '💰'
 world_map = '🗺️'
 abacus = '🧮'
 funwaa_eleseal = '<:FunwaaEleseal:1006063291694592061>'
+
+class SHORTCUTS:
+    skin_symbol = palette

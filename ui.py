@@ -115,7 +115,11 @@ class Page:
         self.assign_view()
         self.set_level()
 
+        debug('assigned')
+
         await self.register_self(self.interaction)
+
+        debug('registered')
 
         return await self.send_self(self.interaction)
     

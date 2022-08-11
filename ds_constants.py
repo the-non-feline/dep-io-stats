@@ -4,6 +4,9 @@ import enum
 import chars
 from functools import partial
 
+def cap_at_100(num):
+    return num <= 100
+
 class DS_Constants: 
     REV_CHANNEL_SENTINEL = 'none' 
     REV_CHANNEL_KEY = 'rev_channel' 
@@ -115,6 +118,10 @@ class DS_Constants:
         'habitat': ('habitat', '{}', lambda num: habitat.Habitat(num)), 
         'secondaryAbilityLoadTime': ('charged boost load time', '{} ms'), 
     }
+
+    EXTRA_VALIDITY_REQUIREMENTS = {
+        'HA': lambda num, animal: type(num) is int and animal['habitat'] + num <= habitat.Habitat.MAX,
+    }
     
     NORMAL_STATS = 'level', 'healthMultiplier', 'damageMultiplier', 'speedMultiplier', 'sizeMultiplier', 'sizeScale', \
         'damageBlock', 'damageReflection', 'bleedReduction', 'poisonResistance', 'armorPenetration' 
@@ -173,16 +180,16 @@ class DS_Constants:
         unacceptable = partial(lambda self, skin: self.reject_reasons(skin, check_reddit=False))
 
     class STAT_CHANGE_FILTERS(enum.Enum):
-        statchanging = partial(lambda self, skin: skin['attributes'])
-        nonstatchanging = partial(lambda self, skin: not skin['attributes'])
+        stat_changing = partial(lambda self, skin: skin['attributes'])
+        non_stat_changing = partial(lambda self, skin: not skin['attributes'])
 
     class PRICE_FILTERS(enum.Enum):
         free = partial(lambda self, skin: skin['price'] == 0)
-        notfree = partial(lambda self, skin: skin['price'] != 0)
+        not_free = partial(lambda self, skin: skin['price'] != 0)
     
     class PENDING_FILTERS(enum.Enum):
         reskin = partial(lambda self, skin: skin['parent'] if 'parent' in skin else False)
-        notreskin = partial(lambda self, skin: 'parent' not in skin or not skin['parent'])
+        not_reskin = partial(lambda self, skin: 'parent' not in skin or not skin['parent'])
     
     print(PENDING_FILTERS.reskin.value)
 
@@ -216,3 +223,10 @@ class DS_Constants:
     TIER_EMOJIS = chars.smirk_clownfish, chars.crab_rave, chars.shrug_jellyfish, chars.triggered_squid, chars.shut_seagull, \
         chars.cry_ray, chars.dance_penguin, chars.cooloctopus, chars.chain_breaker_hammerhead, chars.thonk_gsquid
     TIER_COLORS = 0xfdbe62, 0xff5959, 0xfc8ab4, 0xffabab, 0xffffff, 0xfdaffd, 0xf7931e, 0xe47918, 0xdbdbdb, 0x902a2a
+
+    APPROVED_PAGE = 'https://creators.deeeep.io/skins/approved'
+    PENDING_PAGE = 'https://creators.deeeep.io/skins/pending'
+    STORE_PAGE = 'https://beta.deeeep.io/store/skins'
+
+    SKIN_EMBED_LINK_FORMATTER = '[{0[name]}](' + SKIN_STORE_PAGE_PREFIX + '{0[id]})'
+    MAP_EMBED_LINK_FORMATTER = '[{0[title]}](' + MAPMAKER_URL_PREFIX + '{0[string_id]})'

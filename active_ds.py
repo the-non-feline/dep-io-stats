@@ -5,7 +5,7 @@ from logs import debug
 import tools
 import commands
 import chars
-import trimmed_embed
+import embed_utils
 import reports
 import habitat
 import commands

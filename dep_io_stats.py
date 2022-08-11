@@ -20,7 +20,7 @@ from logs import debug
 import tools
 import commands
 import chars 
-import trimmed_embed
+import embed_utils
 import reports
 import habitat
 import ds_constants
@@ -563,24 +563,10 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         
         return motioned_ids
     
-    def filter_skins(self, channel, skins_list, *filters): 
-        passed_skins = [] 
-        trimmed_str = None
-
-        should_trim = not self.is_sb_channel(channel.id) 
+    def filter_skins(self, skins_list, *filters) -> list[dict]: 
+        passed_skins = []
 
         for skin in skins_list: 
-            #debug('checking skin') 
-
-            filtered_len = len(passed_skins) 
-
-            if should_trim and filtered_len == self.SEARCH_LIMIT: 
-                trimmed_str = f'***Search limited to {self.SEARCH_LIMIT} results. Perform the search in a Skin Board channel to display the full results.***' 
-
-                break
-
-            # print(filters)
-            
             for skin_filter in filters:
                 # debug(skin_filter)
 
@@ -589,9 +575,9 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             else: 
                 passed_skins.append(skin) 
         
-        return passed_skins, trimmed_str
+        return passed_skins
         
-    def get_pending_skins(self, channel, *filters): 
+    def get_pending_skins(self, *filters): 
         self.fetch_tokens(1) 
 
         pending_motions = rejected_motions = None
@@ -631,7 +617,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
                 rejected_pending = [] 
                 rejected_ids = self.compile_ids_from_motions(rejected_motions, motion_filter=lambda motion: motion['rejected']) 
             
-            filtered_skins, trimmed_string = self.filter_skins(channel, pending_list, *filters) 
+            filtered_skins, trimmed_string = self.filter_skins(pending_list, *filters) 
 
             for pending in filtered_skins: 
                 unnoticed = True
@@ -667,16 +653,15 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         
         return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending, trimmed_string
     
-    def get_approved_skins(self, channel, url, *filters): 
+    def get_approved_skins(self, url, *filters): 
         filtered_skins = None
-        trimmed_str = None
 
         approved = self.async_get(url)[0] 
 
         if approved is not None: 
-            filtered_skins, trimmed_str = self.filter_skins(channel, approved, *filters) 
+            filtered_skins = self.filter_skins(approved, *filters) 
 
-        return filtered_skins, trimmed_str
+        return filtered_skins
     
     def search_with_suggestions(self, search_list, map_func, query):
         suggestions = [] 
@@ -987,7 +972,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
                 c_username = creator['username'] 
                 c_str = f'{c_name} (@{c_username})' 
 
-                embed = trimmed_embed.TrimmedEmbed(title=skin_name, type='rich', description=desc, url=skin_url, color=color) 
+                embed = embed_utils.TrimmedEmbed(title=skin_name, type='rich', description=desc, url=skin_url, color=color) 
 
                 embed.set_author(name=f'Skin {rej_type}') 
 
@@ -1096,7 +1081,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         
         invite_hyperlink = f'Check my Discord profile for invite link' 
         
-        embed = trimmed_embed.TrimmedEmbed(title=discord_tag, description=invite_hyperlink, color=color) 
+        embed = embed_utils.TrimmedEmbed(title=discord_tag, description=invite_hyperlink, color=color) 
 
         if avatar_url: 
             url = str(avatar_url) 
@@ -1283,7 +1268,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             await interaction.followup.send(content=f"Can't fetch skins. Most likely the game is down and you'll need to wait \
 until it's fixed. ") 
 
-    def skin_embed_pages(self, interaction: discord.Interaction, skin_embed: trimmed_embed.TrimmedEmbed, 
+    def skin_embed_pages(self, interaction: discord.Interaction, skin_embed: embed_utils.TrimmedEmbed, 
     extra_assets: dict[str, str]) -> ui.Page:
         pages = [('Main asset', ui.Page(interaction, embed=skin_embed))]
         
@@ -1371,7 +1356,7 @@ until it's fixed. ")
 
         #debug(desc) 
 
-        embed = trimmed_embed.TrimmedEmbed(title=skin['name'], description=desc, color=color, url=store_page)
+        embed = embed_utils.TrimmedEmbed(title=skin['name'], description=desc, color=color, url=store_page)
 
         if asset_name[0].isnumeric(): 
             template = self.CUSTOM_SKIN_ASSET_URL_TEMPLATE
@@ -1487,7 +1472,7 @@ until it's fixed. ")
 
             #debug(hex(color)) 
 
-            embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', description=desc, color=color) 
+            embed = embed_utils.TrimmedEmbed(title=title, type='rich', description=desc, color=color) 
             
             if not pfp: 
                 pfp = self.DEFAULT_PFP
@@ -1517,7 +1502,7 @@ until it's fixed. ")
 
                 embed.add_field(name=f"Date last played {chars.video_game}", value=f'{tools.timestamp(date_last_played)}') 
         else: 
-            embed = trimmed_embed.TrimmedEmbed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
+            embed = embed_utils.TrimmedEmbed(title='Error fetching account statistics', type='rich', description="There was an error fetching account statistics. ", color=color) 
 
             embed.add_field(name="Why?", value="This usually happens when you have skill issue and entered an invalid user on \
 the `hackprofile` command. But it could also mean the game is down, especially if it happens on the `profile` command.") 
@@ -1567,7 +1552,7 @@ game is down, nothing you can do but wait.")
     def profile_error_embed(self):
         color = discord.Color.random() 
 
-        embed = trimmed_embed.TrimmedEmbed(title='Invalid account', type='rich', description="You have been trolled", color=color) 
+        embed = embed_utils.TrimmedEmbed(title='Invalid account', type='rich', description="You have been trolled", color=color) 
 
         embed.add_field(name="Why?", value="""This usually happens when you have skill issue and entered an invalid user on \
 the `hackprofile` command. 
@@ -1602,7 +1587,7 @@ game is down, nothing you can do but wait.", inline=False)
 
         #debug(hex(color)) 
 
-        embed = trimmed_embed.TrimmedEmbed(title=title, type='rich', color=color, url=public_page)
+        embed = embed_utils.TrimmedEmbed(title=title, type='rich', color=color, url=public_page)
 
         if not blacklist:
             if not pfp: 
@@ -1695,9 +1680,12 @@ game is down, nothing you can do but wait.", inline=False)
         
         return embed
     
-    def gen_generic_compilation_embed(self, embed_template: trimmed_embed.TrimmedEmbed, 
-    column_titles: tuple[str], column_strs: tuple[str], totals_str: str):
+    def gen_generic_compilation_embed(self, embed_template: embed_utils.TrimmedEmbed, 
+    column_titles: tuple[str], column_strs: tuple[str], totals_str: str, tacked_fields: tuple[embed_utils.Field]):
         embed = embed_template.copy()
+
+        for tacked_field in tacked_fields:
+            embed.add_field(**tacked_field.to_dict())
 
         for column_title, column_str in zip(column_titles, column_strs):
             embed.add_field(name=column_title, value=column_str)
@@ -1706,9 +1694,9 @@ game is down, nothing you can do but wait.", inline=False)
 
         return embed
     
-    def build_generic_compilation(self, embed_template: trimmed_embed.TrimmedEmbed, comp_item: dict, 
-    embeds: list[trimmed_embed.TrimmedEmbed], titles: tuple[str], formatters: tuple[str], destinations: tuple[list], 
-    destination_lengths: list[int], totals_str: str):
+    def build_generic_compilation(self, embed_template: embed_utils.TrimmedEmbed, comp_item: dict, 
+    embeds: list[embed_utils.TrimmedEmbed], titles: tuple[str], formatters: tuple[str], destinations: tuple[list], 
+    destination_lengths: list[int], totals_str: str, tacked_fields: tuple[embed_utils.Field]):
         for index in range(len(destinations)):
             formatted = formatters[index].format(comp_item)
             
@@ -1717,7 +1705,7 @@ game is down, nothing you can do but wait.", inline=False)
         too_long = False
 
         for destination_length in destination_lengths:
-            if destination_length > trimmed_embed.TrimmedEmbed.MAX_FIELD_VAL:
+            if destination_length > embed_utils.TrimmedEmbed.MAX_FIELD_VAL:
                 too_long = True
 
                 break
@@ -1726,7 +1714,7 @@ game is down, nothing you can do but wait.", inline=False)
             column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
 
             new_embed = self.gen_generic_compilation_embed(embed_template, titles, column_strs,
-            totals_str)
+            totals_str, tacked_fields)
 
             embeds.append(new_embed)
 
@@ -1756,12 +1744,12 @@ game is down, nothing you can do but wait.", inline=False)
 
             aggregates.append(formatted)
         
-        return tools.format_iterable(aggregates)
+        return tools.make_list(aggregates)
     
-    def generic_compilation_embeds(self, interaction: discord.Interaction, embed_template: trimmed_embed.TrimmedEmbed, 
+    def generic_compilation_embeds(self, interaction: discord.Interaction, embed_template: embed_utils.TrimmedEmbed, 
     compilation_type: str, comp_items: list[dict],
     titles: tuple[str], formatters: tuple[str], aggregate_names: tuple[str]=(),
-    aggregate_attrs: tuple[str]=()):
+    aggregate_attrs: tuple[str]=(), tacked_fields: tuple[embed_utils.Field]=()):
         if comp_items:
             embeds = []
             destinations = tuple([] for title in titles)
@@ -1771,20 +1759,25 @@ game is down, nothing you can do but wait.", inline=False)
 
             for comp_item in comp_items:
                 self.build_generic_compilation(embed_template, comp_item, embeds, titles, formatters,
-                destinations, destination_lengths, totals_str)
+                destinations, destination_lengths, totals_str, tacked_fields)
             
             column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
 
             last_embed = self.gen_generic_compilation_embed(embed_template, titles, column_strs,
-            totals_str)
+            totals_str, tacked_fields)
 
             embeds.append(last_embed)
+
+            debug(embeds)
 
             pages = (ui.Page(interaction, embed=embed) for embed in embeds)
 
             return ui.ScrollyBook(interaction, *pages)
         else:
             embed = embed_template.copy()
+
+            for tacked_field in tacked_fields:
+                embed.add_field(**tacked_field.to_dict())
             
             embed.add_field(name=f'No {compilation_type} {chars.funwaa_eleseal}', 
             value=f'Nothing to see here, move along.')
@@ -1796,8 +1789,8 @@ game is down, nothing you can do but wait.", inline=False)
 
         embed_template.description = 'This list only includes **officlally added** skins (skins approved for the Store)'
 
-        titles = f'Skin {chars.palette}', f'Sales {chars.stonkalot}'
-        formatters = '[{0[name]}](' + self.SKIN_STORE_PAGE_PREFIX + '{0[id]})', '{[sales]:,}'
+        titles = f'Skin {chars.SHORTCUTS.skin_symbol}', f'Sales {chars.stonkalot}'
+        formatters = self.SKIN_EMBED_LINK_FORMATTER, '{[sales]:,}'
 
         skins.sort(key=lambda skin: skin['sales'], reverse=True)
 
@@ -1814,7 +1807,7 @@ game is down, nothing you can do but wait.", inline=False)
         public_maps.sort(key=lambda map: map['likes'], reverse=True)
 
         titles = f'Map {chars.world_map}', f'Likes {chars.thumbsup}'
-        formatters = '[{0[title]}](' + self.MAPMAKER_URL_PREFIX + '{0[string_id]})', '{[likes]:,}'
+        formatters = self.MAP_EMBED_LINK_FORMATTER, '{[likes]:,}'
 
         return self.generic_compilation_embeds(interaction, embed_template, 'maps', public_maps, titles, formatters)
     
@@ -1907,7 +1900,7 @@ game is down, nothing you can do but wait.", inline=False)
 
         map_link = self.MAPMAKER_URL_TEMPLATE.format(string_id) 
 
-        embed = trimmed_embed.TrimmedEmbed(title=title, description=desc, color=color, url=map_link) 
+        embed = embed_utils.TrimmedEmbed(title=title, description=desc, color=color, url=map_link) 
 
         embed.add_field(name=f"Likes {chars.thumbsup}", value=f'{likes:,}') 
         
@@ -2003,7 +1996,7 @@ String ID: {string_id}''')
     async def pending_display(self, r, filter_names_str, filters): 
         color = discord.Color.random() 
 
-        pending, upcoming, motioned, rejected, trimmed_str = self.get_pending_skins(r.interaction.channel, *filters) 
+        pending, upcoming, motioned, rejected, trimmed_str = self.get_pending_skins(*filters) 
 
         r.add(f'**__Pending skins with filters {filter_names_str}__**') 
         
@@ -2020,24 +2013,43 @@ String ID: {string_id}''')
         self.build_skins_report(r, rejected) 
 
         if trimmed_str: 
-            r.add(trimmed_str) 
+            r.add(trimmed_str)
     
-    async def approved_display(self, r, actual_type, filter_names_str, filters): 
+    def skin_search_base_embed(self, actual_type: str, description: str, filter_names_str: str):
+        color = discord.Color.random()
+
+        embed = embed_utils.TrimmedEmbed(title=f'{actual_type.capitalize()} skin search', description=description, color=color)
+
+        if filter_names_str:
+            tacked_fields = (embed_utils.Field(name=f'Filters used {chars.magnifying_glass}', value=filter_names_str, 
+            inline=False),)
+        else:
+            tacked_fields = ()
+
+        return embed, tacked_fields
+    
+    async def approved_display(self, interaction: discord.Interaction, actual_type, filter_names_str, filters): 
         if actual_type == 'approved': 
             url = self.SKINS_LIST_URL
+            description = f'These skins are in the [Approved section]({self.APPROVED_PAGE}) of the Creators Center. They are also \
+in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
+
         elif actual_type == 'pending': 
             url = self.PENDING_SKINS_LIST_URL
+            description = f'These skins are in the [Pending section]({self.PENDING_PAGE}) of the Creators Center.'
         
-        approved, hidden_str = self.get_approved_skins(r.interaction.channel, url, *filters) 
-        
-        approved_length = self.rl(approved) 
+        approved = self.get_approved_skins(url, *filters)
 
-        r.add(f"**__{actual_type.capitalize()} skins with filters {filter_names_str}__ ({approved_length})** {chars.check}") 
-        
-        self.build_skins_report(r, approved) 
+        embed_template, tacked_fields = self.skin_search_base_embed(actual_type, description, filter_names_str)
 
-        if hidden_str: 
-            r.add(hidden_str) 
+        display = self.generic_compilation_embeds(interaction, embed_template, 'skins found', approved, 
+        (f'Skin {chars.SHORTCUTS.skin_symbol}', f'ID {chars.folder}', f'Price {chars.deeeepcoin}'),
+        (self.SKIN_EMBED_LINK_FORMATTER, '{[id]}', '{[price]}'), aggregate_names=(chars.deeeepcoin, 'sales'),
+        aggregate_attrs=('price', 'sales'), tacked_fields=tacked_fields)
+
+        debug(display)
+        
+        await display.send_first()
     
     def time_exceeded(self): 
         last_checked_row = self.rev_data_table.find_one(key=self.REV_LAST_CHECKED_KEY) 
