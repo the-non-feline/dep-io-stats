@@ -480,7 +480,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
     def get_all_acc_data(self, acc_id): 
         acc_url = self.DATA_URL_TEMPLATE.format(acc_id) 
         server_list_url = self.SERVER_LIST_URL
-        skins_list_url = self.SKINS_LIST_URL
+        skins_list_url = self.APPROVED_SKINS_LIST_URL
 
         self.fetch_tokens(1) 
 
@@ -663,7 +663,20 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
         return filtered_skins
     
-    def search_with_suggestions(self, search_list, map_func, query):
+    def suggestions_book(self, interaction: discord.Interaction, suggestions: list[dict], search_type: str, title: str, 
+    formatter: str):
+        color = discord.Color.random()
+        description = f'Did you mean one of these?'
+        empty_description = "Never mind I have no suggestions. Sorry m8."
+
+        embed_template = embed_utils.TrimmedEmbed(title=f"Possible {search_type} results", color=color, description=description)
+
+        return self.generic_compilation_embeds(interaction, embed_template, search_type, suggestions, (title,), (formatter,),
+        empty_description=empty_description)
+    
+    async def search_with_suggestions(self, interaction: discord.Interaction, search_type: str, title: str, formatter: str,
+    search_list: list[dict], map_func, query: str, no_duplicates=False):
+        perfect_matches = []
         suggestions = [] 
 
         for item in search_list: 
@@ -676,13 +689,21 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             #debug(lowered_query) 
 
             if lowered_name == lowered_query: 
-                return item
-            elif len(suggestions) == self.MAX_SKIN_SUGGESTIONS: 
-                return None
-            elif lowered_query in lowered_name: 
+                perfect_matches.append(item)
+
+                if no_duplicates:
+                    break
+            elif not perfect_matches and (lowered_query in lowered_name or lowered_query in lowered_name): 
                 suggestions.append(item) 
-        else: 
+        
+        if perfect_matches:
+            return perfect_matches
+        elif len(suggestions) == 1:
             return suggestions
+        else:
+            suggestions_book = self.suggestions_book(interaction, suggestions, search_type, title, formatter)
+
+            await suggestions_book.send_first()
     
     @staticmethod
     def count_votes(total_motions): 
@@ -1206,36 +1227,13 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         embed.add_field(name=f'Stat changes {chars.change}', value=display, inline=False)
     
     async def display_animal(self, interaction: discord.Interaction, animal_query):
-        animal_data = self.search_with_suggestions(self.animal_stats, lambda animal: animal['name'], animal_query)
+        animal_data = await self.search_with_suggestions(interaction, 'animals', f'Animal {chars.fish}', '{[name]}', self.animal_stats,
+        lambda animal: animal['name'], animal_query, no_duplicates=True)
 
-        animal_json = None
-        suggestions_str = '' 
+        if animal_data:
+            animal = animal_data[0]
 
-        if type(animal_data) is list: 
-            if len(animal_data) == 1: 
-                animal_json = animal_data[0] 
-            else: 
-                if animal_data: 
-                    animal_names = (animal['name'] for animal in animal_data) 
-
-                    suggestions_str = tools.format_iterable(animal_names, formatter='`{}`') 
-
-                    suggestions_str = f"Maybe you meant one of these? {suggestions_str}" 
-            
-            debug(f'Suggestions length: {len(animal_data)}') 
-        elif animal_data: 
-            animal_json = animal_data
-
-            debug('match found') 
-        else: 
-            debug('limit exceeded') 
-
-        if animal_json: 
-            await interaction.response.send_message(embed=self.animal_embed(animal_json)) 
-        else: 
-            text = "That's not a valid animal name. " + suggestions_str
-
-            await interaction.response.send_message(content=text)
+            await interaction.response.send_message(embed=self.animal_embed(animal))
     
     async def skin_by_id(self, interaction: discord.Interaction, skin_id):   
         skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
@@ -1256,16 +1254,28 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         else: 
             await interaction.followup.send(content=f"That's not a valid skin ID (or the game might be down).") 
 
-    async def skin_by_name(self, interaction: discord.Interaction, skin_name): 
-        skins_list_url = self.SKINS_LIST_URL
+    async def skin_by_name(self, interaction: discord.Interaction, skin_name, approved: bool):
+        if approved:
+            skins_list_url = self.APPROVED_SKINS_LIST_URL
+        else:
+            skins_list_url = self.PENDING_SKINS_LIST_URL
 
         await interaction.response.defer()
 
         skins_list = self.async_get(skins_list_url)[0] 
         
         if skins_list: 
-            skin_data = self.search_with_suggestions(skins_list, lambda skin: skin['name'], skin_name) 
+            skin_suggestions = await self.search_with_suggestions(interaction, 'skins', f'Skin {chars.palette}', '{[name]}', 
+            skins_list, lambda skin: skin['name'], skin_name) 
 
+            if skin_suggestions:
+                promises = map(lambda suggestion: ui.Promise(self.skin_embed, interaction, suggestion), skin_suggestions)
+
+                book = ui.ScrollyBook(interaction, *promises, page_title='Skin')
+
+                await book.send_first()
+
+            '''
             skin_json = None
             suggestions_str = '' 
 
@@ -1296,6 +1306,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
                 text = "That's not a valid skin name. " + suggestions_str
 
                 await interaction.followup.send(content=text) 
+            '''
         else: 
             await interaction.followup.send(content=f"Can't fetch skins. Most likely the game is down and you'll need to wait \
 until it's fixed. ") 
@@ -1788,7 +1799,8 @@ game is down, nothing you can do but wait.", inline=False)
     def generic_compilation_embeds(self, interaction: discord.Interaction, embed_template: embed_utils.TrimmedEmbed, 
     compilation_type: str, comp_items: list[dict],
     titles: tuple[str], formatters: tuple[str], aggregate_names: tuple[str]=(),
-    aggregate_attrs: tuple[str]=(), tacked_fields: tuple[embed_utils.Field]=()):
+    aggregate_attrs: tuple[str]=(), tacked_fields: tuple[embed_utils.Field]=(),
+    empty_description: str=None):
         if comp_items:
             embeds = []
             destinations = tuple([] for title in titles)
@@ -1819,7 +1831,7 @@ game is down, nothing you can do but wait.", inline=False)
                 embed.add_field(**tacked_field.to_dict())
             
             embed.add_field(name=f'No {compilation_type} {chars.funwaa_eleseal}', 
-            value=f'Nothing to see here, move along.')
+            value=empty_description or f'Nothing to see here, move along.')
 
             return ui.Page(interaction, embed=embed)
 
@@ -2069,7 +2081,7 @@ String ID: {string_id}''')
     
     async def approved_display(self, interaction: discord.Interaction, actual_type, filter_names_str, filters): 
         if actual_type == 'approved': 
-            url = self.SKINS_LIST_URL
+            url = self.APPROVED_SKINS_LIST_URL
             description = f'These skins are in the [Approved section]({self.APPROVED_PAGE}) of the Creators Center. They are also \
 in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
 

@@ -52,7 +52,7 @@ class DS_Constants:
     PFP_URL_TEMPLATE = 'https://cdn.deeeep.io/uploads/avatars/{}' 
     SERVER_LIST_URL = 'http://apibeta.deeeep.io/hosts?beta=1' 
     MAP_URL_TEMPLATE = 'https://apibeta.deeeep.io/maps/{}'
-    SKINS_LIST_URL = 'https://apibeta.deeeep.io/skins?cat=all' 
+    APPROVED_SKINS_LIST_URL = 'https://apibeta.deeeep.io/skins?cat=all' 
     LOGIN_URL = 'https://api.deeeep.io/auth/local/signin' 
     SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
     LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 

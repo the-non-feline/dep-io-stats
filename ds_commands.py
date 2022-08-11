@@ -70,34 +70,32 @@ command to learn how to connect accounts.")
     @ds_slash(tree, 'skin', 'Displays the stats of a skin')
     @app_commands.describe(skin_query='The name of the skin if looking up by name, or ID if by ID', search_type='How I should \
 look up the skin. Defaults to `name` if unspecified')
-    async def skin_command(interaction: discord.Interaction, skin_query: str, search_type: typing.Literal['id', 'name']='name'): 
+    async def skin_command(interaction: discord.Interaction, skin_query: str, 
+    search_type: typing.Literal['id', 'approved', 'pending']='approved'): 
         bot = interaction.client
 
         if search_type == 'id': 
-            displayer = bot.skin_by_id
-        elif search_type == 'name': 
-            displayer = bot.skin_by_name
-
-        # print(skin_query)
+            return await bot.skin_by_id(interaction, skin_query)
+        elif search_type == 'approved': 
+            return await bot.skin_by_name(interaction, skin_query, True)
+        else:
+            return await bot.skin_by_name(interaction, skin_query, False)
         
-        if skin_query: 
-            return await displayer(interaction, skin_query) 
-        else: 
-            return True
-    
     async def animal_autocomplete(interaction: discord.Interaction, current: str):
         bot = interaction.client
 
-        bot.set_animal_stats()
+        possibilities = []
 
-        assert type(current) is str
+        lowered_and_stripped = current.lower().replace(' ', '')
 
-        possibilities = [filter for filter in bot.ANIMAL_FILTERS if current.lower() in filter]
-        possibilities = possibilities[:25]
+        for animal in bot.animal_stats:
+            if lowered_and_stripped in animal['name']:
+                possibilities.append(animal['name'])
 
-        choices = [app_commands.Choice(name=choice, value=choice) for choice in possibilities]
+                if len(possibilities) == 25:
+                    break
 
-        # print(choices)
+        choices = [app_commands.Choice(name=poss, value=poss) for poss in possibilities]
 
         return choices
     
@@ -164,24 +162,6 @@ or its link')
 
     async def approved_search(bot, interaction: discord.Interaction, filters_str, filters): 
         await bot.approved_display(interaction, 'approved', filters_str, filters)
-    
-    async def animal_autocomplete(interaction: discord.Interaction, current: str):
-        bot = interaction.client
-
-        possibilities = []
-
-        lowered = current.lower()
-
-        for animal in bot.animal_stats:
-            if lowered in animal['name']:
-                possibilities.append(animal['name'])
-
-                if len(possibilities) == 25:
-                    break
-
-        choices = [app_commands.Choice(name=poss, value=poss) for poss in possibilities]
-
-        return choices
     
     @ds_slash(tree, 'skins', 'Find all skins that fit the given criteria. You can specify multiple filters.')
     @app_commands.autocomplete(animal=animal_autocomplete)
