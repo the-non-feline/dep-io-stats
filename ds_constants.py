@@ -175,13 +175,17 @@ class DS_Constants:
 
     class AVAILABILITY_FILTERS(enum.Enum):
         hallooween = partial(lambda self, skin: skin['season'] == 'hallooween')
+        halloween = partial(lambda self, skin: skin['season'] == 'hallooween')
         christmas = partial(lambda self, skin: skin['season'] == 'christmas')
         valentines = partial(lambda self, skin: skin['season'] == 'valentines')
         easter = partial(lambda self, skin: skin['season'] == 'easter')
         lunar = partial(lambda self, skin: skin['season'] == 'lunar')
+        lunar_new_year = partial(lambda self, skin: skin['season'] == 'lunar')
         real = partial(lambda self, skin: skin['category'] == 'real')
+        realistic = partial(lambda self, skin: skin['category'] == 'real')
         unrealistic = partial(lambda self, skin: skin['category'] == 'unrealistic')
         season = partial(lambda self, skin: skin['category'] == 'season')
+        seasonal = partial(lambda self, skin: skin['category'] == 'season')
 
     class ACCEPTABILITY_FILTERS(enum.Enum):
         acceptable = partial(lambda self, skin: not self.reject_reasons(skin, check_reddit=False))
@@ -199,7 +203,7 @@ class DS_Constants:
         reskin = partial(lambda self, skin: skin['parent'] if 'parent' in skin else False)
         not_reskin = partial(lambda self, skin: 'parent' not in skin or not skin['parent'])
     
-    print(PENDING_FILTERS.reskin.value)
+    print(repr(AVAILABILITY_FILTERS.seasonal))
 
     # print(PENDING_FILTERS_MAP)
 
