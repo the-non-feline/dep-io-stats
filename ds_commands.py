@@ -68,18 +68,20 @@ command to learn how to connect accounts.")
         return await check_stats(interaction, user or interaction.user)
     
     @ds_slash(tree, 'skin', 'Displays the stats of a skin')
-    @app_commands.describe(skin_query='The name of the skin if looking up by name, or ID if by ID', search_type='How I should \
-look up the skin. Defaults to `name` if unspecified')
+    @app_commands.describe(skin_query='The name of the skin if looking up by name, or ID if by ID', how_to_lookup='Where to \
+search, or "id" to search by ID. Defaults to "approved".')
     async def skin_command(interaction: discord.Interaction, skin_query: str, 
-    search_type: typing.Literal['id', 'approved', 'pending']='approved'): 
+    how_to_lookup: typing.Literal['id', 'approved', 'pending', 'upcoming']='approved'):
         bot = interaction.client
 
-        if search_type == 'id': 
+        if how_to_lookup == 'id': 
             return await bot.skin_by_id(interaction, skin_query)
-        elif search_type == 'approved': 
-            return await bot.skin_by_name(interaction, skin_query, True)
         else:
-            return await bot.skin_by_name(interaction, skin_query, False)
+            if how_to_lookup == 'upcoming' and not bot.is_sb_channel(interaction.channel_id):
+                await interaction.response.send_message(content='You can only look up upcoming skins in Artistry Guild/Skin Board \
+channels.')
+            else:
+                return await bot.skin_by_name(interaction, skin_query, how_to_lookup)
         
     async def animal_autocomplete(interaction: discord.Interaction, current: str):
         bot = interaction.client
@@ -163,9 +165,15 @@ or its link')
     async def approved_search(bot, interaction: discord.Interaction, filters_str, filters): 
         await bot.approved_display(interaction, 'approved', filters_str, filters)
     
+    async def upcoming_search(bot, interaction: discord.Interaction, filters_str, filters):
+        if bot.is_sb_channel(interaction.channel_id):
+            await bot.approved_display(interaction, 'upcoming', filters_str, filters)
+        else:
+            await interaction.followup.send(content="You can only search upcoming skins in Artistry Guild (Skin Board) channels.")
+    
     @ds_slash(tree, 'skins', 'Find all skins that fit the given criteria. You can specify multiple filters.')
     @app_commands.autocomplete(animal=animal_autocomplete)
-    @app_commands.describe(list_name='What section of the Creators Center to search. Defaults to "approved".')
+    @app_commands.describe(where_to_search='What section of the Creators Center to search. Defaults to "approved".')
     @app_commands.describe(category='Show only realistic, seasonal, etc.')
     @app_commands.describe(acceptability="Filter by whether or not they have problems")
     @app_commands.describe(stat_change="Filter by whether they change their animal's stats")
@@ -173,7 +181,8 @@ or its link')
     @app_commands.describe(reskin="Filter by whether they're edits to existing approved skins")
     @app_commands.describe(animal="Show only skins for a specific animal")
     @app_commands.describe(name_contains='Show only skins whose name contains certain words')
-    async def skin_search(interaction: discord.Interaction, list_name: typing.Literal["approved", "pending"]='approved',
+    async def skin_search(interaction: discord.Interaction, 
+    where_to_search: typing.Literal["approved", "pending", "upcoming"]='approved',
     category: ds_constants.DS_Constants.AVAILABILITY_FILTERS=None, 
     acceptability: ds_constants.DS_Constants.ACCEPTABILITY_FILTERS=None,
     stat_change: ds_constants.DS_Constants.STAT_CHANGE_FILTERS=None,
@@ -214,16 +223,19 @@ or its link')
 
             filter_funcs.append(lambda self, skin: lowered in skin['name'].lower())
 
-        if list_name == 'approved': 
+        if where_to_search == 'approved': 
             displayer = approved_search
 
             # filters = filters[1:] 
-        elif list_name == 'pending': 
+        elif where_to_search == 'pending': 
             displayer = pending_search
 
             # filters = filters[1:] 
-        else: 
-            displayer = approved_search
+        elif where_to_search == 'upcoming':
+            displayer = upcoming_search
+        
+        else:
+            raise RuntimeError(f'Invalid list for skin search: {where_to_search}')
 
         filter_names_str = tools.format_iterable(filter_strs, formatter='`{}`') 
         # filter_names_str = filter

@@ -65,6 +65,7 @@ world_map = '🗺️'
 abacus = '🧮'
 funwaa_eleseal = '<:FunwaaEleseal:1006063291694592061>'
 sarcastic_fringehead_out = '<:SarcasticFringeheadOut:1007160121048186921>'
+whoopsy_dolphin = '<:WhoopsyDolphin:1008595229307326526>'
 
 class SHORTCUTS:
     skin_symbol = palette

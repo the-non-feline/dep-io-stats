@@ -17,5 +17,4 @@ import ds_commands
 import os
 
 class Active_DS(DS): 
-    def __init__(self, logs_file_name, storage_file_name, animals_file_name, *credentials):
-        super().__init__(logs_file_name, storage_file_name, animals_file_name, *credentials)
+    pass

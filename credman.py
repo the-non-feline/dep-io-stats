@@ -6,7 +6,7 @@ class CredMan:
     def __init__(self, client, credentials): 
         self.client = client
         self.credentials = credentials
-        self.tokens = [None] * len(self.credentials) 
+        self.tokens = [None] * len(self.credentials)
     
     def request_tokens(self, needed_num): 
         start_index = None

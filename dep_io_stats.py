@@ -1,5 +1,6 @@
 from email import message
 from os import kill
+from typing import Type
 import grequests
 import discord
 import dataset
@@ -31,10 +32,14 @@ import slash_util
 from discord.ext import commands
 
 class DS(ds_constants.DS_Constants, commands.Bot): 
-    def __init__(self, logs_file_name, storage_file_name, animals_file_name, *credentials): 
-        self.credentials = credentials
+    def __init__(self, logs_file_name: str, storage_file_name: str, animals_file_name: str, email: str, password: str): 
+        self.email = email
+        self.password = password
 
-        self.credman = credman.CredMan(self, self.credentials) 
+        self.active_token_requests = 0
+        self.token = None
+
+        # self.credman = credman.CredMan(self, self.credentials) 
 
         self.db = dataset.connect(storage_file_name) 
         self.links_table = self.db.get_table('account_links') 
@@ -128,9 +133,12 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             return c
     
     def is_sb_channel(self, channel_id): 
-        c_entry = self.sb_channels_table.find_one(channel_id=channel_id) 
+        if channel_id:
+            c_entry = self.sb_channels_table.find_one(channel_id=channel_id) 
 
-        return c_entry
+            return c_entry
+        else:
+            return False
     
     async def send(self, c, *args, **kwargs): 
         try: 
@@ -157,13 +165,67 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         finally:
             await super().close() 
     
+    '''
     def get_token(self, index): 
         return self.credman.tokens[index] 
+    '''
     
+    def fetch_token(self):
+        if not self.token:
+            debug(self.email)
+            debug(self.password)
+
+            request = grequests.request('POST', self.LOGIN_URL, data={
+                'email': self.email, 
+                'password': self.password, 
+            }, headers={
+                'origin': 'https://creators.deeeep.io'
+            })
+
+            result = self.async_get(request)[0]
+
+            if result:
+                token = result['token']
+
+                self.token = token
+                
+                debug(f'Token fetched: {self.token}')
+            else:
+                debug('Error fetching token')
+        else:
+            debug(f'Cached token: {self.token}')
+    
+    def del_token(self):
+        former_token = self.token
+
+        self.token = None
+
+        debug(f'Forgor token {former_token}')
+    
+    def borrow_token(self):
+        class TokenManager:
+            def __init__(self, client: DS):
+                self.client = client
+            
+            def __enter__(self):
+                self.client.active_token_requests += 1
+
+                self.client.fetch_token()
+
+                return self.client.token
+            
+            def __exit__(self, exc_type, exc_value, traceback):
+                self.client.active_token_requests -= 1
+
+                if not self.client.active_token_requests:
+                    self.client.del_token()
+        
+        return TokenManager(self)
+
+    '''
     def log_out_acc(self): 
         self.credman.clear_tokens() 
 
-        ''' 
         logout_request = grequests.request('GET', self.LOGOUT_URL, headers={
             'Authorization': f'Bearer {self.token}', 
         }) 
@@ -171,7 +233,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         result = self.async_get(logout_request)[0] 
 
         debug(f'logout of Deeeep.io account status: {result}')
-        ''' 
+    ''' 
     
     async def first_task_start(self): 
         self.set_animal_stats() 
@@ -653,15 +715,36 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         
         return unnoticed_pending, upcoming_pending, motioned_pending, rejected_pending, trimmed_string
     
-    def get_approved_skins(self, url, *filters): 
-        filtered_skins = None
+    def skins_from_list(self, list_name: str) -> list[dict]:
+        need_token = False
 
-        approved = self.async_get(url)[0] 
+        if list_name == 'approved': 
+            url = self.APPROVED_SKINS_LIST_URL
 
-        if approved is not None: 
-            filtered_skins = self.filter_skins(approved, *filters) 
+        elif list_name == 'pending': 
+            url = self.PENDING_SKINS_LIST_URL
+        
+        elif list_name == 'upcoming':
+            url = self.UPCOMING_LIST_URL
+            need_token = True
 
-        return filtered_skins
+        if need_token:
+            with self.borrow_token() as token:
+                req = grequests.request('GET', url, headers={
+                    'authorization': f'Bearer {token}', 
+                })
+        else:
+            req = url
+
+        return self.async_get(req)[0] 
+    
+    def filtered_skins_from_list(self, list_name: str, *filters):
+        skins = self.skins_from_list(list_name)
+
+        if skins is not None: 
+            filtered_skins = self.filter_skins(skins, *filters) 
+
+            return filtered_skins
     
     def suggestions_book(self, interaction: discord.Interaction, suggestions: list[dict], search_type: str, title: str, 
     formatter: str):
@@ -894,8 +977,10 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         
         return rejected, reasons
     
+    '''
     def fetch_tokens(self, needed_num): 
         self.credman.request_tokens(needed_num)
+    '''
     
     def fake_check(self, r, rejected, reasons, list_json, silent_fail): 
         r.add(f'**{len(rejected)} out of {len(list_json)} failed**') 
@@ -1255,15 +1340,10 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         else: 
             await interaction.followup.send(content=f"That's not a valid skin ID (or the game might be down).") 
 
-    async def skin_by_name(self, interaction: discord.Interaction, skin_name, approved: bool):
-        if approved:
-            skins_list_url = self.APPROVED_SKINS_LIST_URL
-        else:
-            skins_list_url = self.PENDING_SKINS_LIST_URL
-
+    async def skin_by_name(self, interaction: discord.Interaction, skin_name, list_name: str):
         await interaction.response.defer()
 
-        skins_list = self.async_get(skins_list_url)[0] 
+        skins_list = self.skins_from_list(list_name)
         
         if skins_list: 
             skin_suggestions = await self.search_with_suggestions(interaction, 'skins', f'Skin {chars.palette}', '{[name]}', 
@@ -1832,7 +1912,11 @@ game is down, nothing you can do but wait.", inline=False)
             for tacked_field in tacked_fields:
                 embed.add_field(**tacked_field.to_dict())
             
-            embed.add_field(name=f'No {compilation_type} {chars.funwaa_eleseal}', 
+            if comp_items is None:
+                embed.add_field(name=f"Something went wrong {chars.whoopsy_dolphin}", value=f'There was an error fetching \
+{compilation_type}.')
+            else:
+                embed.add_field(name=f'No {compilation_type} {chars.funwaa_eleseal}', 
             value=empty_description or f'Nothing to see here, move along.')
 
             return ui.Page(interaction, embed=embed)
@@ -2082,17 +2166,20 @@ String ID: {string_id}''')
 
         return embed, tacked_fields
     
-    async def approved_display(self, interaction: discord.Interaction, actual_type, filter_names_str, filters): 
+    async def approved_display(self, interaction: discord.Interaction, actual_type, filter_names_str, filters):
+        need_token = False
+
         if actual_type == 'approved': 
-            url = self.APPROVED_SKINS_LIST_URL
             description = f'These skins are in the [Approved section]({self.APPROVED_PAGE}) of the Creators Center. They are also \
 in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
 
         elif actual_type == 'pending': 
-            url = self.PENDING_SKINS_LIST_URL
             description = f'These skins are in the [Pending section]({self.PENDING_PAGE}) of the Creators Center.'
         
-        approved = self.get_approved_skins(url, *filters)
+        elif actual_type == 'upcoming':
+            description = f'These skins are in the [Upcoming section]({self.UPCOMING_PAGE}) of the Creators Center.'
+        
+        approved = self.filtered_skins_from_list(actual_type, *filters)
 
         embed_template, tacked_fields = self.skin_search_base_embed(actual_type, description, filter_names_str)
 
@@ -2100,8 +2187,6 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
         (f'Skin {chars.SHORTCUTS.skin_symbol}', f'ID {chars.folder}', f'Price {chars.deeeepcoin}'),
         (self.SKIN_EMBED_LINK_FORMATTER, '{[id]}', '{[price]}'), aggregate_names=(chars.deeeepcoin, 'sales'),
         aggregate_attrs=('price', 'sales'), tacked_fields=tacked_fields)
-
-        debug(display)
         
         await display.send_first()
     
