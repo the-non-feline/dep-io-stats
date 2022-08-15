@@ -1,3 +1,4 @@
+from sys import exc_info
 import discord.ui
 import discord
 import logs
@@ -30,6 +31,12 @@ class TrackedView(discord.ui.View):
     async def close_all(cls):
         for view in cls.active_views.copy():
             await view.close()
+    
+    async def on_error(self, interaction: discord.Interaction, error: Exception, item: discord.ui.Item) -> None:
+        try:
+            raise error
+        except:
+            debug(f'error in {item}', exc_info=True)
 
 class RestrictedView(TrackedView):
     def __init__(self, original_user: discord.User, original_interaction: discord.Interaction, *, timeout=DEFAULT_TIMEOUT):

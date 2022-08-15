@@ -29,7 +29,7 @@ async def gen_commands(client: dep_io_stats.DS):
             try:
                 raise error
             except:
-                debug('', exc_info=True)
+                debug(f'error in {interaction}', exc_info=True)
     
     def owner_check(interaction: discord.Interaction):
         return interaction.user.id == interaction.client.OWNER_ID
@@ -335,6 +335,11 @@ If this is outdated, updated evolution trees are appreciated!
         hab = habitat.Habitat(habitat_num) 
 
         await interaction.response.send_message(content=f'`{habitat_num}` translates to `{hab}`.')
+    
+    @ds_slash(tree, 'error', 'It works by not working')
+    @app_commands.check(owner_check)
+    async def crash(interaction: discord.Interaction):
+        raise RuntimeError("You've been troled")
     
     @ds_slash(tree, 'clear', 'Clear all commands from the tree')
     @app_commands.check(owner_check)
