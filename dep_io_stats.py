@@ -1454,29 +1454,38 @@ until it's fixed. ")
 
         user = None
 
-        if not direct_api: 
-            skin_url = self.SKIN_URL_TEMPLATE.format(ID) 
+        if not direct_api:
+            id_and_version = f'{ID}/{version}'
+
+            skin_url = self.SKIN_URL_TEMPLATE.format(id_and_version) 
 
             skin_json = self.async_get(skin_url)[0] 
         else: 
             skin_json = skin
 
-        if skin_json: 
-            desc = skin_json['description'] 
+        def get(attribute):
+            if attribute in skin:
+                return skin[attribute]
+            elif skin_json:
+                return skin_json[attribute]
+            else:
+                return None
+        
+        desc = get('description')
 
-            extra_assets = skin_json['assets_data'] 
+        extra_assets = get('assets_data')
 
-            #debug(desc) 
+        #debug(desc) 
 
-            reddit_link = skin_json['reddit_link'] 
-            category = skin_json['category'] 
-            season = skin_json['season'] 
-            usable = skin_json['usable'] 
+        reddit_link = get('reddit_link')
+        category = get('category')
+        season = get('season')
+        usable = get('usable')
 
-            user = skin_json['user'] 
+        user = get('user')
 
-            for attr in self.SKIN_STATUS_ATTRS: 
-                status[attr] = skin_json[attr] 
+        for attr in self.SKIN_STATUS_ATTRS: 
+            status[attr] = get(attr)
 
         #debug(desc) 
 

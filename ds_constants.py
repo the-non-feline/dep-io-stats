@@ -218,7 +218,7 @@ class DS_Constants:
 
     SEARCH_LIMIT = 30
 
-    SKIN_STATUS_ATTRS = 'approved', 'reviewed', 'rejected'
+    SKIN_STATUS_ATTRS = 'approved', 'upcoming', 'reviewed', 'rejected'
 
     class IconsEnum(enum.Enum):
         dc = chars.discord, None
