@@ -245,15 +245,22 @@ class IndexedBook(Book):
 
     def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=DEFAULT_TIMEOUT, 
     extra_buttons: tuple[CallbackButton]=()):
+        self.cur_button = None
+
         # generate the buttons here
-        buttons = [CallbackButton(self.jump_to_page, interaction, index, style=discord.ButtonStyle.primary, 
-        label=page_tuples[index][0]) for index in range(len(page_tuples))] + list(extra_buttons)
+        if len(page_tuples) > 1:
+            normal_buttons = [CallbackButton(self.jump_to_page, interaction, index, style=discord.ButtonStyle.primary, 
+        label=page_tuples[index][0]) for index in range(len(page_tuples))]
+        
+            self.cur_button = normal_buttons[0]
+
+            self.cur_button.disabled = True
+        else:
+            normal_buttons = []
+        
+        buttons = normal_buttons + list(extra_buttons)
 
         super().__init__(interaction, timeout, [page_tuple[1] for page_tuple in page_tuples], buttons)
-
-        self.cur_button = self.buttons[0]
-
-        self.cur_button.disabled = True
     
     async def jump_to_page(self, button: CallbackButton, button_interaction: discord.Interaction, 
     message_interaction: discord.Interaction, index: int):
@@ -291,7 +298,12 @@ class ScrollyBook(Book):
 
         self.page_title = page_title
 
-        buttons_list = [self.left_button, self.page_number, self.right_button] + list(extra_buttons)
+        if len(pages) > 1:
+            normal_buttons = [self.left_button, self.page_number, self.right_button]
+        else:
+            normal_buttons = []
+        
+        buttons_list = normal_buttons + list(extra_buttons)
         
         super().__init__(interaction, timeout, list(pages), buttons_list)
 

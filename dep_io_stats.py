@@ -941,7 +941,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
         skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
 
-        debug(f'{skin_name}: {skin_url}') 
+        # debug(f'{skin_name}: {skin_url}') 
 
         if check_reddit: 
             reddit_link = skin['reddit_link']
@@ -1239,7 +1239,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
                 broken = not extra_requirement(new_value_converted)
 
-                debug(broken)
+                # debug(broken)
         
         return new_value_converted, broken
     
