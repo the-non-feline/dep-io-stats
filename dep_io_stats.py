@@ -1812,7 +1812,7 @@ game is down, nothing you can do but wait.", inline=False)
         
         return embed
     
-    def gen_generic_compilation_embed(self, embed_template: embed_utils.TrimmedEmbed, 
+    def gen_generic_compilation_embed(self, embed_template: embed_utils.TrimmedEmbed,
     column_titles: tuple[str], column_strs: tuple[str], totals_str: str, tacked_fields: tuple[embed_utils.Field]):
         embed = embed_template.copy()
 
@@ -1882,7 +1882,7 @@ game is down, nothing you can do but wait.", inline=False)
     compilation_type: str, comp_items: list[dict],
     titles: tuple[str], formatters: tuple[str], aggregate_names: tuple[str]=(),
     aggregate_attrs: tuple[str]=(), tacked_fields: tuple[embed_utils.Field]=(),
-    empty_description: str=None):
+    empty_description: str=None, buttons_func=None):
         if comp_items:
             embeds = []
             destinations = tuple([] for title in titles)
@@ -1905,7 +1905,11 @@ game is down, nothing you can do but wait.", inline=False)
 
             pages = (ui.Page(interaction, embed=embed) for embed in embeds)
 
-            return ui.ScrollyBook(interaction, *pages)
+            buttons = buttons_func(interaction, comp_items) if buttons_func else ()
+
+            debug(buttons)
+
+            return ui.ScrollyBook(interaction, *pages, extra_buttons=buttons)
         else:
             embed = embed_template.copy()
 
@@ -2166,6 +2170,75 @@ String ID: {string_id}''')
 
         return embed, tacked_fields
     
+    def mass_motion_requests(self, to_motion: list[dict], approve: bool) -> list[str]:  
+        with self.borrow_token() as token:
+            ids_and_versions = []
+            requests = []
+
+            for skin in to_motion:
+                skin_id = skin['id']
+                skin_version = skin['version']
+
+                payload = {
+                    'target_id': skin_id,
+                    'target_type': 'skin',
+                    'target_version': skin_version,
+                    'type': 'approve' if approve else 'reject',
+                }
+
+                headers = {
+                    'authorization': f'Bearer {token}',
+                    'origin': 'https://creators.deeeep.io',
+                }
+
+                request = grequests.request('POST', self.MOTION_CREATION_URL, data=payload, headers=headers)
+
+                ids_and_versions.append((skin_id, skin_version))
+                requests.append(request)
+            
+            # debug(requests)
+            
+            results = self.async_get(*requests)
+
+            # results = [None] * len(to_motion)
+        
+        failure_descs = []
+
+        for index in range(len(results)):
+            ID, version = ids_and_versions[index]
+            result = results[index]
+
+            if not result:
+                failure_descs.append(f'{ID} (version {version})')
+        
+        return failure_descs
+    
+    async def mass_motion(self, interaction: discord.Interaction, to_motion: list[dict], approve: bool):
+        await interaction.response.defer()
+
+        failures = self.mass_motion_requests(to_motion, approve)
+
+        failures_str = tools.format_iterable(failures)
+
+        motion_type = 'approval' if approve else 'removal'
+
+        await interaction.followup.send(content=f'Motioned {len(to_motion)} skins for {motion_type}, {len(failures)} failures: {failures_str}')
+    
+    async def approved_display_button_callback(self, button: ui.CallbackButton, button_interaction: discord.Interaction, 
+    message_interaction: discord.Interaction, skins: list[dict], approve: bool):
+        await self.mass_motion(button_interaction, skins, approve)
+    
+    def approved_display_buttons(self, interaction: discord.Interaction, skins: list[dict]):
+        if interaction.user.id == self.OWNER_ID:
+            approve_button = ui.CallbackButton(self.approved_display_button_callback, interaction, skins, True, 
+            label='Approve all')
+            reject_button = ui.CallbackButton(self.approved_display_button_callback, interaction, skins, False, 
+            label='Remove all')
+
+            return approve_button, reject_button
+        else:
+            return ()
+    
     async def approved_display(self, interaction: discord.Interaction, actual_type, filter_names_str, filters):
         need_token = False
 
@@ -2186,7 +2259,7 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
         display = self.generic_compilation_embeds(interaction, embed_template, 'skins found', approved, 
         (f'Skin {chars.SHORTCUTS.skin_symbol}', f'ID {chars.folder}', f'Price {chars.deeeepcoin}'),
         (self.SKIN_EMBED_LINK_FORMATTER, '{[id]}', '{[price]}'), aggregate_names=(chars.deeeepcoin, 'sales'),
-        aggregate_attrs=('price', 'sales'), tacked_fields=tacked_fields)
+        aggregate_attrs=('price', 'sales'), tacked_fields=tacked_fields, buttons_func=self.approved_display_buttons)
         
         await display.send_first()
     

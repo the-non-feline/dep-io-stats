@@ -236,7 +236,7 @@ class Book(Page):
 class IndexedBook(Book):
     def __new__(cls, interaction: discord.Interaction, *page_tuples: tuple, timeout=DEFAULT_TIMEOUT, 
     extra_buttons: tuple[CallbackButton]=()):
-        if len(page_tuples) > 1:
+        if len(page_tuples) > 1 or extra_buttons:
             return super().__new__(cls)
         else:
             page_tuples[0][1].interaction = interaction
@@ -273,7 +273,7 @@ class IndexedBook(Book):
 class ScrollyBook(Book):
     def __new__(cls, interaction: discord.Interaction, *pages: Page, timeout=DEFAULT_TIMEOUT, extra_buttons: tuple[CallbackButton]=(),
     page_title='Page'):
-        if len(pages) > 1:
+        if len(pages) > 1 or extra_buttons:
             return super().__new__(cls)
         else:
             pages[0].interaction = interaction

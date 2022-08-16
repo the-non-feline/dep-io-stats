@@ -244,3 +244,5 @@ class DS_Constants:
 
     SKIN_EMBED_LINK_FORMATTER = '[{0[name]}](' + SKIN_STORE_PAGE_PREFIX + '{0[id]})'
     MAP_EMBED_LINK_FORMATTER = '[{0[title]}](' + MAPMAKER_URL_PREFIX + '{0[string_id]})'
+
+    MOTION_CREATION_URL = 'https://apibeta.deeeep.io/motions'
