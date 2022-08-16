@@ -1882,7 +1882,7 @@ game is down, nothing you can do but wait.", inline=False)
     compilation_type: str, comp_items: list[dict],
     titles: tuple[str], formatters: tuple[str], aggregate_names: tuple[str]=(),
     aggregate_attrs: tuple[str]=(), tacked_fields: tuple[embed_utils.Field]=(),
-    empty_description: str=None, buttons_func=None):
+    empty_description: str=None, extra_buttons=()):
         if comp_items:
             embeds = []
             destinations = tuple([] for title in titles)
@@ -1905,11 +1905,7 @@ game is down, nothing you can do but wait.", inline=False)
 
             pages = (ui.Page(interaction, embed=embed) for embed in embeds)
 
-            buttons = buttons_func(interaction, comp_items) if buttons_func else ()
-
-            debug(buttons)
-
-            return ui.ScrollyBook(interaction, *pages, extra_buttons=buttons)
+            return ui.ScrollyBook(interaction, *pages, extra_buttons=extra_buttons)
         else:
             embed = embed_template.copy()
 
@@ -2228,14 +2224,21 @@ String ID: {string_id}''')
     message_interaction: discord.Interaction, skins: list[dict], approve: bool):
         await self.mass_motion(button_interaction, skins, approve)
     
-    def approved_display_buttons(self, interaction: discord.Interaction, skins: list[dict]):
+    def approved_display_buttons(self, interaction: discord.Interaction, skins: list[dict], actual_type: str):
         if interaction.user.id == self.OWNER_ID:
             approve_button = ui.CallbackButton(self.approved_display_button_callback, interaction, skins, True, 
-            label='Approve all')
+            label='Approve all', style=discord.ButtonStyle.green)
             reject_button = ui.CallbackButton(self.approved_display_button_callback, interaction, skins, False, 
-            label='Remove all')
+            label='Remove all', style=discord.ButtonStyle.red)
 
-            return approve_button, reject_button
+            if actual_type == 'pending': 
+                return approve_button, reject_button
+            
+            elif actual_type == 'upcoming':
+                return (reject_button,)
+
+            else:
+                return ()
         else:
             return ()
     
@@ -2256,10 +2259,12 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
 
         embed_template, tacked_fields = self.skin_search_base_embed(actual_type, description, filter_names_str)
 
+        buttons = self.approved_display_buttons(interaction, approved, actual_type)
+
         display = self.generic_compilation_embeds(interaction, embed_template, 'skins found', approved, 
         (f'Skin {chars.SHORTCUTS.skin_symbol}', f'ID {chars.folder}', f'Price {chars.deeeepcoin}'),
         (self.SKIN_EMBED_LINK_FORMATTER, '{[id]}', '{[price]}'), aggregate_names=(chars.deeeepcoin, 'sales'),
-        aggregate_attrs=('price', 'sales'), tacked_fields=tacked_fields, buttons_func=self.approved_display_buttons)
+        aggregate_attrs=('price', 'sales'), tacked_fields=tacked_fields, extra_buttons=buttons)
         
         await display.send_first()
     
