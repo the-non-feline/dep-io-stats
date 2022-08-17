@@ -62,10 +62,14 @@ command to learn how to connect accounts.")
         else: 
             await interaction.followup.send(content=f"This user isn't connected to any accounts.")
 
-    @ds_slash(tree, 'profile', "Displays the Deeeep.io profile of the specified user, or yourself")
+    @ds_slash(tree, 'profiles', "Displays the Deeeep.io profiles of the specified user, or yourself")
     @app_commands.describe(user='The member whose stats to check. Defaults to yourself if unspecified')
     async def other_profile(interaction: discord.Interaction, user: discord.User=None):
         return await check_stats(interaction, user or interaction.user)
+    
+    @tree.context_menu(name='View profiles')
+    async def profile_menu_option(interaction: discord.Interaction, user: typing.Union[discord.User, discord.Member]):
+        return await check_stats(interaction, user)
     
     @ds_slash(tree, 'skin', 'Displays the stats of a skin')
     @app_commands.describe(skin_query='The name of the skin if looking up by name, or ID if by ID', how_to_lookup='Where to \
