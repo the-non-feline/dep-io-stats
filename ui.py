@@ -328,8 +328,11 @@ class ScrollyBook(Book):
     '''
     
     def update_buttons(self):
+        '''
         self.left_button.disabled = self.current_index <= 0
         self.right_button.disabled = self.current_index >= len(self.pages) - 1
+        '''
+
         self.page_number.label = f'{self.page_title} {self.current_index + 1} / {len(self.pages)}'
     
     async def turn_page(self, button: CallbackButton, button_interaction: discord.Interaction, 
@@ -337,6 +340,7 @@ class ScrollyBook(Book):
         await (await self.cur_page(button_interaction)).deregister_self(button_interaction)
 
         self.current_index += direction
+        self.current_index %= len(self.pages)
         
         self.update_buttons()
 
