@@ -1806,7 +1806,7 @@ game is down, nothing you can do but wait.", inline=False)
         max_score = acc['highest_score'] 
         plays = acc['play_count']
 
-        embed = self.base_profile_embed(acc, specific_page='Rankings for', big_image=False)
+        embed = self.base_profile_embed(acc, specific_page='Stats & rankings for', big_image=False)
 
         if rankings:
             kill_rank_str = f" **(#{rankings['rank_kc']})**"
@@ -1818,6 +1818,22 @@ game is down, nothing you can do but wait.", inline=False)
         embed.add_field(name=f"Kills {chars.iseedeadfish}", value=f'{kills:,}{kill_rank_str}') 
         embed.add_field(name=f"Highscore {chars.first_place}", value=f'{max_score:,}{score_rank_str}') 
         embed.add_field(name=f"Play count {chars.video_game}", value=f'{plays:,}{plays_rank_str}')
+
+        if rankings:
+            pd_stats = rankings['pd']
+
+            if pd_stats:
+                played = pd_stats['played']
+                ratio = pd_stats['ratio']
+                won = pd_stats['won']
+
+                value = f'''• {won:,} wins
+• {played:,} played
+• {ratio}% won'''
+            else:
+                value = "Didn't play PD"
+
+            embed.add_field(name=f"Pearl Defense stats (last 30 days) {chars.oyster}", value=value)
         
         return embed
     
@@ -2272,7 +2288,7 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
 
         display = self.generic_compilation_embeds(interaction, embed_template, 'skins found', approved, 
         (f'Skin {chars.SHORTCUTS.skin_symbol}', f'ID {chars.folder}', f'Price {chars.deeeepcoin}'),
-        (self.SKIN_EMBED_LINK_FORMATTER, '{[id]}', '{[price]}'), aggregate_names=(chars.deeeepcoin, 'sales'),
+        (self.SKIN_EMBED_LINK_FORMATTER, '{[id]}', '{[price]:,}'), aggregate_names=(chars.deeeepcoin, 'sales'),
         aggregate_attrs=('price', 'sales'), tacked_fields=tacked_fields, extra_buttons=buttons)
         
         await display.send_first()
@@ -2639,7 +2655,7 @@ account. Well, it might still be, but that would just be due to random chance.')
 
                 contribs_page = ui.IndexedBook(interaction, ('Skins', skin_contribs_page), ('Maps', map_creations_page))
 
-                profile_book = ui.IndexedBook(interaction, ('About', home_page), ('Rankings', rankings_page), 
+                profile_book = ui.IndexedBook(interaction, ('About', home_page), ('Stats & Rankings', rankings_page), 
                 ('Creations', contribs_page), extra_buttons=buttons)
 
                 return profile_book
@@ -2667,6 +2683,15 @@ account. Well, it might still be, but that would just be due to random chance.')
         await interaction.response.defer()
 
         acc, socials, rankings, skin_contribs, map_creations = self.get_profile_by_username(username)
+
+        book = self.profile_book(interaction, acc, socials, rankings, skin_contribs, map_creations)
+
+        await book.send_first()
+    
+    async def display_account_by_id(self, interaction: discord.Interaction, account_id: int):
+        await interaction.response.defer()
+
+        acc, socials, rankings, skin_contribs, map_creations = self.get_profile_by_id(account_id)
 
         book = self.profile_book(interaction, acc, socials, rankings, skin_contribs, map_creations)
 

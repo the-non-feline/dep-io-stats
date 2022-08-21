@@ -115,9 +115,21 @@ channels.')
         await bot.display_animal(interaction, merged_query)
     
     @ds_slash(tree, 'hackprofile', 'Displays the beta profile corresponding to the username')
-    @app_commands.describe(username='The username of the account to display (e.g. not_a_cat)')
-    async def display_profile(interaction: discord.Interaction, username: str):
-        await interaction.client.display_account_by_username(interaction, username)
+    @app_commands.describe(search_mode='How to find the account')
+    @app_commands.describe(query='The account username or ID')
+    async def display_profile(interaction: discord.Interaction, search_mode: typing.Literal["username", "id"], query: str):
+        if search_mode == 'username':
+            await interaction.client.display_account_by_username(interaction, query)
+        else:
+            if query.isnumeric():
+                num = int(query)
+
+                if num > 0:
+                    await interaction.client.display_account_by_id(interaction, query)
+
+                    return
+            
+            await interaction.response.send_message(content="That's not a valid account ID.")
     
     @ds_slash(tree, 'map', 'Displays information about the specified map.')
     @app_commands.describe(map='The "string ID" of the map (e.g. nac_ffa), \
