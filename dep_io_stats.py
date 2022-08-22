@@ -1406,7 +1406,7 @@ until it's fixed. ")
                     template = self.SKIN_ASSET_URL_TEMPLATE
                 
                 extra_asset_url = template.format(asset_filename)
-                salted_url = tools.salt_url(extra_asset_url)
+                salted_url = extra_asset_url
 
                 copied = skin_embed.copy()
 
@@ -1496,7 +1496,7 @@ until it's fixed. ")
         else:
             template = self.SKIN_ASSET_URL_TEMPLATE
 
-        asset_url = tools.salt_url(template.format(asset_name))
+        asset_url = template.format(asset_name)
 
         debug(asset_url) 
 

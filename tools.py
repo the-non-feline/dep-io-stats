@@ -16,7 +16,7 @@ def salt_url(url: str):
     else: 
         border = '?' 
     
-    return url + border + f'ds_salt={time.time()}' 
+    return url + border + f'ds_salt={time.time_ns()}' 
 
 def trunc_float(num): 
     if math.isfinite(num): 
