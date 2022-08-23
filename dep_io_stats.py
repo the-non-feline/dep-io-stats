@@ -1,6 +1,5 @@
-from email import message
-from os import kill
 from typing import Type
+from urllib import parse
 import grequests
 import discord
 import dataset
@@ -1321,8 +1320,11 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
             await interaction.response.send_message(embed=self.animal_embed(animal))
     
-    async def skin_by_id(self, interaction: discord.Interaction, skin_id):   
-        skin_url = self.SKIN_URL_TEMPLATE.format(skin_id) 
+    async def skin_by_id(self, interaction: discord.Interaction, skin_id: str, version: int):   
+        skin_url = self.SKIN_URL_TEMPLATE.format(skin_id)
+
+        if version:
+            skin_url += f'/{version}'
 
         skin_json = self.async_get(skin_url)[0] 
 
@@ -1338,7 +1340,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             else: 
                 await interaction.followup.send(content=f"You can only view approved or pending skins in this channel. Use this in a Skin Board channel to bypass this restriction.") 
         else: 
-            await interaction.followup.send(content=f"That's not a valid skin ID (or the game might be down).") 
+            await interaction.followup.send(content=f"That's not a skin. Maybe your ID and/or version are wrong.") 
 
     async def skin_by_name(self, interaction: discord.Interaction, skin_name, list_name: str):
         await interaction.response.defer()
@@ -1572,7 +1574,7 @@ until it's fixed. ")
         if user: 
             user_username = user['username'] 
             user_pfp = user['picture'] 
-            user_page = self.PROFILE_PAGE_TEMPLATE.format(user_username)
+            user_page = self.PROFILE_PAGE_TEMPLATE.format(parse.quote(user_username))
 
             creator = user_username
 
@@ -1583,7 +1585,8 @@ until it's fixed. ")
             
             pfp_url = tools.salt_url(user_pfp) 
 
-            debug(pfp_url) 
+            debug(pfp_url)
+            debug(user_page)
 
             embed.set_author(name=creator, icon_url=pfp_url, url=user_page) 
 
@@ -1709,7 +1712,7 @@ game is down, nothing you can do but wait.", inline=False)
         real_username = acc['username']
         verified = acc['verified']
 
-        public_page = self.PROFILE_PAGE_TEMPLATE.format(real_username)
+        public_page = self.PROFILE_PAGE_TEMPLATE.format(parse.quote(real_username))
         
         if blacklist:
             display_username = '(Blacklisted account)'
@@ -2053,7 +2056,7 @@ game is down, nothing you can do but wait.", inline=False)
         tags_list = [tag['id'] for tag in tags] 
         creator_username = creator['username'] 
         creator_pfp = creator['picture'] 
-        creator_page = self.PROFILE_PAGE_TEMPLATE.format(creator_username)
+        creator_page = self.PROFILE_PAGE_TEMPLATE.format(parse.quote(creator_username))
 
         world_size = map_data['worldSize'] 
         width = world_size['width'] 
@@ -2061,7 +2064,7 @@ game is down, nothing you can do but wait.", inline=False)
 
         objs = map_data['screenObjects'] 
 
-        map_link = self.MAPMAKER_URL_TEMPLATE.format(string_id) 
+        map_link = self.MAPMAKER_URL_TEMPLATE.format(parse.quote(string_id)) 
 
         embed = embed_utils.TrimmedEmbed(title=title, description=desc, color=color, url=map_link) 
 
@@ -2644,6 +2647,13 @@ account. Well, it might still be, but that would just be due to random chance.')
     def profile_book(self, interaction: discord.Interaction, acc: dict, socials: list, 
     rankings: dict, skin_contribs: list[dict], map_creations: dict, user: discord.Member=None, user_blacklist=False) -> ui.Page:
         if acc:
+            '''
+            options = [discord.SelectOption(label=i) for i in range(5)]
+
+            useless_menu = discord.ui.Select(placeholder='Useless menu', options=options)
+            useless_button = discord.ui.Button(label='Useless button')
+            '''
+
             buttons = self.generate_profile_buttons(interaction, user, acc['id'])
 
             if not user_blacklist and not self.blacklisted(interaction.guild_id, 'account', acc['id']):

@@ -82,6 +82,7 @@ class RestrictedView(TrackedView):
 
 class Page:
     MAX_ROW = 4
+    MAX_ROW_WIDTH = 5
 
     def __init__(self, interaction: discord.Interaction, content=None, embed=None, allowed_mentions=None, timeout=DEFAULT_TIMEOUT, 
     buttons: tuple[CallbackButton]=()):
@@ -93,6 +94,7 @@ class Page:
         self.allowed_mentions = allowed_mentions
         self.view = None
         self.level = self.MAX_ROW
+        self.offset = 0
     
     async def send_self(self, interaction: discord.Interaction):
         if interaction.response.is_done():
@@ -143,9 +145,25 @@ class Page:
     
     def set_level(self, level: int=MAX_ROW):
         self.level = level
+        self.offset = 0
+
+        row_size = 0
 
         for button in self.buttons:
-            button.row = self.level
+            if isinstance(button, discord.ui.Select):
+                size = 5
+            else:
+                size = 1
+            
+            row_size += size
+            
+            while row_size > self.MAX_ROW_WIDTH:
+                row_size = size
+                self.offset += 1
+
+            debug(f'row offset {self.offset}: size is {row_size}')
+            
+            button.row = self.level - self.offset
     
     def assign_view(self):
         if self.buttons:
@@ -231,7 +249,7 @@ class Book(Page):
         super().set_level(level)
 
         for page in self.pages:
-            page.set_level(level=level - 1)
+            page.set_level(level=level - 1 - self.offset)
 
 class IndexedBook(Book):
     def __new__(cls, interaction: discord.Interaction, *page_tuples: tuple, timeout=DEFAULT_TIMEOUT, 

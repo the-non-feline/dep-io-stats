@@ -74,14 +74,17 @@ command to learn how to connect accounts.")
     @ds_slash(tree, 'skin', 'Displays the stats of a skin')
     @app_commands.describe(skin_query='The name of the skin if looking up by name, or ID if by ID', how_to_lookup='Where to \
 search, or "id" to search by ID. Defaults to "approved".')
+    @app_commands.describe(version='The version of the skin to view; only used with "id". Defaults to latest approved version.')
     async def skin_command(interaction: discord.Interaction, skin_query: str, 
-    how_to_lookup: typing.Literal['id', 'approved', 'pending', 'upcoming']='approved'):
+    how_to_lookup: typing.Literal['id', 'approved', 'pending', 'upcoming']='approved', version: app_commands.Range[int, 1]=0):
         bot = interaction.client
 
         if how_to_lookup == 'id': 
-            return await bot.skin_by_id(interaction, skin_query)
+            return await bot.skin_by_id(interaction, skin_query, version)
         else:
-            if how_to_lookup == 'upcoming' and not bot.is_sb_channel(interaction.channel_id):
+            if version:
+                await interaction.response.send_message(content="You can only specify a version if looking up by ID.")
+            elif how_to_lookup == 'upcoming' and not bot.is_sb_channel(interaction.channel_id):
                 await interaction.response.send_message(content='You can only look up upcoming skins in Artistry Guild/Skin Board \
 channels.')
             else:
