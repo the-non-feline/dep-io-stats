@@ -745,19 +745,19 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
             return filtered_skins
     
-    def suggestions_book(self, interaction: discord.Interaction, suggestions: list[dict], search_type: str, title: str, 
-    formatter: str, page_buttons_func):
+    def suggestions_book(self, interaction: discord.Interaction, suggestions: list[dict], search_type: str, titles: tuple[str], 
+    formatters: tuple[str], page_buttons_func):
         color = discord.Color.random()
         description = f'Did you mean one of these?'
         empty_description = "Never mind I have no suggestions. Sorry m8."
-        formatter = f'• {formatter}'
 
         embed_template = embed_utils.TrimmedEmbed(title=f"Possible {search_type} results", color=color, description=description)
 
-        return self.generic_compilation_embeds(interaction, embed_template, search_type, suggestions, (title,), (formatter,),
+        return self.generic_compilation_embeds(interaction, embed_template, search_type, suggestions, titles, formatters,
         empty_description=empty_description, artificial_limit=ui.CallbackSelect.MAX_OPTIONS, page_buttons_func=page_buttons_func)
     
-    async def search_with_suggestions(self, interaction: discord.Interaction, search_type: str, title: str, formatter: str,
+    async def search_with_suggestions(self, interaction: discord.Interaction, search_type: str, titles: tuple[str], 
+    formatters: tuple[str],
     search_list: list[dict], map_func, query: str, page_buttons_func, no_duplicates=False):
         perfect_matches = []
         suggestions = [] 
@@ -777,14 +777,14 @@ class DS(ds_constants.DS_Constants, commands.Bot):
                 if no_duplicates:
                     break
             elif not perfect_matches and (lowered_query in lowered_name or lowered_name in lowered_query): 
-                suggestions.append(item) 
+                suggestions.append(item)
+
+        final_list = perfect_matches or suggestions 
         
-        if perfect_matches:
-            return perfect_matches
-        elif len(suggestions) == 1:
-            return suggestions
+        if len(final_list) == 1:
+            return final_list
         else:
-            suggestions_book = self.suggestions_book(interaction, suggestions, search_type, title, formatter, page_buttons_func)
+            suggestions_book = self.suggestions_book(interaction, final_list, search_type, titles, formatters, page_buttons_func)
 
             await suggestions_book.send_first()
     
@@ -1330,7 +1330,8 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         return (menu,)
     
     async def display_animal(self, interaction: discord.Interaction, animal_query):
-        animal_data = await self.search_with_suggestions(interaction, 'animals', f'Animal {chars.fish}', '{[name]}', self.animal_stats,
+        animal_data = await self.search_with_suggestions(interaction, 'animals', (f'Animal {chars.fish}',), ('{[name]}',), 
+        self.animal_stats,
         lambda animal: animal['name'], animal_query, self.animal_page_menu, no_duplicates=True)
 
         if animal_data:
@@ -1389,7 +1390,9 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         skins_list = self.skins_from_list(list_name)
         
         if skins_list: 
-            skin_suggestions = await self.search_with_suggestions(interaction, 'skins', f'Skin {chars.palette}', '{[name]}', 
+            skin_suggestions = await self.search_with_suggestions(interaction, 'skins', 
+            (f'Skin {chars.SHORTCUTS.skin_symbol}', f'ID {chars.folder}'),
+            ('{[name]}', '{[id]}'),
             skins_list, lambda skin: skin['name'], skin_name, self.skin_page_menu) 
 
             if skin_suggestions:
@@ -1933,15 +1936,17 @@ game is down, nothing you can do but wait.", inline=False)
             for index in range(len(destinations)):
                 formatted = formatters[index].format(comp_item)
 
-                items.clear()
                 destination_lengths[index] = len(formatted)
                 destinations[index].clear()
+            
+            items.clear()
         
         for index in range(len(destinations)):
             formatted = formatters[index].format(comp_item)
             
-            items.append(comp_item)
             destinations[index].append(formatted)
+        
+        items.append(comp_item)
     
     @staticmethod
     def generic_compilation_aggregate(compilation_type: str, comp_items: list[dict], aggregate_names: tuple[str], 
