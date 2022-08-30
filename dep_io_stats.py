@@ -2351,7 +2351,8 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
         display = self.generic_compilation_embeds(interaction, embed_template, 'skins found', approved, 
         (f'Skin {chars.SHORTCUTS.skin_symbol}', f'ID {chars.folder}', f'Price {chars.deeeepcoin}'),
         (self.SKIN_EMBED_LINK_FORMATTER, '{[id]}', '{[price]:,}'), aggregate_names=(chars.deeeepcoin, 'sales'),
-        aggregate_attrs=('price', 'sales'), tacked_fields=tacked_fields, extra_buttons=buttons)
+        aggregate_attrs=('price', 'sales'), tacked_fields=tacked_fields, extra_buttons=buttons,
+        page_buttons_func=self.skin_page_menu, artificial_limit=ui.CallbackSelect.MAX_OPTIONS)
         
         await display.send_first()
     
