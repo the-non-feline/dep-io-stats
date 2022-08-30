@@ -1322,7 +1322,8 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         await menu_interaction.response.send_message(embed=self.animal_embed(animal))
     
     def animal_page_menu(self, message_interaction: discord.Interaction, animals: list[dict]) -> tuple[ui.CallbackSelect]:
-        options = [ui.TruncatedSelectOption(label=animal['name'], value=str(animal['fishLevel'])) for animal in animals]
+        options = [ui.TruncatedSelectOption(label=animal['name'], value=animal['fishLevel'],
+        description=f"ID: {animal['fishLevel']}") for animal in animals]
 
         menu = ui.CallbackSelect(self.display_animal_from_menu, message_interaction, options=options,
         placeholder='Choose an animal')
