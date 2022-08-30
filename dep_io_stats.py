@@ -746,7 +746,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             return filtered_skins
     
     def suggestions_book(self, interaction: discord.Interaction, suggestions: list[dict], search_type: str, title: str, 
-    formatter: str):
+    formatter: str, page_buttons_func):
         color = discord.Color.random()
         description = f'Did you mean one of these?'
         empty_description = "Never mind I have no suggestions. Sorry m8."
@@ -755,10 +755,10 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         embed_template = embed_utils.TrimmedEmbed(title=f"Possible {search_type} results", color=color, description=description)
 
         return self.generic_compilation_embeds(interaction, embed_template, search_type, suggestions, (title,), (formatter,),
-        empty_description=empty_description)
+        empty_description=empty_description, artificial_limit=ui.CallbackSelect.MAX_OPTIONS, page_buttons_func=page_buttons_func)
     
     async def search_with_suggestions(self, interaction: discord.Interaction, search_type: str, title: str, formatter: str,
-    search_list: list[dict], map_func, query: str, no_duplicates=False):
+    search_list: list[dict], map_func, query: str, page_buttons_func, no_duplicates=False):
         perfect_matches = []
         suggestions = [] 
 
@@ -784,7 +784,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         elif len(suggestions) == 1:
             return suggestions
         else:
-            suggestions_book = self.suggestions_book(interaction, suggestions, search_type, title, formatter)
+            suggestions_book = self.suggestions_book(interaction, suggestions, search_type, title, formatter, page_buttons_func)
 
             await suggestions_book.send_first()
     
@@ -1311,9 +1311,27 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
         embed.add_field(name=f'Stat changes {chars.change}', value=display, inline=False)
     
+    async def display_animal_from_menu(self, menu: ui.CallbackSelect, menu_interaction: discord.Interaction, 
+    message_interaction: discord.Interaction):
+        first_value = menu.values[0]
+
+        index = int(first_value)
+
+        animal = self.animal_stats[index]
+
+        await menu_interaction.response.send_message(embed=self.animal_embed(animal))
+    
+    def animal_page_menu(self, message_interaction: discord.Interaction, animals: list[dict]) -> tuple[ui.CallbackSelect]:
+        options = [ui.TruncatedSelectOption(label=animal['name'], value=str(animal['fishLevel'])) for animal in animals]
+
+        menu = ui.CallbackSelect(self.display_animal_from_menu, message_interaction, options=options,
+        placeholder='Choose an animal')
+
+        return (menu,)
+    
     async def display_animal(self, interaction: discord.Interaction, animal_query):
         animal_data = await self.search_with_suggestions(interaction, 'animals', f'Animal {chars.fish}', '{[name]}', self.animal_stats,
-        lambda animal: animal['name'], animal_query, no_duplicates=True)
+        lambda animal: animal['name'], animal_query, self.animal_page_menu, no_duplicates=True)
 
         if animal_data:
             animal = animal_data[0]
@@ -1340,7 +1358,30 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             else: 
                 await interaction.followup.send(content=f"You can only view approved or pending skins in this channel. Use this in a Skin Board channel to bypass this restriction.") 
         else: 
-            await interaction.followup.send(content=f"That's not a skin. Maybe your ID and/or version are wrong.") 
+            await interaction.followup.send(content=f"That's not a skin. Maybe your ID and/or version are wrong.")
+    
+    async def display_skin_from_menu(self, menu: ui.CallbackSelect, menu_interaction: discord.Interaction, 
+    message_interaction: discord.Interaction, possible_skins: list[dict]):
+        first_value = menu.values[0]
+
+        index = int(first_value)
+
+        skin = possible_skins[index]
+
+        await menu_interaction.response.defer()
+
+        book = self.skin_embed(menu_interaction, skin)
+
+        await book.send_first()
+    
+    def skin_page_menu(self, message_interaction: discord.Interaction, possible_skins: list[dict]) -> tuple[ui.CallbackSelect]:
+        options = [ui.TruncatedSelectOption(label=possible_skins[index]['name'], 
+        description=f"ID: {possible_skins[index]['id']}", value=index) for index in range(len(possible_skins))]
+
+        menu = ui.CallbackSelect(self.display_skin_from_menu, message_interaction, possible_skins.copy(), options=options,
+        placeholder='Choose a skin')
+
+        return (menu,)
 
     async def skin_by_name(self, interaction: discord.Interaction, skin_name, list_name: str):
         await interaction.response.defer()
@@ -1349,7 +1390,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         
         if skins_list: 
             skin_suggestions = await self.search_with_suggestions(interaction, 'skins', f'Skin {chars.palette}', '{[name]}', 
-            skins_list, lambda skin: skin['name'], skin_name) 
+            skins_list, lambda skin: skin['name'], skin_name, self.skin_page_menu) 
 
             if skin_suggestions:
                 promises = map(lambda suggestion: ui.Promise(self.skin_embed, interaction, suggestion), skin_suggestions)
@@ -1840,8 +1881,10 @@ game is down, nothing you can do but wait.", inline=False)
         
         return embed
     
-    def gen_generic_compilation_embed(self, embed_template: embed_utils.TrimmedEmbed,
-    column_titles: tuple[str], column_strs: tuple[str], totals_str: str, tacked_fields: tuple[embed_utils.Field]):
+    def gen_generic_compilation_page(self, interaction: discord.Interaction, embed_template: embed_utils.TrimmedEmbed, 
+    items: list[dict],
+    column_titles: tuple[str], column_strs: tuple[str], totals_str: str, tacked_fields: tuple[embed_utils.Field],
+    page_buttons_func) -> ui.Page:
         embed = embed_template.copy()
 
         for tacked_field in tacked_fields:
@@ -1852,41 +1895,52 @@ game is down, nothing you can do but wait.", inline=False)
 
         embed.add_field(name=f'Totals {chars.abacus}', value=totals_str, inline=False)
 
-        return embed
+        if page_buttons_func:
+            buttons = page_buttons_func(interaction, items)
+        else:
+            buttons = ()
+
+        return ui.Page(interaction, embed=embed, buttons=buttons)
     
-    def build_generic_compilation(self, embed_template: embed_utils.TrimmedEmbed, comp_item: dict, 
-    embeds: list[embed_utils.TrimmedEmbed], titles: tuple[str], formatters: tuple[str], destinations: tuple[list], 
-    destination_lengths: list[int], totals_str: str, tacked_fields: tuple[embed_utils.Field]):
+    def build_generic_compilation(self, interaction: discord.Interaction, embed_template: embed_utils.TrimmedEmbed, 
+    comp_item: dict, 
+    pages: list[ui.Page], titles: tuple[str], formatters: tuple[str], items: list[dict], 
+    destinations: tuple[list], destination_lengths: list[int], totals_str: str, tacked_fields: tuple[embed_utils.Field], 
+    page_buttons_func, artificial_limit: int):
         for index in range(len(destinations)):
             formatted = formatters[index].format(comp_item)
             
             destination_lengths[index] += len(formatted) + int(destination_lengths[index] > 0)
 
-        too_long = False
+        # as of calculating this variable, the stuff has not been added to the running sum yet!
+        too_long = artificial_limit and len(items) >= artificial_limit
 
-        for destination_length in destination_lengths:
-            if destination_length > embed_utils.TrimmedEmbed.MAX_FIELD_VAL:
-                too_long = True
+        if not too_long:
+            for destination_length in destination_lengths:
+                if destination_length > embed_utils.TrimmedEmbed.MAX_FIELD_VAL:
+                    too_long = True
 
-                break
+                    break
         
         if too_long:
             column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
 
-            new_embed = self.gen_generic_compilation_embed(embed_template, titles, column_strs,
-            totals_str, tacked_fields)
+            new_page = self.gen_generic_compilation_page(interaction, embed_template, items, titles, column_strs,
+            totals_str, tacked_fields, page_buttons_func)
 
-            embeds.append(new_embed)
+            pages.append(new_page)
 
             for index in range(len(destinations)):
                 formatted = formatters[index].format(comp_item)
 
+                items.clear()
                 destination_lengths[index] = len(formatted)
                 destinations[index].clear()
         
         for index in range(len(destinations)):
             formatted = formatters[index].format(comp_item)
             
+            items.append(comp_item)
             destinations[index].append(formatted)
     
     @staticmethod
@@ -1910,28 +1964,27 @@ game is down, nothing you can do but wait.", inline=False)
     compilation_type: str, comp_items: list[dict],
     titles: tuple[str], formatters: tuple[str], aggregate_names: tuple[str]=(),
     aggregate_attrs: tuple[str]=(), tacked_fields: tuple[embed_utils.Field]=(),
-    empty_description: str=None, extra_buttons=()):
+    empty_description: str=None, extra_buttons=(), page_buttons_func=None, artificial_limit=None):
         if comp_items:
-            embeds = []
+            pages = []
             destinations = tuple([] for title in titles)
+            cur_items = []
             destination_lengths = [0] * len(titles)
             
             totals_str = self.generic_compilation_aggregate(compilation_type, comp_items, aggregate_names, aggregate_attrs)
 
             for comp_item in comp_items:
-                self.build_generic_compilation(embed_template, comp_item, embeds, titles, formatters,
-                destinations, destination_lengths, totals_str, tacked_fields)
+                self.build_generic_compilation(interaction, embed_template, comp_item, pages, titles, formatters, cur_items,
+                destinations, destination_lengths, totals_str, tacked_fields, page_buttons_func, artificial_limit)
             
             column_strs = tuple(tools.format_iterable(column_list, sep='\n') for column_list in destinations)
 
-            last_embed = self.gen_generic_compilation_embed(embed_template, titles, column_strs,
-            totals_str, tacked_fields)
+            last_page = self.gen_generic_compilation_page(interaction, embed_template, cur_items, titles, column_strs,
+            totals_str, tacked_fields, page_buttons_func)
 
-            embeds.append(last_embed)
+            pages.append(last_page)
 
-            debug(embeds)
-
-            pages = (ui.Page(interaction, embed=embed) for embed in embeds)
+            debug(pages)
 
             return ui.ScrollyBook(interaction, *pages, extra_buttons=extra_buttons)
         else:

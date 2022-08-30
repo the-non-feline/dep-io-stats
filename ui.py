@@ -3,21 +3,44 @@ import discord.ui
 import discord
 import logs
 from logs import debug
+import tools
 
 DEFAULT_TIMEOUT = 600.0
 
-class CallbackButton(discord.ui.Button):
-    def __init__(self, callback, message_interaction, *args, style=discord.ButtonStyle.secondary, label=None, disabled=False, 
-    custom_id=None, url=None, emoji=None, row=None, **kwargs):
-        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row)
+class TruncatedSelectOption(discord.SelectOption):
+    MAX_OPTION_TEXT = 100
 
+    def __init__(self, *, label, value=discord.utils.MISSING, description=None, emoji=None, default=False):
+        label = tools.trim_maybe(label, self.MAX_OPTION_TEXT)
+        description = tools.trim_maybe(description, self.MAX_OPTION_TEXT)
+
+        super().__init__(label=label, value=value, description=description, emoji=emoji, default=default)
+
+class CallbackItem:
+    def __init__(self, callback, message_interaction, *args, **kwargs):
         self.stored_callback = callback
         self.message_interaction = message_interaction
         self.args = args
         self.kwargs = kwargs
-    
-    async def callback(self, button_interaction: discord.Interaction):
-        return await self.stored_callback(self, button_interaction, self.message_interaction, *self.args, **self.kwargs)
+        
+    async def callback(self, item_interaction: discord.Interaction):
+        return await self.stored_callback(self, item_interaction, self.message_interaction, *self.args, **self.kwargs)
+
+class CallbackButton(CallbackItem, discord.ui.Button):
+    def __init__(self, callback, message_interaction, *args, style=discord.ButtonStyle.secondary, label=None, disabled=False, 
+    custom_id=None, url=None, emoji=None, row=None, **kwargs):
+        discord.ui.Button.__init__(self, style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, 
+        row=row)
+        CallbackItem.__init__(self, callback, message_interaction, *args, **kwargs)
+
+class CallbackSelect(CallbackItem, discord.ui.Select):
+    MAX_OPTIONS = 25
+
+    def __init__(self, callback, message_interaction, *args, options: list[discord.SelectOption], custom_id=discord.utils.MISSING, 
+    placeholder=None, min_values=1, max_values=1, disabled=False, row=None, **kwargs):
+        discord.ui.Select.__init__(self, options=options, custom_id=custom_id, placeholder=placeholder, min_values=min_values, 
+        max_values=max_values, disabled=disabled, row=row)
+        CallbackItem.__init__(self, callback, message_interaction, *args, **kwargs)
 
 class TrackedView(discord.ui.View):
     active_views = set()

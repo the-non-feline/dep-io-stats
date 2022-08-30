@@ -1,5 +1,6 @@
 import discord
 import logs
+import tools
 
 class TrimmedEmbed(discord.Embed): 
     MAX_AUTHOR = 256
@@ -20,13 +21,8 @@ class TrimmedEmbed(discord.Embed):
 
         super().__init__(**kwargs) 
     
-    def trim_maybe(self, string, limit): 
-        string = str(string) 
-        
-        if string and len(string) > limit: 
-            string = string[:limit - len(self.TRAIL_OFF)] + self.TRAIL_OFF
-        
-        return string
+    def trim_maybe(self, string: str, limit: str):
+        return tools.trim_maybe(string, limit, self.TRAIL_OFF)
     
     def add_field(self, *, name, value, inline=True): 
         value = self.trim_maybe(value, self.MAX_FIELD_VAL) 

@@ -52,3 +52,11 @@ def timestamp(t: datetime):
     secs = int(t.timestamp()) 
 
     return f'<t:{secs}>'
+
+def trim_maybe(string: str, limit: int, trail_off='...'):
+    string = str(string) 
+        
+    if string and len(string) > limit: 
+        string = string[:limit - len(trail_off)] + trail_off
+    
+    return string
