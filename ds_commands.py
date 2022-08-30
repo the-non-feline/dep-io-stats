@@ -38,7 +38,7 @@ async def gen_commands(client: dep_io_stats.DS):
         bot = interaction.client
         user_id = user.id
 
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer()
         
         #debug(user_id) 
 
@@ -143,7 +143,7 @@ or its link')
         map_string_id = bot.get_map_string_id(map) 
 
         if map_string_id: 
-            await interaction.response.defer(thinking=True)
+            await interaction.response.defer()
 
             map_string_id = bot.MAP_URL_ADDITION + map_string_id
             
@@ -208,7 +208,7 @@ or its link')
     price: ds_constants.DS_Constants.PRICE_FILTERS=None,
     reskin: ds_constants.DS_Constants.PENDING_FILTERS=None,
     animal: str=None, name_contains: str=None):
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer()
         
         bot = interaction.client
 
@@ -365,7 +365,7 @@ If this is outdated, updated evolution trees are appreciated!
     async def clear_commands(interaction: discord.Interaction):
         bot = interaction.client
 
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer()
 
         tree.clear_commands(guild=None)
         tree.clear_commands(guild=discord.Object(bot.DEEPCORD_ID))

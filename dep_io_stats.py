@@ -1348,7 +1348,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
         skin_json = self.async_get(skin_url)[0] 
 
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer()
 
         if skin_json: 
             safe = skin_json['approved'] or skin_json['reviewed'] and not skin_json['rejected'] 
@@ -1386,7 +1386,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         return (menu,)
 
     async def skin_by_name(self, interaction: discord.Interaction, skin_name, list_name: str):
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer()
 
         skins_list = self.skins_from_list(list_name)
         
@@ -2297,7 +2297,7 @@ String ID: {string_id}''')
         return failure_descs
     
     async def mass_motion(self, interaction: discord.Interaction, to_motion: list[dict], approve: bool):
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer()
 
         failures = self.mass_motion_requests(to_motion, approve)
 
@@ -2591,7 +2591,7 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
         await help_book.send_first()
     
     async def link_dep_acc(self, interaction: discord.Interaction, query: str):
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer()
 
         username = self.get_true_username(query)
 
@@ -2750,7 +2750,7 @@ account. Well, it might still be, but that would just be due to random chance.')
         await full_book.send_first()
     
     async def display_account_by_username(self, interaction: discord.Interaction, username: str):
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer()
 
         acc, socials, rankings, skin_contribs, map_creations = self.get_profile_by_username(username)
 
@@ -2759,7 +2759,7 @@ account. Well, it might still be, but that would just be due to random chance.')
         await book.send_first()
     
     async def display_account_by_id(self, interaction: discord.Interaction, account_id: int):
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer()
 
         acc, socials, rankings, skin_contribs, map_creations = self.get_profile_by_id(account_id)
 

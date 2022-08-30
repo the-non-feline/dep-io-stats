@@ -235,7 +235,7 @@ class Book(Page):
 
         if type(cur) is Promise:
             if not interaction.response.is_done():
-                await interaction.response.defer(thinking=True)
+                await interaction.response.defer()
 
             new_cur = cur.execute()
 
