@@ -1472,7 +1472,7 @@ until it's fixed. ")
         else:
             skin_type = None
         
-        buttons = self.approved_display_buttons(interaction, (skin,), skin_type)
+        buttons = self.approved_display_buttons(interaction, (skin,), skin_type, False)
         
         book = ui.IndexedBook(interaction, *pages, extra_buttons=buttons)
 
@@ -2322,12 +2322,14 @@ String ID: {string_id}''')
     message_interaction: discord.Interaction, skins: list[dict], approve: bool):
         await self.mass_motion(button_interaction, skins, approve)
     
-    def approved_display_buttons(self, interaction: discord.Interaction, skins: list[dict], actual_type: str):
+    def approved_display_buttons(self, interaction: discord.Interaction, skins: list[dict], actual_type: str, multi: bool):
         if interaction.user.id == self.OWNER_ID:
+            addition = ' all' if multi else ''
+
             approve_button = ui.CallbackButton(self.approved_display_button_callback, interaction, skins, True, 
-            label='Approve all', style=discord.ButtonStyle.green)
+            label=f'Motion to approve{addition}', style=discord.ButtonStyle.green)
             reject_button = ui.CallbackButton(self.approved_display_button_callback, interaction, skins, False, 
-            label='Remove all', style=discord.ButtonStyle.red)
+            label=f'Motion to remove{addition}', style=discord.ButtonStyle.red)
 
             if actual_type == 'pending': 
                 return approve_button, reject_button
@@ -2357,7 +2359,7 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
 
         embed_template, tacked_fields = self.skin_search_base_embed(actual_type, description, filter_names_str)
 
-        buttons = self.approved_display_buttons(interaction, approved, actual_type)
+        buttons = self.approved_display_buttons(interaction, approved, actual_type, True)
 
         display = self.generic_compilation_embeds(interaction, embed_template, 'skins found', approved, 
         (f'Skin {chars.SHORTCUTS.skin_symbol}', f'ID {chars.folder}', f'Price {chars.deeeepcoin}'),
