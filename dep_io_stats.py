@@ -1439,7 +1439,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             await interaction.followup.send(content=f"Can't fetch skins. Most likely the game is down and you'll need to wait \
 until it's fixed. ") 
 
-    def skin_embed_pages(self, interaction: discord.Interaction, skin_embed: embed_utils.TrimmedEmbed, 
+    def skin_embed_pages(self, interaction: discord.Interaction, skin: dict, status: dict, skin_embed: embed_utils.TrimmedEmbed, 
     extra_assets: dict[str, str]) -> ui.Page:
         pages = [('Main asset', ui.Page(interaction, embed=skin_embed))]
         
@@ -1463,7 +1463,18 @@ until it's fixed. ")
 
                 pages.append(new_entry)
         
-        book = ui.IndexedBook(interaction, *pages)
+        if status['approved']:
+            skin_type = 'approved'
+        elif status['upcoming']:
+            skin_type = 'upcoming'
+        elif status['reviewed'] and not status['rejected']:
+            skin_type = 'pending'
+        else:
+            skin_type = None
+        
+        buttons = self.approved_display_buttons(interaction, (skin,), skin_type)
+        
+        book = ui.IndexedBook(interaction, *pages, extra_buttons=buttons)
 
         return book
         
@@ -1637,7 +1648,7 @@ until it's fixed. ")
 
         embed.set_footer(text=f"ID: {ID}")
 
-        pages = self.skin_embed_pages(interaction, embed, extra_assets)
+        pages = self.skin_embed_pages(interaction, skin, status, embed, extra_assets)
 
         return pages
     
