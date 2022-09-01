@@ -1319,7 +1319,9 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
         animal = self.animal_stats[index]
 
-        await menu_interaction.response.send_message(embed=self.animal_embed(animal))
+        await menu_interaction.response.defer(thinking=True)
+
+        await menu_interaction.followup.send(embed=self.animal_embed(animal))
     
     def animal_page_menu(self, message_interaction: discord.Interaction, animals: list[dict]) -> tuple[ui.CallbackSelect]:
         options = [ui.TruncatedSelectOption(label=animal['name'], value=animal['fishLevel'],
@@ -1338,7 +1340,9 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         if animal_data:
             animal = animal_data[0]
 
-            await interaction.response.send_message(embed=self.animal_embed(animal))
+            await interaction.response.defer()
+
+            await interaction.followup.send(embed=self.animal_embed(animal))
     
     async def skin_by_id(self, interaction: discord.Interaction, skin_id: str, version: int):   
         skin_url = self.SKIN_URL_TEMPLATE.format(skin_id)
@@ -2308,7 +2312,7 @@ String ID: {string_id}''')
         return failure_descs
     
     async def mass_motion(self, interaction: discord.Interaction, to_motion: list[dict], approve: bool):
-        await interaction.response.defer()
+        await interaction.response.defer(thinking=True)
 
         failures = self.mass_motion_requests(to_motion, approve)
 
@@ -2800,30 +2804,47 @@ account. Well, it might still be, but that would just be due to random chance.')
 
         return name, stat_value_str
     
-    @classmethod
-    def animal_embed(cls, animal): 
+    def get_translations(self, *translation_queries) -> tuple[str]:
+        urls = []
+
+        for index in range(0, len(translation_queries), 2):
+            query = translation_queries[index]
+            is_name = translation_queries[index + 1]
+
+            formatter = self.CROWDL_NAME_TEMPLATE if is_name else self.CROWDL_DESC_TEMPLATE
+
+            urls.append(formatter.format(query))
+        
+        results = self.async_get(*urls)
+
+        return tuple(map(lambda response: response[0]['value'] if response else None, results))
+    
+    def animal_embed(self, animal): 
         animal_name = animal['name'] 
         animal_id = animal['fishLevel']
 
-        title = f'Animal stats - {animal_name.capitalize()}' 
+        crowdl_name, crowdl_desc = self.get_translations(animal_name, True, animal_name, False)
+
+        title = crowdl_name or animal_name
+
         color = discord.Color.random() 
 
-        if animal_name in cls.CHARACTER_EXCEPTIONS: 
-            image_url = cls.CHARACTER_EXCEPTIONS[animal_name] 
+        if animal_name in self.CHARACTER_EXCEPTIONS: 
+            image_url = self.CHARACTER_EXCEPTIONS[animal_name] 
         else: 
-            image_url = cls.CHARACTER_TEMPLATE.format(animal_name) 
+            image_url = self.CHARACTER_TEMPLATE.format(animal_name) 
 
         image_url = tools.salt_url(image_url) 
 
-        embed = discord.Embed(title=title, type='rich', color=color)
+        embed = embed_utils.TrimmedEmbed(title=title, type='rich', color=color, description=crowdl_desc)
 
         embed.set_thumbnail(url=image_url) 
 
         stat_names = [] 
         stat_values = [] 
 
-        for stat in cls.NORMAL_STATS: 
-            name, value = cls.format_stat(animal, stat) 
+        for stat in self.NORMAL_STATS: 
+            name, value = self.format_stat(animal, stat) 
 
             stat_names.append(name)
             stat_values.append(value) 
@@ -2831,10 +2852,10 @@ account. Well, it might still be, but that would just be due to random chance.')
         animal_habitat = habitat.Habitat(animal['habitat']) 
         habitat_list = animal_habitat.convert_to_list() 
 
-        for index in range(len(cls.BIOME_STATS)): 
-            stat = cls.BIOME_STATS[index] 
+        for index in range(len(self.BIOME_STATS)): 
+            stat = self.BIOME_STATS[index] 
 
-            name, value = cls.format_stat(animal, stat) 
+            name, value = self.format_stat(animal, stat) 
 
             if index >= 1: 
                 habitat_display_index = index - 1
@@ -2853,7 +2874,7 @@ account. Well, it might still be, but that would just be due to random chance.')
             boost_stats.append('secondaryAbilityLoadTime') 
 
         for stat in boost_stats: 
-            name, value = cls.format_stat(animal, stat) 
+            name, value = self.format_stat(animal, stat) 
 
             stat_names.append(name)
             stat_values.append(value) 
@@ -2876,7 +2897,7 @@ account. Well, it might still be, but that would just be due to random chance.')
 
             passives.append(f'Can walk at {walk_speed:.0%} speed') 
 
-        for boolean in cls.BOOLEANS: 
+        for boolean in self.BOOLEANS: 
             value = animal[boolean] 
 
             if value: 
@@ -2891,7 +2912,8 @@ account. Well, it might still be, but that would just be due to random chance.')
 
             embed.add_field(name='Passive abilities', value=passives_string, inline=False)
         
-        embed.set_footer(text=f'ID: {animal_id}')
+        embed.set_footer(text=f'''ID: {animal_id}
+In-game name: {animal_name}''')
         
         return embed
     

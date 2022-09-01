@@ -80,6 +80,9 @@ class DS_Constants:
     EMOTE_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/emotes/creator/{}'
     PET_CONTRIBS_TEMPLATE = 'https://apibeta.deeeep.io/pets/creator/{}'
 
+    CROWDL_NAME_TEMPLATE = 'https://api.crowdl.io/entries?project_id=1&key={}-name&lang=en'
+    CROWDL_DESC_TEMPLATE = 'https://api.crowdl.io/entries?project_id=1&key={}-message&lang=en'
+
     STONKS_THRESHOLD = 150
 
     STAT_CHANGE_TRANSLATIONS = {
