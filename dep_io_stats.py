@@ -1186,7 +1186,8 @@ Target ID: {target_id}''')
     def motions_page(self, interaction: discord.Interaction, motions_list: tuple[dict], members_list: list[dict],
     active: bool) -> ui.Page:
         title = 'Pending' if active else 'Recent'
-        template = embed_utils.TrimmedEmbed(title=f'{title} motions')
+        color = discord.Color.random()
+        template = embed_utils.TrimmedEmbed(title=f'{title} motions', color=color)
 
         motion_reprs = self.motion_reprs(motions_list, members_list)
 
