@@ -89,6 +89,24 @@ search, or "id" to search by ID. Defaults to "approved".')
 channels.')
             else:
                 return await bot.skin_by_name(interaction, skin_query, how_to_lookup)
+    
+    @ds_slash(tree, 'participation', "Displays a summary of Artistry members' votes")
+    async def participation_display(interaction: discord.Interaction):
+        bot = interaction.client
+
+        if bot.is_sb_channel(interaction.channel_id):
+            await bot.send_motion_participation(interaction)
+        else:
+            await interaction.response.send_message(content='You can only view participation in Artistry Guild channels.')
+    
+    @ds_slash(tree, 'motions', "Displays active and recent motions")
+    async def motions_display(interaction: discord.Interaction):
+        bot = interaction.client
+
+        if bot.is_sb_channel(interaction.channel_id):
+            await bot.motions_book(interaction)
+        else:
+            await interaction.response.send_message(content='You can only view motions in Artistry Guild channels.')
         
     async def animal_autocomplete(interaction: discord.Interaction, current: str):
         bot = interaction.client

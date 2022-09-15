@@ -119,21 +119,21 @@ class Page:
         self.level = self.MAX_ROW
         self.offset = 0
     
-    async def send_self(self, interaction: discord.Interaction):
+    async def send_self(self, interaction: discord.Interaction, ephemeral: bool):
         if interaction.response.is_done():
             if self.view:
                 await interaction.followup.send(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, view=self.view)
+        allowed_mentions=self.allowed_mentions, view=self.view, ephemeral=ephemeral)
             else:
                 await interaction.followup.send(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions)
+        allowed_mentions=self.allowed_mentions, ephemeral=ephemeral)
         else:
             if self.view:
                 await interaction.response.send_message(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, view=self.view)
+        allowed_mentions=self.allowed_mentions, view=self.view, ephemeral=ephemeral)
             else:
                 await interaction.response.send_message(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions)
+        allowed_mentions=self.allowed_mentions, ephemeral=ephemeral)
     
     async def edit_self(self, interaction: discord.Interaction):
         if interaction.response.is_done():
@@ -143,7 +143,7 @@ class Page:
             await interaction.response.edit_message(content=self.content, embed=self.embed, 
         allowed_mentions=self.allowed_mentions, view=self.view)
     
-    async def send_first(self):
+    async def send_first(self, ephemeral=False):
         self.assign_view()
         self.set_level()
 
@@ -153,7 +153,7 @@ class Page:
 
         debug('registered')
 
-        return await self.send_self(self.interaction)
+        return await self.send_self(self.interaction, ephemeral)
     
     async def register_self(self, interaction: discord.Interaction):
         for button in self.buttons:
@@ -212,10 +212,10 @@ class Promise(Page):
 
         return executed
     
-    async def send_first(self):
+    async def send_first(self, ephemeral=False):
         executed = self.execute()
 
-        return await executed.send_first()
+        return await executed.send_first(ephemeral=ephemeral)
 
 class Book(Page):
     def __init__(self, interaction: discord.Interaction, timeout, pages: list[Page], 
@@ -246,8 +246,8 @@ class Book(Page):
     def add_button(self, button: CallbackButton):
         self.buttons.append(button)
 
-    async def send_self(self, interaction: discord.Interaction):
-        return await (await self.cur_page(interaction)).send_self(interaction)
+    async def send_self(self, interaction: discord.Interaction, ephemeral: bool):
+        return await (await self.cur_page(interaction)).send_self(interaction, ephemeral)
     
     async def edit_self(self, interaction: discord.Interaction):
         return await (await self.cur_page(interaction)).edit_self(interaction)

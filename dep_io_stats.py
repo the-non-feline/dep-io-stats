@@ -732,10 +732,12 @@ class DS(ds_constants.DS_Constants, commands.Bot):
                 req = grequests.request('GET', url, headers={
                     'authorization': f'Bearer {token}', 
                 })
+
+                return self.async_get(req)[0] 
         else:
             req = url
 
-        return self.async_get(req)[0] 
+            return self.async_get(req)[0] 
     
     def filtered_skins_from_list(self, list_name: str, *filters):
         skins = self.skins_from_list(list_name)
@@ -788,12 +790,24 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
             await suggestions_book.send_first()
     
-    @staticmethod
-    def count_votes(total_motions): 
+    class VoteAction:
+        def __init__(self, motion: dict, vote_action: str, motion_type: str, target_str: str):
+            self.motion = motion
+            self.vote_action = vote_action
+            self.motion_type = motion_type
+            self.target_str = target_str
+
+            self.emoji = '\\' + (chars.check if vote_action == 'approve' else chars.x)
+    
+    @classmethod
+    def count_votes(cls, total_motions) -> dict[list[VoteAction]]: 
         mapping = {} 
 
         for motion in total_motions: 
             votes = motion['votes'] 
+            motion_type = motion['type']
+            target = motion['target']
+            target_type = motion['target_type']
 
             for vote in votes: 
                 user_id = vote['user_id'] 
@@ -801,8 +815,17 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
                 if user_id not in mapping: 
                     mapping[user_id] = [] 
+
+                if target_type == 'user':
+                    target_str = target['username']
+                elif target_type == 'skin':
+                    target_str = f"{target['name']} (v{target['version']})"
+                else:
+                    target_str = 'N/A'
                 
-                mapping[user_id].append(vote_action) 
+                action_obj = cls.VoteAction(motion, vote_action, motion_type, target_str)
+                
+                mapping[user_id].append(action_obj)
         
         return mapping
     
@@ -815,81 +838,389 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         if member_strs: 
             self.participation_str_list(r, member_strs) 
         else: 
-            r.add('There are no members in this category.') 
+            r.add('There are no members in this category.')
     
-    def build_participation_report(self, report, count_mapping, members_list): 
-        voted_strs = [] 
-        non_voted_strs = [] 
+    def participation_embed_template(self):
+        color = discord.Color.random()
+
+        return embed_utils.TrimmedEmbed(title='Motion voting summary', description='A summary of how many motions Artistry Guild \
+members have voted on', color=color)
+
+    def participant_embed(self, interaction: discord.Interaction, user: dict, votes: list[VoteAction]):
+        base = self.base_profile_embed(user, specific_page='Motions voted by', big_image=False)
+
+        titles = f"Motion type {chars.folder}", f"Motion target {chars.target}", f"Vote {chars.ballot_box}"
+        formatters = "{.motion_type}", "{.target_str}", "{.emoji}"
+            
+        comp = self.generic_compilation_embeds(interaction, base, 'motions', votes, titles, formatters)
+
+        return comp
+
+    async def display_participant_from_menu(self, menu: ui.CallbackSelect, menu_interaction: discord.Interaction, 
+    message_interaction: discord.Interaction, participants: list[dict]):
+        first_value = menu.values[0]
+
+        index = int(first_value)
+
+        part_dict = participants[index]
+
+        participant = part_dict['user']
+        votes = part_dict['votes']
+
+        await menu_interaction.response.defer(thinking=True)
+
+        book = self.participant_embed(menu_interaction, participant, votes)
+
+        await book.send_first()
+    
+    def participant_page_menu(self, message_interaction: discord.Interaction, participants: list[dict]) \
+        -> tuple[ui.CallbackSelect]:
+        options = [ui.TruncatedSelectOption(label=participants[index]['username'], 
+        description="", value=index) for index in range(len(participants))]
+
+        menu = ui.CallbackSelect(self.display_participant_from_menu, message_interaction, participants.copy(), options=options,
+        placeholder='Choose a member')
+
+        return (menu,)
+    
+    def build_participation_book(self, interaction: discord.Interaction, count_mapping: dict[int, list[VoteAction]], 
+    members_list: list[int]): 
+        member_dicts = []
 
         for member in members_list: 
-            name = member['name'] 
             username = member['username'] 
             member_id = member['id'] 
+
+            approves = 0
+            rejects = 0
+            votes = ()
 
             if member_id in count_mapping: 
                 votes = count_mapping[member_id] 
 
-                approves = votes.count('approve') 
-                rejects = votes.count('reject') 
-                total_votes = len(votes) 
+                for vote in votes:
+                    vote_action = vote.vote_action
 
-                member_str = f'{name} (@{username}) | {total_votes} votes ({approves} approved, {rejects} rejected)' 
+                    if vote_action == 'approve':
+                        approves += 1
+                    elif vote_action == 'reject':
+                        rejects += 1
+                    else:
+                        raise RuntimeError(f'Vote on {vote.motion} by {member_id} that is neither an approve or a reject...?')
+            
+            member_dict = {
+                'user': member,
+                'username': username,
+                'approves': approves,
+                'rejects': rejects,
+                'votes': votes,
+            }
 
-                voted_strs.append(member_str) 
-            else: 
-                member_str = f'{name} (@{username})' 
+            member_dicts.append(member_dict)
 
-                non_voted_strs.append(member_str) 
+        template = self.participation_embed_template()
+
+        titles = f"Member {chars.crab}", f"Approvals {chars.check}", f"Rejections {chars.x}"
+        formatters = "{[username]}", "{[approves]}", "{[rejects]}"
+            
+        comp = self.generic_compilation_embeds(interaction, template, 'members', member_dicts, titles, formatters,
+        artificial_limit=ui.CallbackSelect.MAX_OPTIONS, page_buttons_func=self.participant_page_menu)
         
-        report.add('__**Member Participation Report**__') 
-
-        voted_length = len(voted_strs) 
-
-        report.add(f"**Voted recently ({voted_length}) {chars.ballot_box}**") 
-        self.build_participation_section(report, voted_strs) 
-
-        non_voted_length = len(non_voted_strs) 
-
-        report.add(f"**Didn't vote recently ({non_voted_length}) {chars.x}**") 
-        self.build_participation_section(report, non_voted_strs) 
+        return comp
     
-    def get_motion_participation(self, report): 
-        self.fetch_tokens(1) 
+    async def send_motion_participation(self, interaction: discord.Interaction): 
+        await interaction.response.defer()
 
-        members_list = None
-
-        token = self.get_token(0) 
-
-        if token: 
+        with self.borrow_token():
             pending_motions_request = grequests.request('GET', self.PENDING_MOTIONS_URL, headers={
-                'Authorization': f'Bearer {token}', 
+                'Authorization': f'Bearer {self.token}', 
             }) 
             recent_motions_request = grequests.request('GET', self.RECENT_MOTIONS_URL, headers={
-                'Authorization': f'Bearer {token}', 
+                'Authorization': f'Bearer {self.token}', 
             }) 
             list_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
-                'Authorization': f'Bearer {token}', 
+                'Authorization': f'Bearer {self.token}', 
             }) 
 
-            jsons = self.async_get(pending_motions_request, recent_motions_request, list_request) 
+            pending_motions, recent_motions, members_list = self.async_get(pending_motions_request, recent_motions_request, list_request) 
 
-            if None not in jsons: # None in jsons indicates at least one request failed
-                pending_motions, recent_motions, members_list = jsons
+        if members_list: # None in jsons indicates at least one request failed
+            total_motions = (pending_motions or ()) + (recent_motions or ()) 
 
-                total_motions = (pending_motions or []) + (recent_motions or []) 
+            counts = self.count_votes(total_motions) 
 
-                counts = self.count_votes(total_motions) 
+            book = self.build_participation_book(interaction, counts, members_list)
 
-                self.build_participation_report(report, counts, members_list) 
-            else: 
-                report.add('There was an error fetching motions and/or members.') 
+            await book.send_first()
+        else:
+            await interaction.followup.send(content='There was an error fetching members.')
     
-    async def send_participation_report(self, c): 
-        r = reports.Report(self, c) 
+    def compile_voter_map(self, existing_map: dict, voters: list[dict]) -> dict[int, str]:
+        requests = (self.PROFILE_TEMPLATE.format(voter['user_id']) for voter in voters if voter['user_id'] not in existing_map)
 
-        self.get_motion_participation(r) 
+        results = self.async_get(*requests)
 
-        await r.send_self() 
+        if results:
+            for user in results:
+                user_id = user['id']
+
+                existing_map[user_id] = user['username']
+    
+    def fetch_sb_members(self):
+        with self.borrow_token():
+            list_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            })
+
+            return self.async_get(list_request)[0]
+    
+    def motion_title_and_thumb(self, motion):
+        target = motion['target']
+        target_type = motion['target_type']
+        action_type = motion['type']
+        data = motion['data']
+
+        if target_type == 'skin':
+            name = target['name']
+            version = target['version']
+            asset = target['asset']
+
+            title = f'{action_type} {name} (v{version})'
+
+            if asset[0].isnumeric(): 
+                template = self.CUSTOM_SKIN_ASSET_URL_TEMPLATE
+            else:
+                template = self.SKIN_ASSET_URL_TEMPLATE
+
+            thumbnail = template.format(asset)
+        elif target_type == 'user':
+            pfp = target['picture']
+
+            if not pfp: 
+                pfp = self.DEFAULT_BETA_PFP
+            else: 
+                pfp = self.PFP_URL_TEMPLATE.format(pfp)
+            
+            thumbnail = tools.salt_url(pfp)
+
+            if data == 1:
+                role = 'member'
+            else:
+                role = 'manager'
+            
+            if action_type == 'addrole':
+                action = f'add {role} role'
+            else:
+                action = f'remove {role} role'
+            
+            username = target['username']
+
+            title = f'{action} for {username}'
+        else:
+            title = 'release upcoming skins'
+            thumbnail = None
+        
+        debug(thumbnail)
+        
+        return title, thumbnail
+    
+    def motion_embed(self, motion: dict, members: list[dict]):
+        title, thumbnail = self.motion_title_and_thumb(motion)
+
+        title = f'Motion to {title}'
+
+        color = discord.Color.random()
+
+        embed = embed_utils.TrimmedEmbed(title=title, color=color)
+
+        embed.set_thumbnail(url=thumbnail)
+        
+        user = motion['user']
+        
+        user_username = user['username'] 
+        user_pfp = user['picture'] 
+        user_page = self.PROFILE_PAGE_TEMPLATE.format(parse.quote(user_username))
+
+        creator = user_username
+
+        if not user_pfp: 
+            user_pfp = self.DEFAULT_BETA_PFP
+        else: 
+            user_pfp = self.PFP_URL_TEMPLATE.format(user_pfp)
+        
+        pfp_url = tools.salt_url(user_pfp)
+
+        embed.set_author(name=creator, icon_url=pfp_url, url=user_page) 
+
+        when_created = motion['created_at']
+        when_updated = motion['updated_at']
+
+        date_created = parser.isoparse(when_created) 
+        date_updated = parser.isoparse(when_updated)
+
+        embed.add_field(name=f"Date created {chars.tools}", value=f'{tools.timestamp(date_created)}')
+        embed.add_field(name=f'Date updated {chars.wrench}', value=f'{tools.timestamp(date_updated)}')
+
+        num_upvotes = motion['approve_votes']
+        num_downvotes = motion['reject_votes']
+        
+        total_votes = num_upvotes + num_downvotes
+        
+        upvote_ratio = num_upvotes * 100 / total_votes
+
+        if members:
+            turnout = total_votes * 100 / len(members)
+            turnout_str = turnout
+        else:
+            turnout_str = 'unknown'
+
+        embed.add_field(name=f'Vote stats {chars.ballot_box}', value=f'{upvote_ratio}% upvoted, {turnout_str}% voter turnout',
+        inline=False)
+
+        approved = motion['approved']
+        rejected = motion['rejected']
+
+        if approved:
+            decision = 'approved'
+            dec_emoji = chars.check
+        elif rejected:
+            decision = 'rejected'
+            dec_emoji = chars.x
+        else:
+            decision = 'ongoing'
+            dec_emoji = chars.question_mark
+        
+        embed.add_field(name=f'Status {dec_emoji}', value=decision)
+
+        upvoted = []
+        downvoted = []
+
+        voters = motion['votes']
+
+        voter_map = {user['id']: user['username'] for user in members} if members else {}
+
+        self.compile_voter_map(voter_map, voters)
+
+        for voter in voters:
+            vote = voter['action']
+            voter_id = voter['user_id']
+
+            voter_display = voter_map[voter_id] if voter_id in voter_map else voter_id
+
+            if vote == 'approve':
+                upvoted.append(voter_display)
+            else:
+                downvoted.append(voter_display)
+        
+        upvotes_list = tools.format_iterable(upvoted, sep='\n') or 'No approvals'
+        downvotes_list = tools.format_iterable(downvoted, sep='\n') or 'No rejections'
+
+        embed.add_field(name=f'{num_upvotes} approvals {chars.check}', value=upvotes_list)
+        embed.add_field(name=f'{num_downvotes} rejections {chars.x}', value=downvotes_list)
+
+        motion_id = motion['id']
+        target_id = motion['target_id']
+
+        embed.set_footer(text=f'''Motion ID: {motion_id}
+Target ID: {target_id}''')
+
+        return embed
+    
+    class MotionRepresentation:
+        def __init__(self, motion: dict, title: str, upvote_ratio: float, turnout_str: str, members_list: list[dict]):
+            self.motion = motion
+            self.title = title
+            self.upvote_ratio = upvote_ratio
+            self.turnout_str = turnout_str
+            self.members_list = members_list
+
+    def motion_reprs(self, motions_list: tuple[dict], members_list: list[dict]) -> list[MotionRepresentation]:
+        reprs = []
+
+        for motion in motions_list:
+            title, thumbnail = self.motion_title_and_thumb(motion)
+            num_upvotes = motion['approve_votes']
+            num_downvotes = motion['reject_votes']
+
+            total_votes = num_upvotes + num_downvotes
+        
+            upvote_ratio = num_upvotes / total_votes
+
+            if members_list:
+                turnout = total_votes / len(members_list)
+                turnout_str = f'{turnout:.0%}'
+            else:
+                turnout_str = 'unknown'
+
+            reprs.append(self.MotionRepresentation(motion, title, upvote_ratio, turnout_str, members_list))
+        
+        return reprs
+    
+    async def display_motion_from_menu(self, menu: ui.CallbackSelect, menu_interaction: discord.Interaction, 
+    message_interaction: discord.Interaction, motions: list[MotionRepresentation]):
+        first_value = menu.values[0]
+
+        index = int(first_value)
+
+        motion_obj = motions[index]
+
+        motion = motion_obj.motion
+        members_cache = motion_obj.members_list
+
+        await menu_interaction.response.defer(thinking=True)
+
+        embed = self.motion_embed(motion, members_cache)
+
+        await menu_interaction.followup.send(embed=embed)
+    
+    def motions_page_menu(self, message_interaction: discord.Interaction, motions: list[MotionRepresentation]) \
+        -> tuple[ui.CallbackSelect]:
+        options = [ui.TruncatedSelectOption(label=motions[index].title, 
+        description="", value=index) for index in range(len(motions))]
+
+        menu = ui.CallbackSelect(self.display_motion_from_menu, message_interaction, motions.copy(), options=options,
+        placeholder='Choose a motion')
+
+        return (menu,)
+    
+    def motions_page(self, interaction: discord.Interaction, motions_list: tuple[dict], members_list: list[dict],
+    active: bool) -> ui.Page:
+        title = 'Pending' if active else 'Recent'
+        template = embed_utils.TrimmedEmbed(title=f'{title} motions')
+
+        motion_reprs = self.motion_reprs(motions_list, members_list)
+
+        titles = f'Motion {chars.scroll}', f'Upvote ratio {chars.thumbsup}', f'Turnout {chars.ballot_box}'
+        formatters = '{.title}', '{.upvote_ratio:.0%}', '{.turnout_str}'
+
+        return self.generic_compilation_embeds(interaction, template, 'motions', motion_reprs, titles, formatters,
+        artificial_limit=ui.CallbackSelect.MAX_OPTIONS, page_buttons_func=self.motions_page_menu)
+    
+    async def motions_book(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
+        with self.borrow_token():
+            pending_motions_request = grequests.request('GET', self.PENDING_MOTIONS_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+            recent_motions_request = grequests.request('GET', self.RECENT_MOTIONS_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+            list_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
+                'Authorization': f'Bearer {self.token}', 
+            }) 
+
+            pending_motions, recent_motions, members_list = self.async_get(pending_motions_request, recent_motions_request, list_request)
+        
+        pending_motions = pending_motions or ()
+        recent_motions = recent_motions or ()
+
+        pending_page = self.motions_page(interaction, pending_motions, members_list, True)
+        recent_page = self.motions_page(interaction, recent_motions, members_list, False)
+
+        book = ui.IndexedBook(interaction, ('Pending motions', pending_page), ('Recent motions', recent_page))
+
+        await book.send_first()
     
     def unbalanced_stats(self, skin): 
         broken = False
@@ -1639,11 +1970,11 @@ until it's fixed. ")
             creator = user_username
 
             if not user_pfp: 
-                user_pfp = self.DEFAULT_PFP
+                user_pfp = self.DEFAULT_BETA_PFP
             else: 
                 user_pfp = self.PFP_URL_TEMPLATE.format(user_pfp)
             
-            pfp_url = tools.salt_url(user_pfp) 
+            pfp_url = tools.salt_url(user_pfp)
 
             debug(pfp_url)
             debug(user_page)
@@ -1679,7 +2010,7 @@ until it's fixed. ")
             embed = embed_utils.TrimmedEmbed(title=title, type='rich', description=desc, color=color) 
             
             if not pfp: 
-                pfp = self.DEFAULT_PFP
+                pfp = self.DEFAULT_BETA_PFP
             else: 
                 pfp = self.PFP_URL_TEMPLATE.format(pfp) 
             
@@ -2161,7 +2492,7 @@ game is down, nothing you can do but wait.", inline=False)
         creator_str = creator_username
 
         if not creator_pfp: 
-            creator_pfp = self.DEFAULT_PFP
+            creator_pfp = self.DEFAULT_BETA_PFP
         else: 
             creator_pfp = self.PFP_URL_TEMPLATE.format(creator_pfp) 
         

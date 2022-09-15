@@ -54,7 +54,7 @@ class DS_Constants:
     MAP_URL_TEMPLATE = 'https://apibeta.deeeep.io/maps/{}'
     APPROVED_SKINS_LIST_URL = 'https://apibeta.deeeep.io/skins?cat=all' 
     LOGIN_URL = 'https://apibeta.deeeep.io/auth/local/signin' 
-    SKIN_BOARD_MEMBERS_URL = 'https://api.deeeep.io/users/boardMembers' 
+    SKIN_BOARD_MEMBERS_URL = 'https://apibeta.deeeep.io/users/boardMembers' 
     LOGOUT_URL = 'https://api.deeeep.io/auth/logout' 
     PFP_REGEX = '\A(?:https?://)?(?:www\.)?deeeep\.io/files/(?P<acc_id>[0-9]+)(?:-temp)?\.[0-9A-Za-z]+(?:\?.*)?\Z' 
     USERNAME_REGEX = '\A@?(?P<username>.+)\Z' 
@@ -166,8 +166,8 @@ class DS_Constants:
     MAP_REGEX = '\A(?:(?:https?://)?(?:www\.)?mapmaker\.deeeep\.io/map/)?(?P<map_string_id>[0-9_A-Za-z]+)\Z' 
 
     PENDING_SKINS_LIST_URL = 'https://apibeta.deeeep.io/skins/pending' 
-    PENDING_MOTIONS_URL = 'https://api.deeeep.io/motions/pending?targetType=skin' 
-    RECENT_MOTIONS_URL = 'https://api.deeeep.io/motions/recent?targetType=skin' 
+    PENDING_MOTIONS_URL = 'https://apibeta.deeeep.io/motions/pending?targetType=skin' 
+    RECENT_MOTIONS_URL = 'https://apibeta.deeeep.io/motions/recent?targetType=skin' 
     UPCOMING_LIST_URL = 'https://apibeta.deeeep.io/skins/pending?t=upcoming'
 
     CHARACTER_TEMPLATE = 'https://beta.deeeep.io/assets/characters/{}.png' 
