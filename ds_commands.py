@@ -26,6 +26,13 @@ async def gen_commands(client: dep_io_stats.DS):
         elif type(error) is app_commands.CheckFailure:
             await interaction.response.send_message(content='I cringe at your lack of skill, peasant.')
         else:
+            message = f'{interaction.user.mention} something went wrong; please notify <@{client.OWNER_ID}> about this.'
+
+            if interaction.response.is_done():
+                await interaction.followup.send(content=message)
+            else:
+                await interaction.response.send_message(content=message)
+            
             try:
                 raise error
             except:

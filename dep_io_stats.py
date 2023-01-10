@@ -179,7 +179,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
                 'password': self.password, 
             }, headers={
                 'origin': 'https://creators.deeeep.io'
-            })
+            }, timeout=self.REQUEST_TIMEOUT)
 
             result = self.async_get(request)[0]
 
@@ -389,9 +389,9 @@ class DS(ds_constants.DS_Constants, commands.Bot):
 
         for request in all_requests: 
             if type(request) is str: # plain url
-                to_add = grequests.get(request) 
+                to_add = grequests.get(request, timeout=self.REQUEST_TIMEOUT) 
             elif type(request) is tuple: # (method, url) 
-                to_add = grequests.request(*request) 
+                to_add = grequests.request(*request, timeout=self.REQUEST_TIMEOUT) 
             else: 
                 to_add = request
             
@@ -559,7 +559,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         if token: 
             members_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
                 'Authorization': f'Bearer {token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
 
             round_2_urls.append(members_request) 
 
@@ -648,10 +648,10 @@ class DS(ds_constants.DS_Constants, commands.Bot):
         if token: 
             pending_motions_request = grequests.request('GET', self.PENDING_MOTIONS_URL, headers={
                 'Authorization': f'Bearer {token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
             rejected_motions_request = grequests.request('GET', self.RECENT_MOTIONS_URL, headers={
                 'Authorization': f'Bearer {token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
 
             pending_list, pending_motions, rejected_motions = self.async_get(self.PENDING_SKINS_LIST_URL, pending_motions_request, rejected_motions_request) 
         else: 
@@ -731,7 +731,7 @@ class DS(ds_constants.DS_Constants, commands.Bot):
             with self.borrow_token() as token:
                 req = grequests.request('GET', url, headers={
                     'authorization': f'Bearer {token}', 
-                })
+                }, timeout=self.REQUEST_TIMEOUT)
 
                 return self.async_get(req)[0] 
         else:
@@ -934,13 +934,13 @@ members have voted on', color=color)
         with self.borrow_token():
             pending_motions_request = grequests.request('GET', self.PENDING_MOTIONS_URL, headers={
                 'Authorization': f'Bearer {self.token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
             recent_motions_request = grequests.request('GET', self.RECENT_MOTIONS_URL, headers={
                 'Authorization': f'Bearer {self.token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
             list_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
                 'Authorization': f'Bearer {self.token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
 
             pending_motions, recent_motions, members_list = self.async_get(pending_motions_request, recent_motions_request, list_request) 
 
@@ -970,7 +970,7 @@ members have voted on', color=color)
         with self.borrow_token():
             list_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
                 'Authorization': f'Bearer {self.token}', 
-            })
+            }, timeout=self.REQUEST_TIMEOUT)
 
             return self.async_get(list_request)[0]
     
@@ -1203,13 +1203,13 @@ Target ID: {target_id}''')
         with self.borrow_token():
             pending_motions_request = grequests.request('GET', self.PENDING_MOTIONS_URL, headers={
                 'Authorization': f'Bearer {self.token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
             recent_motions_request = grequests.request('GET', self.RECENT_MOTIONS_URL, headers={
                 'Authorization': f'Bearer {self.token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
             list_request = grequests.request('GET', self.SKIN_BOARD_MEMBERS_URL, headers={
                 'Authorization': f'Bearer {self.token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
 
             pending_motions, recent_motions, members_list = self.async_get(pending_motions_request, recent_motions_request, list_request)
         
@@ -1357,7 +1357,7 @@ Target ID: {target_id}''')
                     'Authorization': f'Bearer {self.get_token(0)}', 
                 }, data={
                     "version": skin_version, 
-                }) 
+                }, timeout=self.REQUEST_TIMEOUT) 
 
                 rejection_requests.append(rej_req) 
             
@@ -1441,7 +1441,7 @@ Target ID: {target_id}''')
         if token: 
             list_request = grequests.request('GET', self.SKIN_REVIEW_LIST_URL, headers={
                 'Authorization': f'Bearer {token}', 
-            }) 
+            }, timeout=self.REQUEST_TIMEOUT) 
 
             list_json = self.async_get(list_request)[0] 
 
@@ -2363,7 +2363,8 @@ game is down, nothing you can do but wait.", inline=False)
         titles = f'Skin {chars.SHORTCUTS.skin_symbol}', f'Sales {chars.stonkalot}'
         formatters = self.SKIN_EMBED_LINK_FORMATTER, '{[sales]:,}'
 
-        skins.sort(key=lambda skin: skin['sales'], reverse=True)
+        if skins:
+            skins.sort(key=lambda skin: skin['sales'], reverse=True)
 
         return self.generic_compilation_embeds(interaction, embed_template, 'skins', skins, titles, formatters, 
         aggregate_names=('sales',), aggregate_attrs=('sales',))
@@ -2372,10 +2373,13 @@ game is down, nothing you can do but wait.", inline=False)
         embed_template = self.base_profile_embed(acc, specific_page='Maps by', big_image=False)
 
         embed_template.description = 'This list includes all maps marked **public**, including those not added as official maps'
+        
+        if maps:
+            public_maps = list(filter(lambda map: map['public'], maps['items']))
 
-        public_maps = list(filter(lambda map: map['public'], maps['items']))
-
-        public_maps.sort(key=lambda map: map['likes'], reverse=True)
+            public_maps.sort(key=lambda map: map['likes'], reverse=True)
+        else:
+            public_maps = maps
 
         titles = f'Map {chars.world_map}', f'Likes {chars.thumbsup}'
         formatters = self.MAP_EMBED_LINK_FORMATTER, '{[likes]:,}'
@@ -2621,7 +2625,8 @@ String ID: {string_id}''')
                     'origin': 'https://creators.deeeep.io',
                 }
 
-                request = grequests.request('POST', self.MOTION_CREATION_URL, data=payload, headers=headers)
+                request = grequests.request('POST', self.MOTION_CREATION_URL, data=payload, headers=headers, 
+                timeout=self.REQUEST_TIMEOUT)
 
                 ids_and_versions.append((skin_id, skin_version))
                 requests.append(request)
