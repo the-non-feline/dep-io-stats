@@ -945,7 +945,7 @@ members have voted on', color=color)
             pending_motions, recent_motions, members_list = self.async_get(pending_motions_request, recent_motions_request, list_request) 
 
         if members_list: # None in jsons indicates at least one request failed
-            total_motions = (pending_motions or ()) + (recent_motions or ()) 
+            total_motions = (pending_motions or []) + (recent_motions or []) 
 
             counts = self.count_votes(total_motions) 
 
@@ -2916,7 +2916,7 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
     def get_socials(self, account_id):
         socials_url = self.SOCIALS_URL_TEMPLATE.format(account_id)
 
-        return self.async_get(socials_url)[0]
+        return self.async_get(socials_url)[0] or ()
     
     def connect_help_book(self, interaction: discord.Interaction) -> ui.ScrollyBook:
         signin_embed = discord.Embed(title='Sign in to your Deeeep.io account on Beta')
