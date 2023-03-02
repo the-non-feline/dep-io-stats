@@ -44,7 +44,7 @@ class DS_Constants:
 
     OWNER_ID = 315682382147485697
 
-    REQUEST_TIMEOUT = 5
+    REQUEST_TIMEOUT = 15
 
     MENTION_REGEX = '\A<@!?(?P<member_id>[0-9]+)>\Z' 
     CHANNEL_REGEX = '\A<#(?P<channel_id>[0-9]+)>\Z' 
