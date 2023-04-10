@@ -159,16 +159,18 @@ channels.')
             
             await interaction.response.send_message(content="That's not a valid account ID.")
     
-    @ds_slash(tree, 'map', 'Displays information about the specified map.')
-    @app_commands.describe(map='The "string ID" of the map (e.g. nac_ffa), \
-or its link')
-    @app_commands.describe(find_by="Whether you're searching by numerical ID or string ID. \
-Note that numerical is much faster.")
-    async def check_map(interaction: discord.Interaction, map: str, find_by: typing.Literal["string_id", "num_id"]="string_id"): 
+    @ds_slash(tree, 'map', 'Displays information about the specified map')
+    @app_commands.describe(map="The map's string ID, numerical ID, or Mapmaker link")
+    @app_commands.describe(find_by="Explicitly tell the command whether to search by \
+string ID, numerical ID, or Mapmaker link")
+    async def check_map(interaction: discord.Interaction, map: str, find_by: typing.Literal["string ID/Mapmaker link", "numerical ID"]=None): 
         bot = interaction.client
         map_url = None
 
-        if find_by == 'string_id':
+        if not find_by:
+            find_by = "numerical ID" if map.isnumeric() else "string ID/Mapmaker link"
+
+        if find_by == "string ID/Mapmaker link":
             map_string_id = bot.get_map_string_id(map) 
 
             if map_string_id: 
