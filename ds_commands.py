@@ -162,17 +162,29 @@ channels.')
     @ds_slash(tree, 'map', 'Displays information about the specified map.')
     @app_commands.describe(map='The "string ID" of the map (e.g. nac_ffa), \
 or its link')
-    async def check_map(interaction: discord.Interaction, map: str): 
+    @app_commands.describe(find_by="Whether you're searching by numerical ID or string ID. \
+Note that numerical is much faster.")
+    async def check_map(interaction: discord.Interaction, map: str, find_by: typing.Literal["string_id", "num_id"]="string_id"): 
         bot = interaction.client
+        map_url = None
 
-        map_string_id = bot.get_map_string_id(map) 
+        if find_by == 'string_id':
+            map_string_id = bot.get_map_string_id(map) 
 
-        if map_string_id: 
+            if map_string_id: 
+                map_string_id = bot.MAP_URL_ADDITION + map_string_id
+                
+                map_url = bot.MAP_URL_TEMPLATE.format(map_string_id)
+            else:
+                await interaction.response.send_message(content=f"`map` should be a string ID (`nac_ffa`) or a Mapmaker link (`https://mapmaker.deeeep.io/map/fishy_ffa`)")
+        else:
+            if map.isnumeric():
+                map_url = bot.MAP_URL_TEMPLATE.format(map)
+            else:
+                await interaction.response.send_message(content="That's not a map ID.")
+        
+        if map_url:
             await interaction.response.defer()
-
-            map_string_id = bot.MAP_URL_ADDITION + map_string_id
-            
-            map_url = bot.MAP_URL_TEMPLATE.format(map_string_id) 
 
             map_json = bot.async_get(map_url)[0] 
 
@@ -184,9 +196,7 @@ or its link')
                 else: 
                     await interaction.followup.send(content=f'This map (ID {ID}) is blacklisted from being displayed on this server. ')
             else: 
-                await interaction.followup.send(content=f"That's not a valid map (or Mapmaker could be broken).") 
-        else: 
-            await interaction.response.send_message(content=f"`map` should be a string ID (`nac_ffa`) or a link (`https://mapmaker.deeeep.io/map/fishy_ffa`)")
+                await interaction.followup.send(embed=bot.map_error_embed())
 
     @ds_slash(tree, 'info', 'Displays information about the bot')
     async def send_info(interaction: discord.Interaction): 

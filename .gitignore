@@ -1,3 +1,5 @@
 main.py
 logs.txt
 storage.db
+request_testing.py
+test.html

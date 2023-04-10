@@ -69,6 +69,7 @@ whoopsy_dolphin = '<:WhoopsyDolphin:1008595229307326526>'
 oyster = '🦪'
 crab = '🦀'
 target = '🎯'
+sleepy_shark = '<:SleepyShark:1095084769798262915>'
 
 class SHORTCUTS:
     skin_symbol = palette

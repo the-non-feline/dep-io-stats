@@ -2232,6 +2232,22 @@ game is down, nothing you can do but wait.", inline=False)
         
         return embed
     
+    def map_error_embed(self):
+        color = discord.Color.random() 
+
+        embed = embed_utils.TrimmedEmbed(title="Couldn't find that map", type='rich', description="Truly unfortunate. Here's some possible \
+explanations.", color=color) 
+
+        embed.add_field(name=f"Maybe the game is not working {chars.whoopsy_dolphin}", value="It do be like that sometimes. \
+The only option here is to wait until it works again.", inline=False)
+        embed.add_field(name=f"Or maybe it's just being slow {chars.sleepy_shark}", value=f"I'm a bot with places to be, and I ain't got the patience \
+to wait more than {self.REQUEST_TIMEOUT} seconds for a map to load. If you want to make the map load faster, you can look up the map by numeric \
+ID instead of string ID.", inline=False) 
+        embed.add_field(name=f"Or maybe it's a skill issue {chars.funwaa_eleseal}", value="It is also quite possible that you made a typo in your \
+search.", inline=False)
+
+        return embed
+    
     def gen_generic_compilation_page(self, interaction: discord.Interaction, embed_template: embed_utils.TrimmedEmbed, 
     items: list[dict],
     column_titles: tuple[str], column_strs: tuple[str], totals_str: str, tacked_fields: tuple[embed_utils.Field],
