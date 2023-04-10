@@ -184,6 +184,8 @@ Note that numerical is much faster.")
                 await interaction.response.send_message(content="That's not a map ID.")
         
         if map_url:
+            debug(map_url)
+            
             await interaction.response.defer()
 
             map_json = bot.async_get(map_url)[0] 
