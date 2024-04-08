@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4d5721f3-3fa1-4ab2-8511-1589fcb48abc" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/bot/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/ds_accs.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/ds_animals.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/ds_base.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/ds_client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/ds_communism.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/ds_maps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/ds_skins.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dep_io_stats.py" beforeDir="false" afterPath="$PROJECT_DIR$/dep_io_stats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/ui.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="2QCkGrX0PVHnDPNVkeCrMRRwJYi" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "G:/My Drive/intro to data science/HW02/HW02",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Python"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4d5721f3-3fa1-4ab2-8511-1589fcb48abc" name="Changes" comment="" />
+      <created>1684864859707</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1684864859707</updated>
+    </task>
+    <servers />
+  </component>
+</project>

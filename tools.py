@@ -4,7 +4,7 @@ import math
 import discord
 from discord import app_commands
 
-def format_iterable(iterable, formatter='{}', sep=', '):
+def format_iterable(iterable, formatter='{}', sep=', ') -> str:
     return sep.join((formatter.format(item) for item in iterable)) 
 
 def make_list(iterable, bullet_point='• '): 

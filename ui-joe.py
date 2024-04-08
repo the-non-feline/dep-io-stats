@@ -1,20 +1,21 @@
-from sys import exc_info
-import discord.ui
 import discord
-import logs
-from logs import debug
+import discord.ui
+
 import tools
+from logs import debug
 
 DEFAULT_TIMEOUT = 600.0
+
 
 class TruncatedSelectOption(discord.SelectOption):
     MAX_OPTION_TEXT = 100
 
-    def __init__(self, *, label, value=discord.utils.MISSING, description=None, emoji=None, default=False):
+    def __init__(self, *, label, value: str | int = discord.utils.MISSING, description=None, emoji=None, default=False):
         label = tools.trim_maybe(label, self.MAX_OPTION_TEXT)
         description = tools.trim_maybe(description, self.MAX_OPTION_TEXT)
 
         super().__init__(label=label, value=value, description=description, emoji=emoji, default=default)
+
 
 class CallbackItem:
     def __init__(self, callback, message_interaction, *args, **kwargs):
@@ -22,25 +23,32 @@ class CallbackItem:
         self.message_interaction = message_interaction
         self.args = args
         self.kwargs = kwargs
-        
+
     async def callback(self, item_interaction: discord.Interaction):
         return await self.stored_callback(self, item_interaction, self.message_interaction, *self.args, **self.kwargs)
 
+
 class CallbackButton(CallbackItem, discord.ui.Button):
-    def __init__(self, callback, message_interaction, *args, style=discord.ButtonStyle.secondary, label=None, disabled=False, 
-    custom_id=None, url=None, emoji=None, row=None, **kwargs):
-        discord.ui.Button.__init__(self, style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, 
-        row=row)
+    def __init__(self, callback, message_interaction, *args, style=discord.ButtonStyle.secondary, label=None,
+                 disabled=False,
+                 custom_id=None, url=None, emoji=None, row=None, **kwargs):
+        discord.ui.Button.__init__(self, style=style, label=label, disabled=disabled, custom_id=custom_id, url=url,
+                                   emoji=emoji,
+                                   row=row)
         CallbackItem.__init__(self, callback, message_interaction, *args, **kwargs)
+
 
 class CallbackSelect(CallbackItem, discord.ui.Select):
     MAX_OPTIONS = 25
 
-    def __init__(self, callback, message_interaction, *args, options: list[discord.SelectOption], custom_id=discord.utils.MISSING, 
-    placeholder=None, min_values=1, max_values=1, disabled=False, row=None, **kwargs):
-        discord.ui.Select.__init__(self, options=options, custom_id=custom_id, placeholder=placeholder, min_values=min_values, 
-        max_values=max_values, disabled=disabled, row=row)
+    def __init__(self, callback, message_interaction, *args, options: list[discord.SelectOption],
+                 custom_id=discord.utils.MISSING,
+                 placeholder=None, min_values=1, max_values=1, disabled=False, row=None, **kwargs):
+        discord.ui.Select.__init__(self, options=options, custom_id=custom_id, placeholder=placeholder,
+                                   min_values=min_values,
+                                   max_values=max_values, disabled=disabled, row=row)
         CallbackItem.__init__(self, callback, message_interaction, *args, **kwargs)
+
 
 class TrackedView(discord.ui.View):
     active_views = set()
@@ -49,32 +57,37 @@ class TrackedView(discord.ui.View):
         super().__init__(timeout=timeout)
 
         self.active_views.add(self)
-    
+
     @classmethod
     async def close_all(cls):
         for view in cls.active_views.copy():
             await view.close()
-    
+
     async def on_error(self, interaction: discord.Interaction, error: Exception, item: discord.ui.Item) -> None:
+        # noinspection PyBroadException
         try:
             raise error
-        except:
+        except Exception:
             debug(f'error in {item}', exc_info=True)
 
+
 class RestrictedView(TrackedView):
-    def __init__(self, original_user: discord.User, original_interaction: discord.Interaction, *, timeout=DEFAULT_TIMEOUT):
+    def __init__(self, original_user: discord.User, original_interaction: discord.Interaction, *,
+                 timeout=DEFAULT_TIMEOUT):
         super().__init__(timeout=timeout)
-        
+
         self.original_user = original_user
         self.original_interaction = original_interaction
-    
+
     async def interaction_check(self, interaction: discord.Interaction):
         if interaction.user != self.original_user:
-            await interaction.response.send_message(content=f"{interaction.user.mention} used click. It's not very effective...",
-            ephemeral=True)
+            # noinspection PyUnresolvedReferences
+            await interaction.response.send_message(
+                content=f"{interaction.user.mention} used click. It's not very effective...",
+                ephemeral=True)
         else:
             return True
-    
+
     async def close(self):
         for item in self.children:
             item.disabled = True
@@ -87,28 +100,30 @@ class RestrictedView(TrackedView):
         self.stop()
 
         self.active_views.remove(self)
-    
+
     async def on_timeout(self) -> None:
         await self.close()
 
         return await super().on_timeout()
-    
+
     def add_item(self, item):
         debug(f'Adding {item}')
 
         return super().add_item(item)
-    
+
     def remove_item(self, item):
         debug(f'Removing {item}')
 
         return super().remove_item(item)
 
+
+# noinspection PyUnresolvedReferences
 class Page:
     MAX_ROW = 4
     MAX_ROW_WIDTH = 5
 
-    def __init__(self, interaction: discord.Interaction, content=None, embed=None, allowed_mentions=None, timeout=DEFAULT_TIMEOUT, 
-    buttons: tuple[CallbackButton]=()):
+    def __init__(self, interaction: discord.Interaction, content=None, embed=None, allowed_mentions=None,
+                 timeout=DEFAULT_TIMEOUT, buttons: tuple[CallbackButton, ...] = ()):
         self.interaction = interaction
         self.buttons = buttons
         self.timeout = timeout
@@ -118,31 +133,34 @@ class Page:
         self.view = None
         self.level = self.MAX_ROW
         self.offset = 0
-    
+
     async def send_self(self, interaction: discord.Interaction, ephemeral: bool):
+        # noinspection PyUnresolvedReferences
         if interaction.response.is_done():
             if self.view:
-                await interaction.followup.send(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, view=self.view, ephemeral=ephemeral)
+                await interaction.followup.send(content=self.content, embed=self.embed,
+                                                allowed_mentions=self.allowed_mentions, view=self.view,
+                                                ephemeral=ephemeral)
             else:
-                await interaction.followup.send(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, ephemeral=ephemeral)
+                await interaction.followup.send(content=self.content, embed=self.embed,
+                                                allowed_mentions=self.allowed_mentions, ephemeral=ephemeral)
         else:
             if self.view:
-                await interaction.response.send_message(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, view=self.view, ephemeral=ephemeral)
+                await interaction.response.send_message(content=self.content, embed=self.embed,
+                                                        allowed_mentions=self.allowed_mentions, view=self.view,
+                                                        ephemeral=ephemeral)
             else:
-                await interaction.response.send_message(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, ephemeral=ephemeral)
-    
+                await interaction.response.send_message(content=self.content, embed=self.embed,
+                                                        allowed_mentions=self.allowed_mentions, ephemeral=ephemeral)
+
     async def edit_self(self, interaction: discord.Interaction):
         if interaction.response.is_done():
-            await interaction.edit_original_response(content=self.content, embed=self.embed, 
-            allowed_mentions=self.allowed_mentions, view=self.view)
+            await interaction.edit_original_response(content=self.content, embed=self.embed,
+                                                     allowed_mentions=self.allowed_mentions, view=self.view)
         else:
-            await interaction.response.edit_message(content=self.content, embed=self.embed, 
-        allowed_mentions=self.allowed_mentions, view=self.view)
-    
+            await interaction.response.edit_message(content=self.content, embed=self.embed,
+                                                    allowed_mentions=self.allowed_mentions, view=self.view)
+
     async def send_first(self, ephemeral=False):
         self.assign_view()
         self.set_level()
@@ -154,19 +172,19 @@ class Page:
         debug('registered')
 
         return await self.send_self(self.interaction, ephemeral)
-    
+
     async def register_self(self, interaction: discord.Interaction):
         for button in self.buttons:
             self.view.add_item(button)
-    
+
     async def deregister_self(self, interaction: discord.Interaction):
         for button in self.buttons:
             self.view.remove_item(button)
 
     def set_view(self, view: RestrictedView):
         self.view = view
-    
-    def set_level(self, level: int=MAX_ROW):
+
+    def set_level(self, level: int = MAX_ROW):
         self.level = level
         self.offset = 0
 
@@ -177,23 +195,25 @@ class Page:
                 size = 5
             else:
                 size = 1
-            
+
             row_size += size
-            
+
             while row_size > self.MAX_ROW_WIDTH:
                 row_size = size
                 self.offset += 1
 
             debug(f'row offset {self.offset}: size is {row_size}')
-            
+
             button.row = self.level - self.offset
-    
+
     def assign_view(self):
         if self.buttons:
             new_view = RestrictedView(self.interaction.user, self.interaction, timeout=self.timeout)
-        
+
             self.set_view(new_view)
 
+
+# noinspection PyMissingConstructor
 class Promise(Page):
     def __init__(self, callback, *args, **kwargs):
         self.callback = callback
@@ -203,7 +223,7 @@ class Promise(Page):
         self.level = self.MAX_ROW
         self.view = None
         self.buttons = ()
-    
+
     def execute(self) -> Page:
         executed = self.callback(*self.args, **self.kwargs)
 
@@ -211,15 +231,17 @@ class Promise(Page):
         executed.set_level(self.level)
 
         return executed
-    
+
     async def send_first(self, ephemeral=False):
         executed = self.execute()
 
         return await executed.send_first(ephemeral=ephemeral)
 
+
+# noinspection PyMissingConstructor,PyUnresolvedReferences
 class Book(Page):
-    def __init__(self, interaction: discord.Interaction, timeout, pages: list[Page], 
-    buttons: list[CallbackButton]):
+    def __init__(self, interaction: discord.Interaction, timeout, pages: list[Page],
+                 buttons: list[CallbackButton]):
         self.interaction = interaction
         self.timeout = timeout
         self.level = self.MAX_ROW
@@ -229,7 +251,7 @@ class Book(Page):
 
         self.pages = pages
         self.buttons = buttons
-    
+
     async def cur_page(self, interaction: discord.Interaction) -> Page:
         cur = self.pages[self.current_index]
 
@@ -240,7 +262,7 @@ class Book(Page):
             new_cur = cur.execute()
 
             self.pages[self.current_index] = new_cur
-        
+
         return self.pages[self.current_index]
 
     def add_button(self, button: CallbackButton):
@@ -248,35 +270,36 @@ class Book(Page):
 
     async def send_self(self, interaction: discord.Interaction, ephemeral: bool):
         return await (await self.cur_page(interaction)).send_self(interaction, ephemeral)
-    
+
     async def edit_self(self, interaction: discord.Interaction):
         return await (await self.cur_page(interaction)).edit_self(interaction)
-    
+
     async def register_self(self, interaction: discord.Interaction):
         await super().register_self(interaction)
-        
+
         await (await self.cur_page(interaction)).register_self(interaction)
-    
+
     async def deregister_self(self, interaction: discord.Interaction):
         await super().deregister_self(interaction)
-        
-        await (await self.cur_page(interaction)).deregister_self(interaction)   
-    
+
+        await (await self.cur_page(interaction)).deregister_self(interaction)
+
     def set_view(self, view: RestrictedView):
         super().set_view(view)
 
         for page in self.pages:
             page.set_view(view)
-    
-    def set_level(self, level: int=Page.MAX_ROW):
+
+    def set_level(self, level: int = Page.MAX_ROW):
         super().set_level(level)
 
         for page in self.pages:
             page.set_level(level=level - 1 - self.offset)
 
+
 class IndexedBook(Book):
-    def __new__(cls, interaction: discord.Interaction, *page_tuples: tuple, timeout=DEFAULT_TIMEOUT, 
-    extra_buttons: tuple[CallbackButton]=()):
+    def __new__(cls, interaction: discord.Interaction, *page_tuples: tuple, timeout=DEFAULT_TIMEOUT,
+                extra_buttons: tuple[CallbackButton, ...] = ()):
         if len(page_tuples) > 1 or extra_buttons:
             return super().__new__(cls)
         else:
@@ -284,27 +307,28 @@ class IndexedBook(Book):
 
             return page_tuples[0][1]
 
-    def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=DEFAULT_TIMEOUT, 
-    extra_buttons: tuple[CallbackButton]=()):
+    def __init__(self, interaction: discord.Interaction, *page_tuples: tuple, timeout=DEFAULT_TIMEOUT,
+                 extra_buttons: tuple[CallbackButton, ...] = ()):
         self.cur_button = None
 
         # generate the buttons here
         if len(page_tuples) > 1:
-            normal_buttons = [CallbackButton(self.jump_to_page, interaction, index, style=discord.ButtonStyle.primary, 
-        label=page_tuples[index][0]) for index in range(len(page_tuples))]
-        
+            normal_buttons = [CallbackButton(self.jump_to_page, interaction, index, style=discord.ButtonStyle.primary,
+                                             label=page_tuples[index][0]) for index in range(len(page_tuples))]
+
             self.cur_button = normal_buttons[0]
 
             self.cur_button.disabled = True
         else:
             normal_buttons = []
-        
+
         buttons = normal_buttons + list(extra_buttons)
 
         super().__init__(interaction, timeout, [page_tuple[1] for page_tuple in page_tuples], buttons)
-    
-    async def jump_to_page(self, button: CallbackButton, button_interaction: discord.Interaction, 
-    message_interaction: discord.Interaction, index: int):
+
+    # noinspection PyUnusedLocal
+    async def jump_to_page(self, button: CallbackButton, button_interaction: discord.Interaction,
+                           message_interaction: discord.Interaction, index: int):
         await (await self.cur_page(button_interaction)).deregister_self(button_interaction)
 
         self.cur_button.disabled = False
@@ -318,24 +342,26 @@ class IndexedBook(Book):
 
         await self.edit_self(button_interaction)
 
+
 class ScrollyBook(Book):
-    def __new__(cls, interaction: discord.Interaction, *pages: Page, timeout=DEFAULT_TIMEOUT, extra_buttons: tuple[CallbackButton]=(),
-    page_title='Page'):
+    def __new__(cls, interaction: discord.Interaction, *pages: Page, timeout=DEFAULT_TIMEOUT,
+                extra_buttons: tuple[CallbackButton, ...] = (),
+                page_title='Page'):
         if len(pages) > 1 or extra_buttons:
             return super().__new__(cls)
         else:
             pages[0].interaction = interaction
-            
+
             return pages[0]
-    
-    def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=DEFAULT_TIMEOUT, extra_buttons: tuple[CallbackButton]=(),
-    page_title='Page'):
-        self.left_button = CallbackButton(self.turn_page, interaction, -1, style=discord.ButtonStyle.primary, label='Previous')
+
+    def __init__(self, interaction: discord.Interaction, *pages: Page, timeout=DEFAULT_TIMEOUT,
+                 extra_buttons: tuple[CallbackButton, ...] = (),
+                 page_title='Page'):
+        self.left_button = CallbackButton(self.turn_page, interaction, -1, style=discord.ButtonStyle.primary,
+                                          label='Previous')
         self.page_number = discord.ui.Button(disabled=True)
-        self.right_button = CallbackButton(self.turn_page, interaction, 1, style=discord.ButtonStyle.primary, label='Next')
-        # self.close_button = CallbackButton(self.manual_close, self.interaction, style=discord.ButtonStyle.danger, label='Close',
-        # row=1)
-        # self.view.add_item(self.close_button)
+        self.right_button = CallbackButton(self.turn_page, interaction, 1, style=discord.ButtonStyle.primary,
+                                           label='Next')
 
         self.page_title = page_title
 
@@ -343,13 +369,13 @@ class ScrollyBook(Book):
             normal_buttons = [self.left_button, self.page_number, self.right_button]
         else:
             normal_buttons = []
-        
+
         buttons_list = normal_buttons + list(extra_buttons)
-        
+
         super().__init__(interaction, timeout, list(pages), buttons_list)
 
         self.update_buttons()
-    
+
     '''
     async def close_book(self):
         self.view.clear_items()
@@ -367,22 +393,18 @@ class ScrollyBook(Book):
         await self.view.wait()
         await self.close_book()
     '''
-    
-    def update_buttons(self):
-        '''
-        self.left_button.disabled = self.current_index <= 0
-        self.right_button.disabled = self.current_index >= len(self.pages) - 1
-        '''
 
+    def update_buttons(self):
         self.page_number.label = f'{self.page_title} {self.current_index + 1} / {len(self.pages)}'
-    
-    async def turn_page(self, button: CallbackButton, button_interaction: discord.Interaction, 
-    message_interaction: discord.Interaction, direction: int):
+
+    # noinspection PyUnusedLocal
+    async def turn_page(self, button: CallbackButton, button_interaction: discord.Interaction,
+                        message_interaction: discord.Interaction, direction: int):
         await (await self.cur_page(button_interaction)).deregister_self(button_interaction)
 
         self.current_index += direction
         self.current_index %= len(self.pages)
-        
+
         self.update_buttons()
 
         await (await self.cur_page(button_interaction)).register_self(button_interaction)
