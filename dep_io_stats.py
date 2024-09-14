@@ -2943,7 +2943,7 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
         profile_open_embed.set_image(url=self.OPENING_PROFILE)
         profile_open_page = ui.Page(interaction, embed=profile_open_embed)
 
-        discord_embed = discord.Embed(title='Add your Discord tag as a social link on your Deeeep.io account')
+        discord_embed = discord.Embed(title='Add your Discord username as a social link on your Deeeep.io account')
         discord_embed.set_image(url=self.ADDING_DISCORD)
         discord_page = ui.Page(interaction, embed=discord_embed)
 
@@ -2998,8 +2998,8 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
 
                         return
                 else: 
-                    await interaction.followup.send(content=f"You must add your Discord tag as a social link on that account \
-to connect it.")
+                    await interaction.followup.send(content=f"You must add your Discord username `{tag}` as a social \
+link on that account to connect it.")
             else:
                 await interaction.followup.send(content="You're already linked to this account.")
         else: 

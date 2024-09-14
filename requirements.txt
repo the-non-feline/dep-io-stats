@@ -2,3 +2,4 @@ dataset
 git+https://github.com/Rapptz/discord.py
 grequests
 python-dateutil
+aiohttp>=3.10.5
