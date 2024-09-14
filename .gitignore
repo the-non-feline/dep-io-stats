@@ -4,3 +4,4 @@ storage.db
 request_testing.py
 test.html
 .idea
+__pycache__
