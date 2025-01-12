@@ -2936,6 +2936,8 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
         return self.async_get(socials_url)[0] or ()
     
     def connect_help_book(self, interaction: discord.Interaction) -> ui.ScrollyBook:
+        username = str(interaction.user)
+
         signin_embed = discord.Embed(title='Sign in to your Deeeep.io account on Beta')
         signin_embed.set_image(url=self.SIGNING_IN)
         signin_page = ui.Page(interaction, embed=signin_embed)
@@ -2944,8 +2946,9 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
         profile_open_embed.set_image(url=self.OPENING_PROFILE)
         profile_open_page = ui.Page(interaction, embed=profile_open_embed)
 
-        discord_embed = discord.Embed(title='Add your Discord tag as a social link on your Deeeep.io account')
-        discord_embed.set_image(url=self.ADDING_DISCORD)
+        discord_embed = discord.Embed(title='Add your Discord username as a social link on your Deeeep.io account',
+                                      description=f"My immense intelligence tells me your username is `{username}`")
+        discord_embed.set_footer(text="There's no GIF for this page yet, sorry")
         discord_page = ui.Page(interaction, embed=discord_embed)
 
         connect_embed = discord.Embed(title="Copy your profile page's URL, then paste that URL into the \"connect\" command")
@@ -2999,8 +3002,8 @@ in the [Store]({self.STORE_PAGE}) (when they are available to buy).'
 
                         return
                 else: 
-                    await interaction.followup.send(content=f"You must add your Discord tag as a social link on that account \
-to connect it.")
+                    await interaction.followup.send(content=f"You must add your Discord username `{tag}` as a social \
+link on that account to connect it.")
             else:
                 await interaction.followup.send(content="You're already linked to this account.")
         else: 

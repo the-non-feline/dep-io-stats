@@ -3,3 +3,7 @@ logs.txt
 storage.db
 request_testing.py
 test.html
+.idea
+__pycache__
+*.db-wal
+*.db-shm
